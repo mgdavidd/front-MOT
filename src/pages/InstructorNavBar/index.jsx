@@ -2,6 +2,9 @@
 import React, { useState } from 'react';
 import '../../assets/styles/instructorNavBar/index.css';
 import { useNavigate } from 'react-router-dom';
+import CourseContent from '../../components/InstructorNavBar/CourseContent';
+import InstructorCal from '../../components/InstructorNavBar/InstructorCal';
+import ListStudents from '../../components/InstructorNavBar/ListStudents';
 
 function InstructorNavBar() {
   const navigate = useNavigate();
@@ -23,7 +26,7 @@ function InstructorNavBar() {
         <h1>My Online Tutor</h1>
         <form onSubmit={handleSubmit} className="profile-form">
           <button type="submit" className='profileButton'>
-            <img src="../../../public/img/usuario.png" alt="" className="profileImg"/>
+            <img src="../../../img/usuario.png" alt="" className="profileImg"/>
           </button>
         </form>
       </header>
@@ -48,6 +51,7 @@ function InstructorNavBar() {
               <div className="content-placeholder">
                 {/* Karen y valeria */}
                 <p>Contenido de Mis Cursos se mostrará en esta área</p>
+                <CourseContent />
               </div>
             </div>
           )}
@@ -56,7 +60,7 @@ function InstructorNavBar() {
             <div className="content-section">
               <h2>Estudiantes</h2>
               <div className="content-placeholder">
-                {/* Yeisson */}
+                <ListStudents/>
                 <p>lista de estudiantes del curso</p>
               </div>
             </div>
@@ -67,6 +71,7 @@ function InstructorNavBar() {
               <h2>Calendario</h2>
               <div className="content-placeholder">
                 {/* Yeisson con mi ayuda */}
+                <InstructorCal/>
                 <p>Contenido de Calendario de todos los cursos</p>
               </div>
             </div>

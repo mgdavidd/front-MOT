@@ -12,14 +12,14 @@ const OAuthSuccess = () => {
 
     if (userEncoded) {
       try {
-        const user = JSON.parse(decodeURIComponent(userEncoded));
-        Cookies.set("user", JSON.stringify(user), { expires: 7 });
+        const user = JSON.parse(decodeURIComponent(userEncoded));//tomamos los datos del usuario
+        Cookies.set("user", JSON.stringify(user), { expires: 7 });//guardamos en cookies(para no se vulnerables)
         navigate("/profile");
       } catch (err) {
         console.error("Error al parsear usuario desde OAuth", err);
         navigate("/");
       }
-    } else {
+    } else {//si no existe
       navigate("/");
     }
   }, [navigate, location]);
