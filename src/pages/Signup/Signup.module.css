@@ -1,0 +1,89 @@
+.title {
+  margin-bottom: 1.5rem;
+  font-size: clamp(1.7rem, 5vw, 2rem);
+  text-align: center;
+  color: var(--light);
+}
+
+.submitButton {
+  width: 100%;
+  padding: 0.8rem;
+  background: linear-gradient(90deg, var(--primary), var(--secondary));
+  color: white;
+  border-radius: var(--border-radius);
+  font-weight: 600;
+  margin-top: 1rem;
+}
+
+.submitButton:hover {
+  background: linear-gradient(90deg, var(--accent), var(--secondary));
+  transform: translateY(-2px);
+}
+
+.googleButton {
+  width: 100%;
+  padding: 0.8rem;
+  background: linear-gradient(90deg, #db4437, #c23321);
+  color: white;
+  border-radius: var(--border-radius);
+  font-weight: 600;
+  margin-top: 1rem;
+}
+
+.googleButton:hover {
+  background: linear-gradient(90deg, #e57368, #d94f3a);
+  transform: translateY(-2px);
+}
+
+.googleButton small {
+  display: block;
+  margin-top: 0.3rem;
+  font-size: 0.8em;
+  font-weight: normal;
+}
+
+.adminCheckbox {
+  display: flex;
+  align-items: center;
+  gap: 0.7rem;
+  margin: 1rem 0;
+  font-size: clamp(0.85rem, 3vw, 0.95rem);
+  color: var(--light);
+}
+
+.adminCheckbox input {
+  width: 18px;
+  height: 18px;
+}
+
+@media (max-width: 480px) {
+  .title {
+    font-size: 1.8rem;
+    margin-bottom: 2rem;
+  }
+  
+  .submitButton,
+  .googleButton {
+    padding: 1.2rem;
+    font-size: 1.2rem;
+  }
+  
+  .adminCheckbox {
+    font-size: 1rem;
+    margin: 1.5rem 0;
+  }
+  
+  .adminCheckbox input {
+    width: 22px;
+    height: 22px;
+  }
+  
+  .googleButton small {
+    font-size: 0.9em;
+  }
+}
+
+.errorMessage {
+  color: rgb(233, 46, 46);
+  text-align: center;
+}

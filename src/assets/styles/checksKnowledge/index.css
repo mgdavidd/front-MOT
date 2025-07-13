@@ -1,0 +1,111 @@
+.home-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 60px 20px;
+  min-height: 100vh;
+  font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+  background: linear-gradient(135deg, #f0f4f8, #d9e2ec);
+  text-align: center;
+  box-sizing: border-box;
+}
+
+.home-title {
+  font-size: 2.8rem;
+  color: #1a202c;
+  margin-bottom: 10px;
+  font-weight: 700;
+}
+
+.home-description {
+  font-size: 1.15rem;
+  color: #4a5568;
+  max-width: 640px;
+  margin-bottom: 40px;
+  line-height: 1.6;
+}
+
+.file-upload,
+.select-area {
+  width: 100%;
+  max-width: 400px;
+  margin-bottom: 30px;
+  text-align: left;
+}
+
+.upload-label {
+  display: block;
+  font-size: 0.95rem;
+  font-weight: 600;
+  margin-bottom: 8px;
+  color: #2d3748;
+}
+
+input[type="file"],
+select {
+  width: 100%;
+  padding: 12px;
+  font-size: 1rem;
+  font-family: inherit;
+  color: #2d3748;
+  background-color: white;
+  border: 1px solid #cbd5e0;
+  border-radius: 6px;
+  transition: border-color 0.3s ease, box-shadow 0.3s ease;
+  appearance: none;
+  background-image: url("data:image/svg+xml;charset=US-ASCII,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='%23667eea' class='bi bi-chevron-down' viewBox='0 0 16 16'%3E%3Cpath fill-rule='evenodd' d='M1.646 4.646a.5.5 0 0 1 .708 0L8 10.293l5.646-5.647a.5.5 0 0 1 .708.708l-6 6a.5.5 0 0 1-.708 0l-6-6a.5.5 0 0 1 0-.708z'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 12px center;
+  background-size: 16px;
+}
+
+select:focus,
+input[type="file"]:focus {
+  outline: none;
+  border-color: #667eea;
+  box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.3);
+}
+
+.file-name {
+  margin-top: 10px;
+  font-size: 0.95rem;
+  color: #2b6cb0;
+  font-weight: 500;
+}
+
+.home-button {
+  padding: 14px 32px;
+  font-size: 1rem;
+  font-weight: 600;
+  color: white;
+  background-color: #667eea;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+  margin-top: 10px;
+}
+
+.home-button:disabled {
+  background-color: #a0aec0;
+  cursor: not-allowed;
+}
+
+.home-button:hover:not(:disabled) {
+  background-color: #5a67d8;
+}
+
+@media (max-width: 480px) {
+  .home-title {
+    font-size: 2rem;
+  }
+
+  .home-description {
+    font-size: 1rem;
+  }
+
+  .file-upload,
+  .select-area {
+    max-width: 100%;
+  }
+}

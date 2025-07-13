@@ -1,0 +1,158 @@
+/* InstructorNavBar.css */
+.instructor-dashboard {
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  background-color: #f5f7fa;
+  min-height: 100vh;
+  color: #333;
+}
+
+.dashboard-header {
+  background: linear-gradient(135deg, #6a11cb 0%, #2575fc 100%);
+  color: white;
+  padding: 1rem;
+  text-align: center;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.dashboard-header h1 {
+  margin: 0;
+  font-size: 1.8rem;
+}
+
+.dashboard-header p {
+  margin: 0.5rem 0 0;
+  font-size: 1.1rem;
+  opacity: 0.9;
+}
+
+.content-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 1.5rem;
+}
+
+.nav-tabs {
+  display: flex;
+  background-color: white;
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  margin-bottom: 2rem;
+}
+
+.tab-button {
+  flex: 1;
+  padding: 1.2rem 0;
+  border: none;
+  background: none;
+  font-size: 1rem;
+  font-weight: 600;
+  color: #555;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  position: relative;
+}
+
+.tab-button:hover {
+  background-color: #f0f5ff;
+  color: #2575fc;
+}
+
+.tab-button.active {
+  color: #2575fc;
+}
+
+.tab-button.active::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 4px;
+  background: #2575fc;
+  border-radius: 2px;
+}
+
+.tab-content {
+  background-color: white;
+  border-radius: 12px;
+  padding: 2rem;
+  box-shadow: 0 2px 15px rgba(0, 0, 0, 0.08);
+  min-height: 400px;
+}
+
+.content-section h2 {
+  margin-top: 0;
+  color: #2c3e50;
+  border-bottom: 2px solid #f0f5ff;
+  padding-bottom: 0.8rem;
+  margin-bottom: 1.5rem;
+}
+
+.content-placeholder {
+  padding: 2rem;
+  text-align: center;
+  color: #666;
+  background-color: #f9fbfd;
+  border-radius: 8px;
+  border: 1px dashed #ddd;
+}
+
+.profileImg {
+  width: 90%;
+  box-sizing: content-box;
+  margin-top: 3px;
+}
+
+button.profileButton {
+  width: 50px;
+  padding: 0 !important;
+  border-radius: 50%;
+}
+
+.profile-form{
+  text-align: end;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .content-container {
+    padding: 1rem;
+  }
+  
+  .nav-tabs {
+    flex-direction: column;
+  }
+  
+  .tab-button {
+    padding: 1rem;
+    text-align: left;
+    border-bottom: 1px solid #eee;
+  }
+  
+  .tab-button.active::after {
+    height: 100%;
+    width: 4px;
+    left: 0;
+    top: 0;
+    bottom: 0;
+  }
+  
+  .tab-content {
+    padding: 1.5rem;
+  }
+
+  .dashboard-header{
+    padding: 0.7rem;
+  }
+}
+
+@media (min-width: 769px) and (max-width: 1024px) {
+  .content-container {
+    padding: 1.5rem;
+  }
+
+  .dashboard-header{
+    padding: 0.7rem;
+  }
+}

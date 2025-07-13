@@ -1,0 +1,54 @@
+.title {
+  margin-bottom: 1.5rem;
+  font-size: clamp(1.7rem, 5vw, 2rem);
+  text-align: center;
+  color: var(--light);
+}
+
+.submitButton {
+  width: 100%;
+  padding: 0.8rem;
+  background: linear-gradient(90deg, var(--primary), var(--secondary));
+  color: white;
+  border-radius: var(--border-radius);
+  font-weight: 600;
+  margin-top: 0.5rem;
+}
+
+.submitButton:hover {
+  background: linear-gradient(90deg, var(--accent), var(--secondary));
+  transform: translateY(-2px);
+}
+
+.googleButton {
+  width: 100%;
+  padding: 0.8rem;
+  background: linear-gradient(90deg, #db4437, #c23321);
+  color: white;
+  border-radius: var(--border-radius);
+  font-weight: 600;
+  margin-top: 1rem;
+}
+
+.googleButton:hover {
+  background: linear-gradient(90deg, #e57368, #d94f3a);
+  transform: translateY(-2px);
+}
+
+@media (max-width: 480px) {
+  .title {
+    font-size: 1.8rem;
+    margin-bottom: 2rem;
+  }
+  
+  .submitButton,
+  .googleButton {
+    padding: 1.2rem;
+    font-size: 1.2rem;
+  }
+  
+  .extra-link {
+    font-size: 1.1rem;
+    margin-top: 1.5rem;
+  }
+}

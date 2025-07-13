@@ -1,0 +1,80 @@
+@import './auth-variables.css';
+
+.auth-form {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  margin: 0 auto;
+}
+
+input[type="text"],
+input[type="email"],
+input[type="password"] {
+  width: 100%;
+  padding: 0.8rem;
+  margin-bottom: 0.5rem;
+  border-radius: var(--border-radius);
+  border: 1.5px solid #232323;
+  background: rgba(255,255,255,0.08);
+  color: var(--light);
+  font-size: 1rem;
+  box-sizing: border-box;
+  transition: all 0.3s ease;
+}
+
+input[type="text"]:focus,
+input[type="email"]:focus,
+input[type="password"]:focus {
+  border-color: var(--accent);
+  background: rgba(255,255,255,0.13);
+  outline: none;
+}
+
+button {
+  border: none;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.extra-link {
+  margin-top: 1rem;
+  text-align: center;
+  color: var(--light);
+}
+
+.extra-link a {
+  color: var(--accent);
+  text-decoration: none;
+}
+
+.extra-link a:hover {
+  text-decoration: underline;
+}
+
+.error-message {
+  color: var(--error-color);
+  font-size: 0.9rem;
+  margin-top: -0.5rem;
+  margin-bottom: 0.5rem;
+}
+
+@media (max-width: 480px) {
+  input[type="text"],
+  input[type="email"],
+  input[type="password"] {
+    padding: 1rem; /* Más grande en móviles */
+    font-size: 1.1rem; /* Texto más legible */
+    min-height: 50px; /* Área de toque más grande */
+  }
+  
+  button {
+    padding: 1rem !important; /* Prioridad sobre otros estilos */
+    font-size: 1.1rem;
+    min-height: 50px;
+  }
+  
+  .auth-form {
+    gap: 1.5rem; /* Más espacio entre elementos */
+  }
+}

@@ -1,0 +1,122 @@
+#root {
+  min-height: 100vh;
+  width: 100%;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+html, body, #root {
+  height: 100%;
+  margin: 0;
+  padding: 0;
+}
+
+.logo {
+  height: 6em;
+  padding: 1.5em;
+  will-change: filter;
+  transition: filter 300ms;
+}
+.logo:hover {
+  filter: drop-shadow(0 0 2em #646cffaa);
+}
+.logo.react:hover {
+  filter: drop-shadow(0 0 2em #61dafbaa);
+}
+
+@keyframes logo-spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  a:nth-of-type(2) .logo {
+    animation: logo-spin infinite 20s linear;
+  }
+}
+
+.card {
+  padding: 2em;
+}
+
+.read-the-docs {
+  color: #888;
+}
+
+.lupa {
+  width: 1.2em;
+  height: 1.1em;
+  margin-left: 0.5em;
+  vertical-align: middle;
+}
+
+.search-container {
+  position: absolute;
+  top: 1.5rem;
+  right: 1.5rem;
+  display: flex;
+  align-items: center;
+  z-index: 10;
+}
+
+.search-input {
+  width: 70%;
+  max-width: 600px;
+  padding: 0.5em;
+  border: 1px solid #ccc;
+  border-radius: 4px 0 0 4px;
+  font-size: 1em;
+  box-sizing: border-box;
+  background: #fff;
+}
+
+.search-container button {
+  border: 1px solid #ccc;
+  border-left: none;
+  border-radius: 0 4px 4px 0;
+  background: #fff;
+  padding: 0.5em 0.8em;
+  cursor: pointer;
+  height: 100%;
+  display: flex;
+  align-items: center;
+}
+
+table {
+  width: 100%;
+  border: 1px solid #ddd;
+  margin-top: 1em;
+}
+table th, table td {
+  padding: 0.5em;
+  text-align: left;
+  border-bottom: 1px solid #ddd;
+}
+
+.centered-page {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, #e0e7ef 0%, #b6c8e6 100%);
+  padding: 1rem;
+}
+
+.filter-container {
+  display: flex;
+  justify-content: center;
+  margin-top: 1em;
+}
+
+.filter {
+  width: 80%;
+  border-radius: 10px;
+  padding: 5px;
+  border: 2px solid rgb(52, 93, 131);
+}
