@@ -61,7 +61,6 @@ function InstructorNavBar() {
               <h2>Estudiantes</h2>
               <div className="content-placeholder">
                 <ListStudents/>
-                <p>lista de estudiantes del curso</p>
               </div>
             </div>
           )}

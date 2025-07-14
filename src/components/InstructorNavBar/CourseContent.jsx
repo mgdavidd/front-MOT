@@ -2,7 +2,7 @@ import React from 'react'
 
 function CourseContent() {
   return (
-    <div>CourseContent</div>
+    <div>Valeria</div>
   )
 }
 
