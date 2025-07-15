@@ -398,7 +398,6 @@ h2 {
   }
 }
 
-/* Móviles muy pequeños (hasta 400px) */
 @media (max-width: 400px) {
   .course-section {
     padding: 0rem;

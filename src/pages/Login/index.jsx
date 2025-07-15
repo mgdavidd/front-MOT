@@ -14,6 +14,7 @@ const Login = () => {
     e.preventDefault();
     const userName = e.target.elements.userName.value;
     const password = e.target.elements.password.value;
+    console.log(userName, password)
 
     const res = await fetch("http://localhost:3000/login", {
       method: "POST",
