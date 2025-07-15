@@ -1,84 +1,76 @@
-/* Reset básico */
-body, html, #root {
-    margin: 0;
-    padding: 0;
-    height: 100%;
-    font-family: sans-serif;
-  }
-  
-  .app-container {
-    display: flex;
-    flex-direction: column;
-    height: 100vh;
-    background-color: #2f3e4e;
-    color: white;
-  }
-  
-  /* Header */
-  .header {
-    background-color: #2196f3;
-    padding: 16px;
-  }
-  
-  .title {
-    margin: 0;
-    font-size: 20px;
-    font-weight: bold;
-  }
-  
-  .subtitle {
-    margin: 0;
-    font-size: 14px;
-    color: #cfe9ff;
-  }
-  
-  /* Botones */
-  .main-content {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    gap: 24px;
-  }
-  
-  .main-button {
-    padding: 16px 32px;
-    background-color: #3e4c59;
-    color: white;
-    border: none;
-    border-radius: 8px;
-    font-size: 16px;
-    width: 200px;
-    cursor: pointer;
-  }
-  
-  .main-button:hover {
-    background-color: #55606d;
-  }
-  
-  /* Navegación inferior */
-  .bottom-nav {
-    display: flex;
-    justify-content: space-around;
-    background-color: white;
-    color: #333;
-    padding: 10px 0;
-    border-top: 1px solid #ccc;
-  }
-  
-  .nav-item {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    font-size: 12px;
-  }
-  
-  .nav-icon {
-    width: 16px;
-    height: 16px;
-    background-color: #666;
-    border-radius: 3px;
-    margin-bottom: 4px;
-  }
-  
+/* Profile.module.css */
+
+.app-container {
+  font-family: Arial, sans-serif;
+  text-align: center;
+  padding: 2rem;
+  background: #f4f6f8;
+  min-height: 100vh;
+}
+
+.header {
+  background-color: #4f46e5;
+  color: white;
+  padding: 2rem;
+  border-radius: 1rem;
+  margin-bottom: 2rem;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+}
+
+.title {
+  margin: 0.5rem 0;
+  font-size: 2rem;
+}
+
+.subtitle {
+  margin: 0.2rem 0;
+  font-size: 1rem;
+  color: #e0e7ff;
+}
+
+.main-content {
+  display: flex;
+  justify-content: center;
+  gap: 1rem;
+  margin-bottom: 3rem;
+}
+
+.main-button {
+  background-color: #10b981;
+  color: white;
+  border: none;
+  padding: 1rem 2rem;
+  font-size: 1rem;
+  border-radius: 0.5rem;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.main-button:hover {
+  background-color: #059669;
+}
+
+.bottom-nav {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  background: white;
+  display: flex;
+  justify-content: space-around;
+  padding: 1rem 0;
+  border-top: 1px solid #ccc;
+  box-shadow: 0 -2px 5px rgba(0, 0, 0, 0.1);
+}
+
+.nav-item {
+  text-align: center;
+  color: #374151;
+  cursor: pointer;
+  font-size: 0.9rem;
+}
+
+.nav-item:hover .nav-label {
+  color: #4f46e5;
+  font-weight: bold;
+}
