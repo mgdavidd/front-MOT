@@ -1,8 +1,12 @@
 import React from "react";
-import "./Profile.module.css";
+import { useNavigate } from "react-router-dom";
 import Cookies from "js-cookie";
+import styles from "./Profile.module.css";
+import Logo from "../../components/Logo"; // Asegúrate de que el path sea correcto
 
 export default function App() {
+  const navigate = useNavigate();
+
   let user = null;
   const cookieValue = Cookies.get("user");
 
@@ -21,34 +25,38 @@ export default function App() {
   const userRol = user?.rol || "sin Rol";
 
   return (
-    <div className="app-container">
-      <header className="header">
-        <h1 className="title">My Online Tutor</h1>
-        <h1 className="title">{userRol}</h1>
-        <p className="subtitle">{userName}</p>
-        <p className="subtitle">{userEmail}</p>
-        <p className="subtitle">{userArea}</p>
+    <div className={styles["app-container"]}>
+      <header className={styles.header}>
+        <Logo />
+        <h1 className={styles.title}>{userRol}</h1>
+        <p className={styles.subtitle}>{userName}</p>
+        <p className={styles.subtitle}>{userEmail}</p>
+        <p className={styles.subtitle}>{userArea}</p>
       </header>
 
-      <main className="main-content">
-        <button className="main-button">Crear curso</button>
-        <button className="main-button">Editar perfil</button>
+      <main className={styles["main-content"]}>
+        <button
+          className={styles["main-button"]}
+          onClick={() => navigate("/crear-curso")}
+        >
+          Crear curso
+        </button>
+        <button
+          className={styles["main-button"]}
+          onClick={() => navigate("/editar-perfil")}
+        >
+          Editar perfil
+        </button>
       </main>
 
-      <nav className="bottom-nav">
-        <NavItem label="Estudiantes" />
-        <NavItem label="Calendario" />
-        <NavItem label="Montar video" />
-      </nav>
-    </div>
-  );
-}
-
-function NavItem({ label }) {
-  return (
-    <div className="nav-item">
-      <div className="nav-icon"></div>
-      <span className="nav-label">{label}</span>
+      <div>
+        <button
+          className={styles["main-button"]}
+          onClick={() => navigate("/instructorNav")}
+        >
+          Volver
+        </button>
+      </div>
     </div>
   );
 }
