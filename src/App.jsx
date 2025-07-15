@@ -8,6 +8,7 @@ import InstructorNavBar from './pages/InstructorNavBar';
 import ChecksKnowledge from './pages/ChecksKnowledge';
 import OAuthSuccess from './pages/OauthSuccess';
 import GoogleChooseUsername from './pages/GoogleChooseUsername';
+import EditarPerfil from './pages/Personalizarperfil';
 
 function App() {
   return (
@@ -21,6 +22,7 @@ function App() {
         <Route path="/checksKnowledge" element={<ChecksKnowledge />} />
         <Route path="/oauth-success" element={<OAuthSuccess />} />
         <Route path="/choose-username" element={<GoogleChooseUsername />} />
+        <Route path="/editar-perfil" element={<EditarPerfil />} />
       </Routes>
     </div>
   );

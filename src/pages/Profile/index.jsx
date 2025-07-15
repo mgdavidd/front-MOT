@@ -2,7 +2,7 @@ import React from "react";
 import { useNavigate } from "react-router-dom";
 import Cookies from "js-cookie";
 import styles from "./Profile.module.css";
-import Logo from "../../components/Logo"; // Asegúrate de que el path sea correcto
+import Logo from "../../components/Logo"; 
 
 export default function App() {
   const navigate = useNavigate();
