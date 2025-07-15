@@ -1,30 +1,37 @@
 //Matias trabaja desde aqui
-import React, { useEffect, useState } from "react";
-import Cookies from "js-cookie";
+import React from "react";
+import "./Profile.module.css";
 
-const Profile = () => {
-  const [user, setUser] = useState(null);
-
-  useEffect(() => {
-    const cookieUser = Cookies.get("user");
-    if (cookieUser) {
-      try {
-        setUser(JSON.parse(cookieUser));
-      } catch (err) {
-        console.error("Error al parsear la cookie del usuario", err);
-      }
-    }
-  }, []);
-
-  if (!user) return <div>Cargando perfil...</div>;
-
+export default function App() {
   return (
-    <div>
-      <h1>Perfil de {user.nombre}</h1>
-      <p>Correo: {user.email}</p>
-      <p>Rol: {user.rol}</p>
+    <div className="app-container">
+     
+      <header className="header">
+        <h1 className="title">My Online Tutor</h1>
+        <p className="subtitle">Docentes</p>
+      </header>
+
+   
+      <main className="main-content">
+        <button className="main-button">Crear curso</button>
+        <button className="main-button">Editar perfil</button>
+      </main>
+
+    
+      <nav className="bottom-nav">
+        <NavItem label="Estudiantes" />
+        <NavItem label="Calendario" />
+        <NavItem label="Montar video" />
+      </nav>
     </div>
   );
-};
+}
 
-export default Profile;
+function NavItem({ label }) {
+  return (
+    <div className="nav-item">
+      <div className="nav-icon"></div>
+      <span className="nav-label">{label}</span>
+    </div>
+  );
+}
