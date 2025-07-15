@@ -90,7 +90,7 @@
 }
 
 .content-placeholder {
-  padding: 2rem;
+  padding: 1.2rem;
   text-align: center;
   color: #666;
   background-color: #f9fbfd;
@@ -152,7 +152,192 @@ button.profileButton {
     padding: 1.5rem;
   }
 
+  .content-placeholder {
+    padding: 0;
+  }
+
   .dashboard-header{
     padding: 0.7rem;
+  }
+}
+
+@media (max-width: 400px) {
+  .course-calendar-manager {
+    padding: 10px;
+  }
+
+  .content-placeholder {
+    padding: 0;
+  }
+
+  .dashboard-header h1 {
+    font-size: 1.4rem;
+    padding: 0.5rem 0;
+  }
+
+  .dashboard-header p {
+    font-size: 0.9rem;
+  }
+
+  .course-section {
+    padding: 0;
+    margin-bottom: 1rem;
+    border-radius: 8px;
+  }
+
+  .course-buttons {
+    gap: 8px;
+    margin-bottom: 1rem;
+  }
+
+  .course-btn {
+    padding: 8px 12px;
+    font-size: 0.85rem;
+    min-width: 100px;
+  }
+
+  .calendar-container {
+    padding: 0.5rem;
+    margin-bottom: 1rem;
+  }
+
+  .button-container {
+    gap: 8px;
+    margin-bottom: 1rem;
+  }
+
+  .btn {
+    padding: 0.6rem 1rem;
+    font-size: 0.85rem;
+    min-width: 120px;
+  }
+
+  #timeSelectors {
+    gap: 0.8rem;
+  }
+
+  .date-time-selector {
+    padding: 0.8rem;
+  }
+
+  .event-type {
+    font-size: 0.75rem;
+    padding: 0.2rem 0.6rem;
+  }
+
+  .time-group label {
+    font-size: 0.8rem;
+  }
+
+  .time-group input {
+    padding: 0.4rem 0.6rem;
+    font-size: 0.9rem;
+  }
+
+  .video-thumb-trigger img {
+    max-width: 100%;
+    margin-left: 0;
+    margin-top: 5px;
+  }
+
+  .video-link {
+    font-size: 0.8rem;
+    display: block;
+    margin-top: 8px;
+  }
+
+  .btn-save {
+    padding: 0.6rem;
+    font-size: 0.9rem;
+    max-width: 180px;
+  }
+
+  .extra-link a {
+    padding: 0.4rem 1rem;
+    font-size: 0.9rem;
+  }
+
+  /* Ajustes específicos para el popup de video */
+  .video-thumb-popup {
+    position: fixed;
+    left: 2.5%;
+    top: 50px;
+    width: 95%;
+    transform: none;
+    z-index: 1000;
+  }
+
+  /* Mejora para inputs en móviles */
+  input[type="time"] {
+    font-size: 0.9rem;
+    padding: 0.5rem;
+  }
+}
+
+@media (max-width: 400px) {
+  .instructor-dashboard {
+    padding-top: 0;
+  }
+
+  .content-container {
+    padding: 0.5rem;
+  }
+
+  .tab-content {
+    padding: 1rem;
+    border-radius: 8px;
+  }
+
+  /* Asegurar que el calendario no quede oculto por el navbar */
+  .course-calendar-manager {
+    padding-bottom: 20px;
+  }
+
+  /* Ajustar el header para móviles */
+  .dashboard-header {
+    padding: 0.5rem;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+  }
+
+  /* Espaciado para el primer elemento después del header */
+  .content-container > :first-child {
+    margin-top: 0.5rem;
+  }
+}
+
+/* ================= MEJORAS DE USABILIDAD PARA TOUCH ================= */
+@media (max-width: 400px) {
+  /* Aumentar área táctil */
+  .course-btn, .btn, .extra-link a {
+    min-height: 36px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  /* Mejor feedback táctil */
+  button:active {
+    transform: scale(0.98);
+  }
+
+  /* Inputs más grandes para touch */
+  input[type="time"] {
+    min-height: 36px;
+  }
+
+  /* Separación entre elementos táctiles */
+  .button-container {
+    margin: 1rem 0;
+  }
+
+  /* Evitar zoom en inputs */
+  @media screen and (-webkit-min-device-pixel-ratio:0) {
+    select,
+    textarea,
+    input {
+      font-size: 16px;
+    }
   }
 }

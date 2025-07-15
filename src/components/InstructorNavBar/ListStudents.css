@@ -1,0 +1,54 @@
+.container {
+  width: 100%;
+  max-width: 600px;
+  margin: 2rem auto;
+  font-family: 'Segoe UI', sans-serif;
+  background-color: #f9f9f9;
+  border-radius: 10px;
+  padding: 1rem;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+}
+
+.course {
+  margin-bottom: 1rem;
+  border-bottom: 1px solid #ddd;
+}
+
+.course-header {
+  cursor: pointer;
+  padding: 0.75rem;
+  font-size: 1.2rem;
+  background-color: #4f46e5;
+  color: white;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-radius: 6px;
+  transition: background-color 0.3s;
+}
+
+.course-header:hover {
+  background-color: #4338ca;
+}
+
+.arrow {
+  font-size: 1rem;
+}
+
+.student-list {
+  list-style: none;
+  padding: 0.5rem 1rem;
+  margin: 0;
+}
+
+.student {
+  background-color: #fff;
+  border-radius: 6px;
+  padding: 0.5rem 1rem;
+  margin-bottom: 0.5rem;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.05);
+}
+
+.student p {
+  margin: 0.2rem 0;
+}
