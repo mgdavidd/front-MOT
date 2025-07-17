@@ -38,7 +38,7 @@
 
 .addButton {
   padding: 10px 20px;
-  background-color: #2d89ef;
+  background-color: var(--color-primary);
   color: #fff;
   border: none;
   border-radius: 6px;
@@ -61,7 +61,8 @@
 
 .button {
   padding: 10px 15px;
-  background-color: #646cffaa;
+  background-color: var(--color-primary);
+  color: white;
   border: none;
   border-radius: 5px;
   cursor: pointer;

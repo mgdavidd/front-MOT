@@ -1,118 +1,197 @@
-
-
+/* Estilos base */
 .container {
   min-height: 100vh;
-  background-color: #dbeafe; 
+  background-color: #f8fafc;
   padding: 1rem;
 }
 
 .header {
-  background-color: #2563eb; 
-  color: rgb(0, 0, 0);
+  background-color: var(--color-primary, #2563eb);
+  color: white;
   padding: 1rem;
   border-radius: 0.5rem;
   display: flex;
+  flex-wrap: wrap;
   justify-content: space-between;
   align-items: center;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
 }
 
 .title {
   font-size: 1.25rem;
   font-weight: bold;
   margin: 0;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
 }
 
-.logoutBtn {
-  background-color: #f87171; 
-  padding: 0.25rem 0.75rem;
-  border-radius: 0.375rem;
-  font-size: 0.875rem;
-  border: none;
-  cursor: pointer;
-  transition: background 0.2s ease;
+.logoWrapper {
+  display: inline-flex;
+  align-items: center;
+  width: 110px;
 }
 
-.logoutBtn:hover {
-  background-color: #ef4444; 
-}
-
-.card {
+.cardSmall {
   background-color: white;
-  margin-top: 1.5rem;
-  padding: 1rem;
+  margin: 1rem auto;
+  padding: 1.5rem;
   border-radius: 0.5rem;
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
   display: flex;
   flex-direction: column;
-  gap: 1rem;
+  gap: 1.5rem;
+  width: 100%;
+  max-width: 500px;
 }
 
 .group {
   display: flex;
   flex-direction: column;
+  gap: 0.5rem;
 }
 
 .label {
-  color: #374151; /* text-gray-700 */
+  color: #374151;
   font-weight: 600;
-  margin-bottom: 0.25rem;
+  font-size: 0.875rem;
 }
 
 .input {
-  padding: 0.5rem 0.75rem;
+  padding: 0.75rem;
   border: 1px solid #d1d5db;
   border-radius: 0.375rem;
-  outline: none;
   font-size: 1rem;
-  color: black;
+  background-color: white;
+  transition: all 0.2s ease;
 }
 
 .input:focus {
-  border-color: #3b82f6;
-  box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.3);
-}
-
-.fileInput {
-  font-size: 0.875rem;
-  color: #6b7280;
-  padding: 0.25rem 0;
+  border-color: var(--color-primary, #2563eb);
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+  outline: none;
 }
 
 .colorGrid {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 0.75rem;
+  grid-template-columns: repeat(auto-fill, minmax(50px, 1fr));
+  gap: 1rem;
+  margin-top: 0.5rem;
 }
 
 .colorCircle {
-  width: 2.5rem;
-  height: 2.5rem;
+  width: 50px;
+  height: 50px;
   border-radius: 50%;
-  border: 1px solid #d1d5db;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
   cursor: pointer;
   transition: transform 0.2s ease;
+  border: 2px solid transparent;
 }
 
 .colorCircle:hover {
   transform: scale(1.1);
 }
 
-
-
-.logoWrapper {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  margin-right: 0.5rem;
-  width: 32px;  /* tamaño deseado */
-  height: 32px;
+/* Botones */
+.headerButtons {
+  display: flex;
+  gap: 0.75rem;
+  flex-wrap: wrap;
 }
 
-.logoWrapper :global(svg),
-.logoWrapper img {
-  width: 100%;
-  height: auto;
-  object-fit: contain;
+.backBtn {
+  background-color: #e0f2fe;
+  color: #0369a1;
+  padding: 0.5rem 1rem;
+  border-radius: 0.375rem;
+  font-weight: 600;
+  border: none;
+  cursor: pointer;
+  transition: all 0.2s ease;
 }
 
+.backBtn:hover {
+  background-color: #bae6fd;
+}
+
+.logoutBtn {
+  background-color: #fee2e2;
+  color: #b91c1c;
+  padding: 0.5rem 1rem;
+  border-radius: 0.375rem;
+  font-weight: 600;
+  border: none;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.logoutBtn:hover {
+  background-color: #fecaca;
+}
+
+.saveBtn {
+  background-color: var(--color-primary, #2563eb);
+  color: white;
+  padding: 0.75rem;
+  border-radius: 0.375rem;
+  font-weight: 600;
+  font-size: 1rem;
+  border: none;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  margin-top: 1rem;
+}
+
+.saveBtn:hover {
+  opacity: 0.9;
+}
+
+/* Estilos responsive */
+@media (max-width: 640px) {
+  .header {
+    flex-direction: column;
+    text-align: center;
+    gap: 1rem;
+  }
+
+  .title {
+    flex-direction: column;
+  }
+
+  .headerButtons {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .cardSmall {
+    padding: 0rem;
+  }
+
+  .colorGrid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+
+  .colorCircle {
+    width: 40px;
+    height: 40px;
+  }
+}
+
+@media (max-width: 400px) {
+  .container {
+    padding: 0.5rem;
+  }
+
+  .header {
+    padding: 0.75rem;
+  }
+
+  .input {
+    padding: 0.5rem;
+  }
+
+  .colorGrid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
