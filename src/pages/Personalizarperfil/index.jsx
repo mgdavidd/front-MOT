@@ -172,6 +172,29 @@ export default function EditarPerfil() {
             disabled={isLoading}
           />
         </div>
+                <div className={styles.group}>
+          <label className={styles.label}>Banco</label>
+          <select className={styles.input}>
+            <option value="">Selecciona un banco</option>
+            <option value="Bancolombia">Bancolombia</option>
+            <option value="Davivienda">Davivienda</option>
+            <option value="Banco de Bogotá">Banco de Bogotá</option>
+            <option value="Banco de Occidente">Banco de Occidente</option>
+            <option value="BBVA">BBVA</option>
+            <option value="Nequi">Nequi</option>
+            <option value="Banco Agrario">Banco Agrario</option>
+            <option value="PayPal">PayPal</option>
+          </select>
+        </div>
+
+        <div className={styles.group}>
+          <label className={styles.label}>Número de cuenta</label>
+          <input
+            type="number"
+            placeholder="Ej: 1234567890"
+            className={styles.input}
+          />
+        </div>
 
         <div className={styles.group}>
           <label className={styles.label}>Color del perfil</label>

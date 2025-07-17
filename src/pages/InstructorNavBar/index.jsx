@@ -49,8 +49,6 @@ function InstructorNavBar() {
             <div className="content-section">
               <h2>Mis Cursos</h2>
               <div className="content-placeholder">
-                {/* Karen y valeria */}
-                <p>Contenido de Mis Cursos se mostrará en esta área</p>
                 <CourseContent />
               </div>
             </div>
@@ -69,9 +67,7 @@ function InstructorNavBar() {
             <div className="content-section">
               <h2>Calendario</h2>
               <div className="content-placeholder">
-                {/* Yeisson con mi ayuda */}
                 <InstructorCal/>
-                <p>Contenido de Calendario de todos los cursos</p>
               </div>
             </div>
           )}

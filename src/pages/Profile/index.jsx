@@ -89,14 +89,6 @@ export default function Profile() {
         >
           Editar perfil
         </button>
-
-        <button
-          className={styles["main-button"]}
-          onClick={handleLogout}
-          style={{ backgroundColor: "#ef4444" }}
-        >
-          Cerrar sesión
-        </button>
       </main>
 
       <div className={styles.navigation}>
