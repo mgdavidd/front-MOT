@@ -65,6 +65,7 @@
   font-size: 1rem;
   background-color: white;
   transition: all 0.2s ease;
+  color: black !important;
 }
 
 .input:focus {
@@ -169,6 +170,7 @@
   }
 
   .colorGrid {
+    gap: 1rem;
     grid-template-columns: repeat(3, 1fr);
   }
 
@@ -176,6 +178,7 @@
     width: 40px;
     height: 40px;
   }
+
 }
 
 @media (max-width: 400px) {

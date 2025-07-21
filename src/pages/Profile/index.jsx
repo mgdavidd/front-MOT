@@ -53,11 +53,6 @@ export default function Profile() {
     }
   }, [navigate]);
 
-  const handleLogout = () => {
-    Cookies.remove("user");
-    navigate("/login");
-  };
-
   const userName = user?.nombre || location.state?.userName || "Invitado";
   const userEmail = user?.email || "Correo no disponible";
   const userArea = user?.area || "Área no disponible";
