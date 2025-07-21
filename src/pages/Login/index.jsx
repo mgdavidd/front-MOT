@@ -14,7 +14,7 @@ const Login = () => {
     e.preventDefault();
     const userName = e.target.elements.userName.value;
     const password = e.target.elements.password.value;
-    console.log(userName, password)
+    console.log(userName, password);
 
     const res = await fetch("http://localhost:3000/login", {
       method: "POST",
@@ -25,7 +25,16 @@ const Login = () => {
     const data = await res.json();
 
     if (res.ok && data.success) {
-      Cookies.set("user", JSON.stringify(data.user), { expires: 7 }); // 👈 guarda en cookie por 7 días
+      const userData = {
+        id: data.user.id,
+        nombre: data.user.nombre,
+        email: data.user.email,
+        area: data.user.area,
+        rol: data.user.rol,
+        nombre_usuario: data.user.nombre_usuario,
+        color_perfil: data.user.color_perfil,
+      };
+      Cookies.set("user", JSON.stringify(userData), { expires: 7 });
       navigate("/profile");
     } else {
       alert(data.error || "Ocurrió un error durante el login.");

@@ -1,359 +1,460 @@
-// src/components/InstructorCal.jsx
-import React, { useState, useEffect, useRef, useCallback } from 'react';
-import { DateTime } from 'luxon';
-import './InstructorCal.css';
+import React, { useState, useEffect, useRef, useCallback } from "react";
+import { DateTime } from "luxon";
+import Cookies from "js-cookie";
+import "./InstructorCal.css";
+import DatePicker from "../DatePicker";
 
 const InstructorCal = () => {
-  // Datos de ejemplo de cursos
-  const courses = {
-    programacion: { name: "Programación", roomId: "curso_programacion" },
-    fisica: { name: "Física", roomId: "curso_fisica" },
-    psicologia: { name: "Psicología", roomId: "curso_psicologia" }
+  // obtener usuario desde cookies
+  const getCurrentUser = () => {
+    try {
+      const userCookie = Cookies.get("user");
+      if (!userCookie) return null;
+      const decoded = decodeURIComponent(userCookie);
+      return JSON.parse(decoded);
+    } catch (error) {
+      console.error("Error al parsear cookie:", error);
+      return null;
+    }
   };
 
-  const [selectedCourseId, setSelectedCourseId] = useState('programacion');
-  const [currentEventType, setCurrentEventType] = useState('virtual');
+  const currentUser = getCurrentUser();
+  const userId = currentUser?.id;
+
+  const [courses, setCourses] = useState([]);
+  const [selectedCourseId, setSelectedCourseId] = useState(null);
+  const [currentEventType, setCurrentEventType] = useState("Clase en vivo");
   const [dateEvents, setDateEvents] = useState({});
   const [hoursByDate, setHoursByDate] = useState({});
-  const calendarRef = useRef(null);
+  const [isEditing, setIsEditing] = useState(false);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const [errorValidation, setErrorValidation] = useState(null);
   const timeSelectorsRef = useRef(null);
-  const [isOwner] = useState(true);
 
-  // Función memoizada para actualizar la visualización
-  const updateDisplay = useCallback((dateEventsToShow, hoursByDateToShow) => {
-    if (!timeSelectorsRef.current) return;
-    
-    const timeSelectorsDiv = timeSelectorsRef.current;
-    timeSelectorsDiv.innerHTML = "";
-    
-    const sortedDates = Object.keys(dateEventsToShow).sort(
-      (a, b) => new Date(a) - new Date(b)
-    );
-
-    sortedDates.forEach((date) => {
-      const eventType = dateEventsToShow[date];
-      const { start = "", end = "", grabacion_url, titulo, es_publico } = hoursByDateToShow[date] || {};
-
-      const fechaFin = DateTime.fromISO(date).plus({ days: 1 });
-      const ahora = DateTime.local();
-      const esPasada = ahora > fechaFin;
-
-      const div = document.createElement("div");
-      div.className = `date-time-selector ${eventType}-class`;
-
-      div.innerHTML = `
-        <span class="event-type ${eventType}">${eventType.toUpperCase()}</span>
-        <label>${formatDate(date)}</label>
-        <input type="time" name="start-${date}" value="${start}" required ${esPasada || !isOwner || grabacion_url ? "disabled" : ""}>
-        <input type="time" name="end-${date}" value="${end}" required ${esPasada || !isOwner || grabacion_url ? "disabled" : ""}>
-        ${
-          grabacion_url
-            ? (() => {
-                if (!es_publico && !isOwner) {
-                  return `<span style="color:#888;margin-left:10px;">(Grabación privada)</span>`;
-                }
-                const match = grabacion_url.match(/\/d\/([a-zA-Z0-9_-]+)\//);
-                const fileId = match ? match[1] : null;
-                const thumbnailUrl = fileId
-                  ? `https://drive.google.com/thumbnail?id=${fileId}`
-                  : "";
-                return `
-      <span class="video-thumb-trigger" style="margin-left:10px;cursor:pointer;position:relative;" title="Ver grabación">
-        📹
-        ${
-          thumbnailUrl
-            ? `<div class="video-thumb-popup" style="display:none;">
-                <div class="video-title">${titulo || 'Grabación'}</div>
-                <img src="${thumbnailUrl}" alt="Miniatura de grabación">
-              </div>`
-            : ""
-        }
-      </span>
-      <a href="${grabacion_url}" target="_blank" style="margin-left:8px;">Ver en Drive</a>
-                `;
-              })()
-            : ""
-        }
-      `;
-
-      timeSelectorsDiv.appendChild(div);
-
-      if (grabacion_url && es_publico) {
-        const trigger = div.querySelector('.video-thumb-trigger');
-        const popup = div.querySelector('.video-thumb-popup');
-
-        if (trigger && popup) {
-          trigger.addEventListener('mouseenter', () => {
-            popup.style.display = 'block';
-          });
-          trigger.addEventListener('mouseleave', () => {
-            popup.style.display = 'none';
-          });
-
-          trigger.addEventListener('click', function(e) {
-            if (popup) {
-              e.preventDefault();
-              popup.style.display = popup.style.display === 'block' ? 'none' : 'block';
-              document.addEventListener('click', function handler(ev) {
-                if (!trigger.contains(ev.target)) {
-                  popup.style.display = 'none';
-                  document.removeEventListener('click', handler);
-                }
-              });
-            }
-          });
-        }
+  const authFetch = useCallback(
+    async (url, options = {}) => {
+      if (!userId) {
+        throw new Error("Usuario no autenticado");
       }
-    });
-  }, [isOwner]);
 
-  // Función para formatear fechas
-  const formatDate = (dateString) => {
-    const date = DateTime.fromISO(dateString);
-    return date.setLocale("es").toLocaleString({
-      weekday: "long",
-      day: "numeric",
-      month: "long",
-      year: "numeric"
-    });
-  };
+      const headers = {
+        "Content-Type": "application/json",
+        ...options.headers,
+        Authorization: `Bearer ${userId}`,
+      };
 
-  // Cargar fechas cuando se selecciona un curso
+      const response = await fetch(url, {
+        ...options,
+        headers,
+        credentials: "include",
+      });
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => null);
+        throw new Error(errorData?.message || "Error en la solicitud");
+      }
+      return response.json();
+    },
+    [userId]
+  );
+
+  //modo editar
   useEffect(() => {
-    if (!calendarRef.current) return;
+    if (!userId) return;
 
-    // Simular fetch para obtener las fechas del curso seleccionado
-    /*
-    fetch(`/fechas/${courses[selectedCourseId].roomId}`)
-      .then((res) => res.json())
-      .then((fechas) => {
-        if (!Array.isArray(fechas)) {
-          alert("Error al cargar las fechas del servidor.");
-          return;
-        }
+    const fetchCourses = async () => {
+      try {
+        setLoading(true);
+        const data = await authFetch(
+          `http://localhost:3000/teachers/${userId}/courses`
+        );
+        setCourses(data);
+        setSelectedCourseId(data[0]?.id || null);
+        setError(null);
+      } catch (err) {
+        setError(err.message);
+        console.error("Error al cargar cursos:", err);
+      } finally {
+        setLoading(false);
+      }
+    };
 
+    fetchCourses();
+  }, [userId, authFetch]);
+
+  // cargar fechas del curso seleccionado
+  useEffect(() => {
+    if (!selectedCourseId) return;
+
+    const fetchDates = async () => {
+      try {
+        setLoading(true);
+        const data = await authFetch(
+          `http://localhost:3000/courses/${selectedCourseId}/dates`
+        );
         const newDateEvents = {};
         const newHoursByDate = {};
 
-        fechas.forEach((f) => {
-          const startDate = DateTime.fromISO(f.fecha_inicial_utc).toLocal();
-          const endDate = DateTime.fromISO(f.fecha_final_utc).toLocal();
-          
-          const date = startDate.toISODate();
-          const start = startDate.toFormat("HH:mm");
-          const end = endDate.toFormat("HH:mm");
+        data.forEach((session) => {
+          const startDate = DateTime.fromISO(session.inicio).toLocal();
+          const endDate = DateTime.fromISO(session.final).toLocal();
+          const dateKey = startDate.toISODate();
 
-          newDateEvents[date] = f.tipo;
-          newHoursByDate[date] = {
-            start,
-            end,
-            grabacion_url: f.grabacion_url,
-            titulo: f.grabacion_titulo,
-            es_publico: f.es_publico
+          newDateEvents[dateKey] = session.tipo;
+          newHoursByDate[dateKey] = {
+            start: startDate.toFormat("HH:mm"),
+            end: endDate.toFormat("HH:mm"),
+            recording: session.recording_url,
+            title: session.titulo,
           };
         });
 
         setDateEvents(newDateEvents);
         setHoursByDate(newHoursByDate);
-        calendarRef.current.value = Object.keys(newDateEvents).join(" ");
-        updateDisplay(newDateEvents, newHoursByDate);
-      });
-    */
-
-    // Datos de ejemplo mientras no hay backend
-    const exampleDateEvents = {
-      "2024-06-15": "virtual",
-      "2024-06-22": "aaa"
-    };
-    
-    const exampleHoursByDate = {
-      "2024-06-15": {
-        start: "10:00",
-        end: "12:00",
-        grabacion_url: "https://drive.google.com/file/d/1abc123def456ghi789jkl/view",
-        titulo: "Introducción a React",
-        es_publico: true
-      },
-      "2024-06-22": {
-        start: "14:00",
-        end: "16:00",
-        grabacion_url: null,
-        titulo: null,
-        es_publico: false
+        setError(null);
+      } catch (err) {
+        setError(err.message);
+        console.error("Error al cargar sesiones:", err);
+      } finally {
+        setLoading(false);
       }
     };
 
-    setDateEvents(exampleDateEvents);
-    setHoursByDate(exampleHoursByDate);
-    calendarRef.current.value = Object.keys(exampleDateEvents).join(" ");
-    updateDisplay(exampleDateEvents, exampleHoursByDate);
+    fetchDates();
+  }, [selectedCourseId, authFetch]);
 
-    // Establecer fecha mínima como hoy
-    const today = DateTime.local().toISODate();
-    calendarRef.current.setAttribute("min", today);
-  }, [selectedCourseId, updateDisplay]);
+  const formatDate = useCallback((dateString) => {
+    return DateTime.fromISO(dateString).setLocale("es").toLocaleString({
+      weekday: "long",
+      day: "numeric",
+      month: "long",
+      year: "numeric",
+    });
+  }, []);
 
-  // Inicializar calendario
-  useEffect(() => {
-    const calendar = calendarRef.current;
-    if (!calendar) return;
+  const selectedCourse = courses.find(
+    (course) => String(course.id) === String(selectedCourseId)
+  );
+  const isOwner = selectedCourse && selectedCourse.isOwner;
+  console.log(isOwner);
 
-    const handleCalendarChange = () => {
-      const selectedDates = calendar.value.split(" ").filter(Boolean);
-      const newDateEvents = { ...dateEvents };
+  const updateDisplay = useCallback(() => {
+    if (!timeSelectorsRef.current) return;
 
-      selectedDates.forEach((date) => {
-        if (!newDateEvents[date]) {
-          newDateEvents[date] = currentEventType;
+    const container = timeSelectorsRef.current;
+    container.innerHTML = "";
+
+    Object.entries(dateEvents)
+      .sort(
+        ([dateA], [dateB]) => DateTime.fromISO(dateA) - DateTime.fromISO(dateB)
+      )
+      .forEach(([date, type]) => {
+        const { start, end, recording, title } = hoursByDate[date] || {};
+        const isPast = DateTime.fromISO(date).startOf("day") < DateTime.local().startOf("day");
+
+
+        const sessionElement = document.createElement("div");
+        sessionElement.className = `session-card ${type}-type`;
+        sessionElement.innerHTML = `
+          <div class="session-header">
+            <span class="session-type">${type.toUpperCase()}</span>
+            ${
+              isEditing && isOwner
+                ? `<button class="remove-session" data-date="${date}">×</button>`
+                : ""
+            }
+          </div>
+          <div class="session-date">${formatDate(date)}</div>
+          <div class="session-time">
+            ${start && end ? `${start} - ${end}` : "Horario no definido"}
+          </div>
+          ${
+            recording
+              ? `<div class="recording-info"><a href="${recording}" target="_blank" rel="noopener noreferrer">Ver grabación: ${
+                  title || "Sesión grabada"
+                }</a></div>`
+              : ""
+          }
+          ${
+            isEditing && isOwner
+              ? `
+            <div class="time-inputs">
+              <input type="time" name="start-${date}" value="${start || ""}" ${
+                  isPast ? "disabled" : ""
+                }>
+              <input type="time" name="end-${date}" value="${end || ""}" ${
+                  isPast ? "disabled" : ""
+                }>
+            </div>
+          `
+              : ""
+          }
+        `;
+
+        // Eliminar fecha
+        if (isEditing && isOwner) {
+          const removeBtn = sessionElement.querySelector(".remove-session");
+          removeBtn?.addEventListener("click", () => {
+            const newDateEvents = { ...dateEvents };
+            const newHours = { ...hoursByDate };
+            delete newDateEvents[date];
+            delete newHours[date];
+            setDateEvents(newDateEvents);
+            setHoursByDate(newHours);
+          });
         }
+
+        container.appendChild(sessionElement);
       });
+  }, [dateEvents, hoursByDate, isEditing, formatDate, isOwner]);
 
-      Object.keys(newDateEvents).forEach((date) => {
-        if (!selectedDates.includes(date)) {
-          delete newDateEvents[date];
+  useEffect(() => {
+    updateDisplay();
+  }, [updateDisplay]);
+
+  const handleSave = async () => {
+    setErrorValidation(null);
+    try {
+      setLoading(true);
+
+      const sessionsData = [];
+
+      for (const [date, type] of Object.entries(dateEvents)) {
+        const start = document.querySelector(
+          `input[name="start-${date}"]`
+        )?.value;
+        const end = document.querySelector(`input[name="end-${date}"]`)?.value;
+
+        const startDate = DateTime.fromISO(`${date}T${start}`);
+        const endDate = DateTime.fromISO(`${date}T${end}`);
+        const dateLabel = startDate.setLocale("es").toLocaleString({
+          weekday: "long",
+          day: "numeric",
+          month: "long",
+          year: "numeric",
+        });
+
+        if (!start || !end) {
+          setErrorValidation(
+            `Faltan horarios para la sesión del ${dateLabel}.`
+          );
+          setLoading(false);
+          return;
         }
+
+        if (startDate >= endDate) {
+          setErrorValidation(
+            `La hora inicial de la sesión del ${dateLabel} debe ser menor que la hora final.`
+          );
+          setLoading(false);
+          return;
+        }
+
+        const duration = endDate.diff(startDate, "hours").hours;
+        if (duration > 1.5) {
+          setErrorValidation(
+            `La duración de la sesión del ${dateLabel} no puede ser mayor a 1.5 horas.`
+          );
+          setLoading(false);
+          return;
+        }
+
+        sessionsData.push({
+          date,
+          type,
+          start_time: startDate.toISO(),
+          end_time: endDate.toISO(),
+        });
+      }
+
+      await authFetch(
+        `http://localhost:3000/courses/${selectedCourseId}/dates`,
+        {
+          method: "POST",
+          body: JSON.stringify({ sessions: sessionsData }),
+        }
+      );
+
+      // Recargar sesiones después de guardar
+      const data = await authFetch(
+        `http://localhost:3000/courses/${selectedCourseId}/dates`
+      );
+
+      const newDateEvents = {};
+      const newHoursByDate = {};
+
+      data.forEach((session) => {
+        const startDate = DateTime.fromISO(session.inicio).toLocal();
+        const endDate = DateTime.fromISO(session.final).toLocal();
+        const dateKey = startDate.toISODate();
+
+        newDateEvents[dateKey] = session.tipo;
+        newHoursByDate[dateKey] = {
+          start: startDate.toFormat("HH:mm"),
+          end: endDate.toFormat("HH:mm"),
+          recording: session.recording_url,
+          title: session.titulo,
+        };
       });
 
       setDateEvents(newDateEvents);
-      updateDisplay(newDateEvents, hoursByDate);
-    };
+      setHoursByDate(newHoursByDate);
 
-    calendar.addEventListener("change", handleCalendarChange);
-
-    return () => {
-      calendar.removeEventListener("change", handleCalendarChange);
-    };
-  }, [currentEventType, hoursByDate, updateDisplay, dateEvents]);
-
-  const handleSave = () => {
-    if (!isOwner) {
-      return alert("No eres dueño de la sala");
+      setIsEditing(false);
+      setError(null);
+    } catch (err) {
+      setError(err.message);
+      console.error("Error al guardar sesiones:", err);
+    } finally {
+      setLoading(false);
     }
-    
-    const data = [];
-    const userTimeZone = DateTime.local().zoneName;
-
-    for (const date of Object.keys(dateEvents)) {
-      const startInput = document.querySelector(`input[name="start-${date}"]`);
-      const endInput = document.querySelector(`input[name="end-${date}"]`);
-      const startLocal = startInput?.value || "";
-      const endLocal = endInput?.value || "";
-
-      if (!startLocal || !endLocal) {
-        alert("Por favor, selecciona la hora de inicio y fin para todas las fechas.");
-        return;
-      }
-
-      if (!/^([01]?[0-9]|2[0-3]):[0-5][0-9]$/.test(startLocal) || 
-          !/^([01]?[0-9]|2[0-3]):[0-5][0-9]$/.test(endLocal)) {
-        alert("Formato de hora inválido. Use HH:mm (24 horas)");
-        return;
-      }
-
-      if (startLocal >= endLocal) {
-        alert(`La hora de inicio debe ser menor que la hora de fin para ${formatDate(date)}.`);
-        return;
-      }
-
-      data.push({
-        date,
-        type: dateEvents[date],
-        start: startLocal,
-        end: endLocal,
-        timeZone: userTimeZone
-      });
-    }
-
-    // Comentado: Guardar en el servidor
-    /*
-    fetch("/fechas", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        fechas: data,
-        selectedDates: data.map((d) => d.date),
-        roomId: courses[selectedCourseId].roomId,
-      }),
-    })
-      .then((res) => res.json())
-      .then((resp) => {
-        if (resp.success) {
-          alert("Fechas guardadas correctamente");
-        } else {
-          alert("Error al guardar: " + (resp.error || ""));
-        }
-      })
-      .catch(err => {
-        console.error("Error al guardar:", err);
-        alert("Error en la comunicación con el servidor");
-      });
-    */
-    
-    alert("Datos guardados correctamente (simulación)");
   };
 
-  return (
-    <div className="course-calendar-manager">
-      <h1>Gestión de Sesiones por Curso</h1>
-      
-      {/* Botones de selección de curso */}
-      <div className="course-buttons">
-        {Object.entries(courses).map(([courseId, course]) => (
-          <button
-            key={courseId}
-            className={`course-btn ${selectedCourseId === courseId ? 'active' : ''}`}
-            onClick={() => setSelectedCourseId(courseId)}
-          >
-            {course.name}
-          </button>
-        ))}
+  if (!userId) {
+    return (
+      <div className="auth-error">
+        <h3>No autenticado</h3>
+        <p>Por favor inicia sesión para acceder al calendario</p>
       </div>
-      
-      <div className="extra-link">
-        <a href="/rooms-form">Volver</a>
-      </div>
+    );
+  }
 
-      <div className="course-section">
-        <h2>
-          Proponer Horario de Clase <br />
-          Curso: {courses[selectedCourseId].name}
-        </h2>
-        
-        <div className="calendar-container">
-          <calendar-multi 
-            ref={calendarRef}
-            months={2}
-            value=""
+  if (loading && courses.length === 0) {
+    return <div className="loading">Cargando tus cursos...</div>;
+  }
+
+  if (error) {
+    return (
+      <div className="error-message">
+        <h3>Error</h3>
+        <p>{error}</p>
+        <button onClick={() => window.location.reload()}>Reintentar</button>
+      </div>
+    );
+  }
+
+  // Simulación de calendario múltiple con <select multiple>
+  const allDates = [];
+  for (let i = 0; i < 60; i++) {
+    const date = DateTime.local().plus({ days: i }).toISODate();
+    allDates.push(date);
+  }
+
+  return (
+    <div className="instructor-calendar">
+      <header className="calendar-header">
+        <h2>Calendario de Clases</h2>
+        <div className="course-selector">
+          <select
+            value={selectedCourseId || ""}
+            onChange={(e) => setSelectedCourseId(e.target.value)}
+            disabled={loading}
+            className="styled-select"
           >
-            <div className="grid">
-              <calendar-month></calendar-month>
-              <calendar-month offset={1}></calendar-month>
-            </div>
-          </calendar-multi>
+            {courses.map((course) => (
+              <option key={course.id} value={course.id}>
+                {course.nombre}
+              </option>
+            ))}
+          </select>
         </div>
-        
-        <div className="button-container">
-          <button 
-            className={`btn ${currentEventType === 'virtual' ? 'btn-virtual selected' : 'btn-virtual'}`}
-            onClick={() => setCurrentEventType('virtual')}
-          >
-            Clase Virtual
-          </button>
-          <button 
-            className={`btn ${currentEventType === 'aaa' ? 'btn-aaa selected' : 'btn-aaa'}`}
-            onClick={() => setCurrentEventType('aaa')}
-          >
-            Encuentros AAA
-          </button>
-        </div>
-        
-        <div id="timeSelectors" ref={timeSelectorsRef}></div>
+      </header>
+
+      <div className="calendar-toolbar">
         {isOwner && (
-          <button id="saveButton" className="btn-save" onClick={handleSave}>
-            Guardar
+          <button
+            className={`edit-button ${isEditing ? "active" : ""}`}
+            onClick={() => setIsEditing(!isEditing)}
+            disabled={loading}
+          >
+            {isEditing ? "Cancelar" : "Editar Horarios"}
           </button>
         )}
       </div>
+
+      <div
+        className={`modal-error-validation ${errorValidation ? "active" : ""}`}
+      >
+        <div className="modal-content">
+          <h3>Error de Validación</h3>
+          <p>{errorValidation}</p>
+          <button onClick={() => setErrorValidation(null)}>Cerrar</button>
+        </div>
+      </div>
+
+      <div className="calendar-main">
+        {isEditing && isOwner && (
+          <div className="calendar-editor">
+            <div className="event-type-selector">
+              <button
+                className={`type-button clase-en-vivo ${
+                  currentEventType === "Clase en vivo" ? "active" : ""
+                }`}
+                onClick={() => setCurrentEventType("Clase en vivo")}
+              >
+                Clase Virtual
+              </button>
+              <button
+                className={`type-button aaa ${
+                  currentEventType === "AAA" ? "active" : ""
+                }`}
+                onClick={() => setCurrentEventType("AAA")}
+              >
+                Encuentro AAA
+              </button>
+            </div>
+
+            <div className="calendar-container">
+              <DatePicker
+                value={Object.keys(dateEvents)}
+                onChange={(dates) => {
+                  if (!isEditing || !isOwner) return;
+                  const selected = dates.map((d) => d.format("YYYY-MM-DD"));
+                  const newDateEvents = { ...dateEvents };
+                  const newHours = { ...hoursByDate };
+                  selected.forEach((date) => {
+                    if (!newDateEvents[date]) {
+                      newDateEvents[date] = currentEventType;
+                      newHours[date] = {
+                        start: "",
+                        end: "",
+                        recording: "",
+                        title: "",
+                      };
+                    }
+                  });
+                  // Eliminar fechas deseleccionadas
+                  Object.keys(newDateEvents).forEach((date) => {
+                    if (!selected.includes(date)) {
+                      delete newDateEvents[date];
+                      delete newHours[date];
+                    }
+                  });
+                  setDateEvents(newDateEvents);
+                  setHoursByDate(newHours);
+                }}
+              />
+            </div>
+          </div>
+        )}
+
+        <div className="sessions-container">
+          <h3>{isEditing ? "Sesiones Programadas" : "Próximas Sesiones"}</h3>
+          <div className="sessions-list" ref={timeSelectorsRef}></div>
+        </div>
+      </div>
+
+      {isEditing && isOwner && (
+        <div className="save-section">
+          <button
+            className="save-button"
+            onClick={handleSave}
+            disabled={loading || Object.keys(dateEvents).length === 0}
+          >
+            {loading ? "Guardando..." : "Guardar Cambios"}
+          </button>
+        </div>
+      )}
     </div>
   );
 };

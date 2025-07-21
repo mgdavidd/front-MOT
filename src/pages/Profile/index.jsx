@@ -1,28 +1,62 @@
-import React from "react";
-import { useNavigate } from "react-router-dom";
+import React, { useEffect } from "react";
+import { useNavigate, useLocation } from "react-router-dom";
 import Cookies from "js-cookie";
 import styles from "./Profile.module.css";
-import Logo from "../../components/Logo"; 
+import Logo from "../../components/Logo";
+import { useState } from "react";
 
-export default function App() {
+export default function Profile() {
   const navigate = useNavigate();
+  const location = useLocation();
+  const [user, setUser] = useState(null);
 
-  let user = null;
-  const cookieValue = Cookies.get("user");
-
-  if (cookieValue) {
-    try {
-      const decoded = decodeURIComponent(cookieValue);
-      user = JSON.parse(decoded);
-    } catch (error) {
-      console.error("Error al parsear la cookie:", error);
+  const normalizeUserData = (userData) => {
+    if (!userData) return null;
+    
+    if (userData.rows) {
+      return {
+        nombre: userData.rows[0][1],
+        nombre_usuario: userData.rows[0][2],
+        email: userData.rows[0][3],
+        area: userData.rows[0][5],
+        rol: userData.rows[0][6],
+        color_perfil: userData.rows[0][10],
+        id: userData.rows[0][0]
+      };
     }
-  }
+    return userData;
+  };
 
-  const userName = location.state?.userName || user?.nombre || "Invitado";
+  useEffect(() => {
+    const cookieValue = Cookies.get("user");
+    if (!cookieValue) {
+      navigate("/");
+      return;
+    }
+
+    try {
+      const userData = JSON.parse(cookieValue);
+      const normalizedUser = normalizeUserData(userData);
+      setUser(normalizedUser);
+
+      // Aplicar color del tema
+      if (normalizedUser?.color_perfil) {
+        document.documentElement.style.setProperty(
+          '--color-primary', 
+          normalizedUser.color_perfil
+        );
+      }
+    } catch (error) {
+      console.error("Error al parsear cookie:", error);
+      Cookies.remove("user");
+      navigate("/");
+    }
+  }, [navigate]);
+
+  const userName = user?.nombre || location.state?.userName || "Invitado";
   const userEmail = user?.email || "Correo no disponible";
   const userArea = user?.area || "Área no disponible";
-  const userRol = user?.rol || "sin Rol";
+  const userRol = user?.rol || "Sin rol";
 
   return (
     <div className={styles["app-container"]}>
@@ -35,12 +69,15 @@ export default function App() {
       </header>
 
       <main className={styles["main-content"]}>
-        <button
-          className={styles["main-button"]}
-          onClick={() => navigate("/crear-curso")}
-        >
-          Crear curso
-        </button>
+        {userRol === "profesor" && (
+          <button
+            className={styles["main-button"]}
+            onClick={() => navigate("/crear-curso")}
+          >
+            Crear curso
+          </button>
+        )}
+        
         <button
           className={styles["main-button"]}
           onClick={() => navigate("/editar-perfil")}
@@ -49,10 +86,11 @@ export default function App() {
         </button>
       </main>
 
-      <div>
+      <div className={styles.navigation}>
         <button
           className={styles["main-button"]}
           onClick={() => navigate("/instructorNav")}
+          style={{ backgroundColor: "#64748b" }}
         >
           Volver
         </button>

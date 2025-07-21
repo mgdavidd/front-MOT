@@ -1,6 +1,6 @@
 .container {
-  max-width: 500px;
-  margin: 40px auto;
+  max-width: 90%;
+  margin: auto;
   padding: 20px;
   text-align: center;
   font-family: Arial, sans-serif;
@@ -26,6 +26,7 @@
   font-size: 1rem;
   cursor: pointer;
   transition: background-color 0.3s ease;
+  display: block;
 }
 
 .button:hover {

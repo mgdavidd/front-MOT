@@ -1,35 +1,55 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import styles from "./CourseContent.module.css";
+import Cookies from "js-cookie";
 
-const cursos = [
-  {
-    id: 1,
-    nombre: "Programación",
-    descripcion: "Aprende lógica, algoritmos y desarrollo web.",
-    profesor: "David Mejía"
-  },
-  {
-    id: 2,
-    nombre: "Física",
-    descripcion: "Estudia el movimiento, la energía y las leyes del universo.",
-    profesor: "Albert Newton"
-  },
-  {
-    id: 3,
-    nombre: "Psicología",
-    descripcion: "Explora la mente humana y el comportamiento.",
-    profesor: "Sigmund Carl"
+const getCurrentUser = () => {
+  try {
+    const userCookie = Cookies.get("user");
+    if (!userCookie) return null;
+    const decoded = decodeURIComponent(userCookie);
+    return JSON.parse(decoded);
+  } catch (error) {
+    console.error("Error al parsear cookie:", error);
+    return null;
   }
-];
+};
 
 export default function CourseContent() {
   const navigate = useNavigate();
+  const [courses, setCourses] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const currentUser = getCurrentUser();
+    const userId = currentUser?.id;
+
+    if (!userId) {
+      console.error("No user ID found.");
+      return;
+    }
+
+    const fetchCourses = async () => {
+      try {
+        const response = await fetch(`http://localhost:3000/teachers/${userId}/courses`);
+        const data = await response.json();
+        setCourses(data);
+      } catch (error) {
+        console.error("Error fetching courses:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchCourses();
+  }, []);
+
+  if (loading) return <div>Cargando cursos...</div>;
 
   return (
     <div className={styles.container}>
       <h1 className={styles.title}>Mis Cursos</h1>
-      {cursos.map((curso) => (
+      {courses.map((curso) => (
         <button
           key={curso.id}
           className={styles.button}
