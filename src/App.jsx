@@ -10,6 +10,7 @@ import OAuthSuccess from './pages/OauthSuccess';
 import GoogleChooseUsername from './pages/GoogleChooseUsername';
 import EditarPerfil from './pages/Personalizarperfil';
 import ViewContentCourse from './pages/ViewContentCourse/ViewContentCourse';
+import CrearCurso from './pages/Crearcurso/CreateCourse';
 
 
 function App() {
@@ -26,6 +27,8 @@ function App() {
         <Route path="/choose-username" element={<GoogleChooseUsername />} />
         <Route path="/editar-perfil" element={<EditarPerfil />} />
         <Route path="/curso" element={<ViewContentCourse />} />
+        <Route path="/crear-curso" element={<CrearCurso />} />
+
 
       </Routes>
     </div>
