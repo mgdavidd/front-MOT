@@ -9,8 +9,9 @@ import ChecksKnowledge from './pages/ChecksKnowledge';
 import OAuthSuccess from './pages/OauthSuccess';
 import GoogleChooseUsername from './pages/GoogleChooseUsername';
 import EditarPerfil from './pages/Personalizarperfil';
-import ViewContentCourse from './pages/ViewContentCourse/ViewContentCourse';
 import CrearCurso from './pages/Crearcurso/CreateCourse';
+import ModulesCourse from './pages/modulesCourse';
+import ViewContentCourse from './pages/ViewContentCourse/ViewContentCourse';
 
 
 function App() {
@@ -26,7 +27,8 @@ function App() {
         <Route path="/oauth-success" element={<OAuthSuccess />} />
         <Route path="/choose-username" element={<GoogleChooseUsername />} />
         <Route path="/editar-perfil" element={<EditarPerfil />} />
-        <Route path="/curso" element={<ViewContentCourse />} />
+        <Route path="/curso" element={<ModulesCourse />} />
+        <Route path="/courseContent" element={<ViewContentCourse />} />
         <Route path="/crear-curso" element={<CrearCurso />} />
 
 

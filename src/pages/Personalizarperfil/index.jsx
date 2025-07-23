@@ -1,3 +1,4 @@
+// index.jsx - EditarPerfil
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import Cookies from "js-cookie";
@@ -18,10 +19,10 @@ export default function EditarPerfil() {
     rol: "",
     color_perfil: "#42A5F5",
     id: null,
+    area: "",
   });
   const [isLoading, setIsLoading] = useState(false);
 
-  // Cargar datos del usuario
   useEffect(() => {
     const loadUserData = () => {
       const cookieValue = Cookies.get("user");
@@ -37,6 +38,7 @@ export default function EditarPerfil() {
           nombre: user.rows[0][1],
           nombre_usuario: user.rows[0][2],
           email: user.rows[0][3],
+          area: user.rows[0][5], // ✅ CAMBIO AQUÍ
           rol: user.rows[0][6],
           color_perfil: user.rows[0][10]
         } : user;
@@ -48,14 +50,15 @@ export default function EditarPerfil() {
           rol: normalizedUser.rol || "",
           color_perfil: normalizedUser.color_perfil || "#42A5F5",
           id: normalizedUser.id || null,
+          area: normalizedUser.area || "",
         });
 
         document.documentElement.style.setProperty(
-          '--color-primary', 
+          '--color-primary',
           normalizedUser.color_perfil || "#42A5F5"
         );
       } catch (error) {
-        console.error("Error al parsear cookie:", error);
+        console.error(error)
         Cookies.remove("user");
         navigate("/login");
       }
@@ -80,19 +83,18 @@ export default function EditarPerfil() {
     setIsLoading(true);
 
     try {
-      // 1. Actualizar usuario
       const res = await fetch(`http://localhost:3000/edit-profile/${formData.id}`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           nombre_usuario: formData.nombre_usuario,
           color_perfil: formData.color_perfil,
+          area: formData.area,
         }),
       });
 
       if (!res.ok) throw new Error(await res.text());
 
-      // 2. Obtener usuario actualizado
       const userRes = await fetch(`http://localhost:3000/user/${formData.id}`);
       if (!userRes.ok) throw new Error("Error al obtener datos actualizados");
 
@@ -102,16 +104,15 @@ export default function EditarPerfil() {
         nombre: userData.rows[0][1],
         nombre_usuario: userData.rows[0][2],
         email: userData.rows[0][3],
+        area: userData.rows[0][5], // ✅ CAMBIO AQUÍ TAMBIÉN
         rol: userData.rows[0][6],
         color_perfil: userData.rows[0][10]
       } : userData;
 
-      // 3. Actualizar cookie y estado
-      Cookies.set("user", JSON.stringify(normalizedUser), { 
+      Cookies.set("user", JSON.stringify(normalizedUser), {
         expires: 7,
       });
     } catch (err) {
-      console.error("Error:", err);
       alert(err.message || "Error en la conexión");
     } finally {
       setIsLoading(false);
@@ -130,18 +131,18 @@ export default function EditarPerfil() {
         <strong><h2>{formData.nombre}</h2></strong>
 
         <div className={styles.headerButtons}>
-          <button 
-            onClick={() => navigate("/profile")} 
+          <button
+            onClick={() => navigate("/profile")}
             className={styles.backBtn}
             disabled={isLoading}
           >
             Volver
           </button>
-          <button 
+          <button
             onClick={() => {
               Cookies.remove("user");
               navigate("/");
-            }} 
+            }}
             className={styles.logoutBtn}
             disabled={isLoading}
           >
@@ -172,7 +173,21 @@ export default function EditarPerfil() {
             disabled={isLoading}
           />
         </div>
-                <div className={styles.group}>
+
+        <div className={styles.group}>
+          <label className={styles.label}>Área</label>
+          <input
+            type="text"
+            name="area"
+            value={formData.area}
+            onChange={handleChange}
+            className={styles.input}
+            placeholder="Ej: Matemáticas, Ciencias, Tecnología"
+            disabled={isLoading}
+          />
+        </div>
+
+        <div className={styles.group}>
           <label className={styles.label}>Banco</label>
           <select className={styles.input}>
             <option value="">Selecciona un banco</option>
@@ -216,8 +231,8 @@ export default function EditarPerfil() {
           </div>
         </div>
 
-        <button 
-          type="submit" 
+        <button
+          type="submit"
           className={styles.saveBtn}
           disabled={isLoading}
         >

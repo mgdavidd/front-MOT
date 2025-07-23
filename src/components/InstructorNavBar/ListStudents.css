@@ -1,24 +1,25 @@
 .container {
   width: 100%;
-  max-width: 600px;
+  max-width: 850px;
   margin: 2rem auto;
   font-family: 'Segoe UI', sans-serif;
-  background-color: #f9f9f9;
+  background-color: #a6bbcf; /* gris oscuro */
   border-radius: 10px;
   padding: 1rem;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+  box-shadow: 0 4px 12px rgba(0,0,0,0.4);
+  color: #f3f4f6;
 }
 
 .course {
   margin-bottom: 1rem;
-  border-bottom: 1px solid #ddd;
+  border-bottom: 1px solid #393e46; /* gris más claro */
 }
 
 .course-header {
   cursor: pointer;
   padding: 0.75rem;
   font-size: 1.2rem;
-  background-color: #4f46e5;
+  background-color: #2677fa; /* azul vibrante */
   color: white;
   display: flex;
   justify-content: space-between;
@@ -28,7 +29,7 @@
 }
 
 .course-header:hover {
-  background-color: #4338ca;
+  background-color: #2563eb; /* azul más oscuro al pasar el mouse */
 }
 
 .arrow {
@@ -42,13 +43,62 @@
 }
 
 .student {
-  background-color: #fff;
+  background-color: #758196; /* gris medio */
   border-radius: 6px;
   padding: 0.5rem 1rem;
   margin-bottom: 0.5rem;
-  box-shadow: 0 1px 4px rgba(0,0,0,0.05);
+  box-shadow: 0 1px 4px rgba(0,0,0,0.2);
 }
 
 .student p {
   margin: 0.2rem 0;
+  color: #e5e7eb; /* gris claro para el texto */
+}
+
+.student {
+  background-color: #374151;
+  border-radius: 6px;
+  padding: 0.5rem 1rem;
+  margin-bottom: 0.5rem;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.2);
+  display: flex;               /* Cambia a diseño en línea */
+  justify-content: space-between;
+  align-items: center;
+  gap: 1rem;
+  flex-wrap: wrap;            /* Para evitar desbordamientos */
+}
+
+.student p {
+  margin: 0;
+  color: #e5e7eb;
+  flex: 1;                    /* Para que todos tengan mismo ancho */
+  min-width: 100px;          /* Control mínimo de espacio */
+  text-wrap: balance;
+}
+
+img.student-img {
+  width: 40px;                /* Ancho fijo para la imagen */
+  height: 40px;               /* Alto fijo para la imagen */
+  border-radius: 50%;         /* Imagen circular */
+  object-fit: cover;          /* Mantiene la proporción de la imagen */
+}
+
+.promedio.alto {
+  color: #10b981; /* verde */
+  font-weight: bold;
+}
+
+.promedio.bueno {
+  color: #f97316; /* naranja */
+  font-weight: bold;
+}
+
+.promedio.regular {
+  color: #eab308; /* amarillo */
+  font-weight: bold;
+}
+
+.promedio.bajo {
+  color: #ef4444; /* rojo */
+  font-weight: bold;
 }
