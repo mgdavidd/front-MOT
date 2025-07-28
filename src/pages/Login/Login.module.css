@@ -35,6 +35,14 @@
   transform: translateY(-2px);
 }
 
+input[type="text"]{
+  width: 100%;
+  max-width: none !important;
+  margin: 0.3rem 0;
+  padding: 0.5rem 0.75rem;
+  border-radius: 25px !important;
+}
+
 @media (max-width: 480px) {
   .title {
     font-size: 1.8rem;

@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import Cookies from "js-cookie"; // 👈 IMPORTANTE
+import Cookies from "js-cookie";
 import styles from "./Signup.module.css";
 import "../../assets/styles/auth/auth-base.css";
 import "../../assets/styles/auth/auth-components.css";
@@ -13,7 +13,6 @@ const Signup = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-
     setErrorMessage("");
 
     const userName = e.target.elements.userName.value;
@@ -36,8 +35,11 @@ const Signup = () => {
       const data = await res.json();
 
       if (res.ok && data.success) {
-        // 👉 Guardar en cookies por 7 días
-        Cookies.set("user", JSON.stringify(data.user), { expires: 7 });
+        const { user, token } = data;
+
+        // Guardar usuario y token
+        Cookies.set("user", JSON.stringify(user), { expires: 7 });
+        Cookies.set("token", token, { expires: 7 });
 
         if (isAdmin) {
           navigate("/checksKnowledge", {
@@ -68,9 +70,7 @@ const Signup = () => {
         <h1 className={styles.title}>Registro</h1>
 
         {errorMessage && (
-          <div className={styles.errorMessage}>
-            {errorMessage}
-          </div>
+          <div className={styles.errorMessage}>{errorMessage}</div>
         )}
 
         <form onSubmit={handleSubmit} className="auth-form">

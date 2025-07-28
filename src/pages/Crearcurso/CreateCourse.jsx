@@ -140,7 +140,6 @@ export default function CreateCourse() {
           </div>
         </div>
 
-        {/* Área del curso */}
         <div className={styles.section}>
           <label className={styles.label}>Área del curso</label>
           <select value={area} onChange={handleAreaChange} className={styles.select} required>
@@ -154,7 +153,6 @@ export default function CreateCourse() {
           </select>
         </div>
 
-        {/* Descripción */}
         <div className={styles.section}>
           <label className={styles.label}>Descripción del curso</label>
           <textarea
@@ -166,7 +164,6 @@ export default function CreateCourse() {
           />
         </div>
 
-        {/* Tipo de curso */}
         <div className={styles.section}>
           <label className={styles.label}>Tipo de curso</label>
           <select
@@ -179,7 +176,6 @@ export default function CreateCourse() {
           </select>
         </div>
 
-        {/* Costo */}
         <div className={styles.section}>
           <label className={styles.label}>Costo por inscripción</label>
           <input
@@ -194,7 +190,6 @@ export default function CreateCourse() {
           <p className={styles.costText}>{parseInt(costo).toLocaleString()}$</p>
         </div>
 
-        {/* Botones */}
         <div className={styles.buttons}>
           <button className={`${styles.btn} ${styles.cancel}`} onClick={() => navigate("/profile")}>
             Cancelar
@@ -204,7 +199,6 @@ export default function CreateCourse() {
           </button>
         </div>
 
-        {/* Modal */}
         {modal.visible && (
           <div
             style={{

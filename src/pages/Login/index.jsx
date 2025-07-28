@@ -1,6 +1,6 @@
 import React from "react";
 import { Link, useNavigate } from "react-router-dom";
-import Cookies from "js-cookie"; // 👈 importa la librería
+import Cookies from "js-cookie";
 import styles from "./Login.module.css";
 import "../../assets/styles/auth/auth-base.css";
 import "../../assets/styles/auth/auth-components.css";
@@ -14,7 +14,6 @@ const Login = () => {
     e.preventDefault();
     const userName = e.target.elements.userName.value;
     const password = e.target.elements.password.value;
-    console.log(userName, password);
 
     const res = await fetch("http://localhost:3000/login", {
       method: "POST",
@@ -25,16 +24,12 @@ const Login = () => {
     const data = await res.json();
 
     if (res.ok && data.success) {
-      const userData = {
-        id: data.user.id,
-        nombre: data.user.nombre,
-        email: data.user.email,
-        area: data.user.area,
-        rol: data.user.rol,
-        nombre_usuario: data.user.nombre_usuario,
-        color_perfil: data.user.color_perfil,
-      };
-      Cookies.set("user", JSON.stringify(userData), { expires: 7 });
+      const { user, token } = data;
+
+      // Guardar usuario y token en cookies
+      Cookies.set("user", JSON.stringify(user), { expires: 7 });
+      Cookies.set("token", token, { expires: 7 });
+
       navigate("/profile");
     } else {
       alert(data.error || "Ocurrió un error durante el login.");

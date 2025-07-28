@@ -1,439 +1,198 @@
-/* InstructorCal.css */
-
 .instructor-calendar {
+  font-family: "Segoe UI", sans-serif;
+  padding: 2rem;
   max-width: 900px;
-  margin: 40px auto;
-  background: #fff;
-  border-radius: 18px;
-  box-shadow: 0 2px 16px rgba(0,0,0,0.08);
-  padding: 32px 28px 24px 28px;
-  font-family: 'Segoe UI', Arial, sans-serif;
-}
-
-.calendar-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  margin-bottom: 18px;
-}
-
-.course-selector select.styled-select {
-  padding: 7px 16px;
-  border-radius: 8px;
-  border: 1px solid #bdbdbd;
-  font-size: 1rem;
-  background: #f7f7f7;
-  transition: border 0.2s;
-}
-
-.course-selector select.styled-select:focus {
-  border: 1.5px solid #1976d2;
-  outline: none;
-}
-
-.calendar-toolbar {
-  display: flex;
-  justify-content: flex-end;
-  margin-bottom: 10px;
-}
-
-.edit-button {
-  background: #1976d2;
-  color: #fff;
-  border: none;
-  border-radius: 7px;
-  padding: 8px 22px;
-  font-size: 1rem;
-  cursor: pointer;
-  transition: background 0.2s;
-}
-
-.edit-button.active,
-.edit-button:hover {
-  background: #1251a3;
-}
-
-.calendar-main {
-  display: flex;
-  gap: 32px;
-}
-
-.calendar-editor {
-  flex: 1.2;
-  background: #f5f8fa;
-  border-radius: 10px;
-  padding: 18px 18px 12px 18px;
-  margin-bottom: 18px;
+  margin: 0 auto;
+  background-color: #fefefe;
+  border-radius: 12px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
   position: relative;
 }
 
-.event-type-selector {
-  display: flex;
-  gap: 10px;
-  margin-bottom: 18px;
-}
-
-.type-button {
-  padding: 7px 18px;
-  border-radius: 6px;
-  border: 1.5px solid #bdbdbd;
-  background: #fff;
-  color: #333;
-  font-weight: 500;
-  cursor: pointer;
-  transition: background 0.2s, border 0.2s;
-  min-width: 120px;
-  width: 100%;
-  box-sizing: border-box;
-}
-
-.type-button.active,
-.type-button:hover {
-  background: #1976d2;
-  color: #fff;
-  border: 1.5px solid #1976d2;
-}
-
-/* Colores personalizados para los botones activos según tipo */
-.type-button.clase-en-vivo.active {
-  background: #1976d2;
-  border-color: #1976d2;
-  color: white;
-}
-
-.type-button.aaa.active {
-  background: #ff9800;
-  border-color: #ff9800;
-  color: white;
-}
-
-.calendar-container label {
-  font-size: 1rem;
-  font-weight: 500;
-  margin-bottom: 8px;
-  display: block;
-}
-
-/* Calendario react-multi-date-picker */
-.rmdp-wrapper,
-.rmdp-container {
-  width: 100% !important;
-  min-width: 320px;
-  max-width: 100%;
-}
-
-.rmdp-calendar {
-  box-shadow: none !important;
-  border-radius: 10px;
-  border: 1.5px solid #e0e0e0;
-  background: #fff;
-  margin-bottom: 10px;
-}
-
-.rmdp-panel-body {
-  min-width: 320px;
-}
-
-.rmdp-day.rmdp-selected span,
-.rmdp-day.rmdp-selected {
-  background: #1976d2 !important;
-  color: #fff !important;
-  border-radius: 50% !important;
-}
-
-/* Sesiones */
-.sessions-container {
-  flex: 1.5;
-  background: #f8fafc;
-  border-radius: 10px;
-  padding: 18px 18px 12px 18px;
-  min-width: 320px;
-}
-
-.sessions-list {
-  margin-top: 10px;
-}
-
-.session-card {
-  background: #fff;
-  border-radius: 8px;
-  margin-bottom: 14px;
-  padding: 14px 18px 10px 18px;
-  box-shadow: 0 1px 6px rgba(0,0,0,0.06);
-  border-left: 6px solid #bdbdbd;
-  position: relative;
-  transition: border-color 0.2s;
-}
-
-.session-card.vivo-type {
-  border-left: 6px solid #1976d2;
-  background: #e3f0fd;
-}
-
-.session-card.AAA-type {
-  border-left: 6px solid #ff9800;
-  background: #fff3e0;
-}
-
-.session-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-}
-
-.session-type {
-  font-weight: 600;
-  font-size: 1.1rem;
-  letter-spacing: 0.5px;
-}
-
-.remove-session {
-  background: #e53935;
-  color: #fff;
-  border: none;
-  border-radius: 50%;
-  width: 28px;
-  height: 28px;
-  font-size: 1rem;
-  font-weight: bold;
-  line-height: 1;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
-  transition: background 0.2s;
-}
-
-.remove-session:hover {
-  background: #b71c1c;
-}
-
-
-.session-date {
-  font-size: 1rem;
-  color: #555;
-  margin-top: 2px;
-  margin-bottom: 4px;
-}
-
-.session-time {
-  font-size: 1.05rem;
-  color: #222;
-  margin-bottom: 4px;
-}
-
-.recording-info {
-  margin-top: 4px;
-  font-size: 0.98rem;
-}
-
-.time-inputs {
-  display: flex;
-  gap: 10px;
-  margin-top: 6px;
-}
-
-.time-inputs input[type="time"] {
-  padding: 4px 8px;
-  border-radius: 5px;
-  border: 1px solid #bdbdbd;
-  font-size: 1rem;
-  background: #f7f7f7;
-  min-width: 0;
-  width: 48%;
-}
-
-.save-section {
-  display: flex;
-  justify-content: flex-end;
-  margin-top: 18px;
-}
-
-.save-button {
-  background: #388e3c;
-  color: #fff;
-  border: none;
-  border-radius: 7px;
-  padding: 10px 28px;
-  font-size: 1.1rem;
-  font-weight: 500;
-  cursor: pointer;
-  transition: background 0.2s;
-}
-
-.save-button:disabled {
-  background: #bdbdbd;
-  cursor: not-allowed;
-}
-
-.save-button:not(:disabled):hover {
-  background: #256029;
-}
-
-.loading,
-.error-message,
-.auth-error {
+h2 {
   text-align: center;
-  margin-top: 40px;
+  margin-bottom: 1.5rem;
+  color: #2c3e50;
 }
 
-/* Responsive media queries */
-@media (max-width: 900px) {
-  .calendar-main {
-    flex-direction: column;
-    gap: 18px;
-  }
-
-  .calendar-editor,
-  .sessions-container {
-    min-width: unset;
-    padding: 10px 4px;
-    margin-bottom: 12px;
-  }
-
-  .event-type-selector {
-    flex-direction: column;
-    gap: 8px;
-    align-items: stretch;
-  }
-
-  .calendar-container label {
-    margin-bottom: 6px;
-    font-size: 0.98rem;
-  }
-
-  .rmdp-wrapper,
-  .rmdp-container,
-  .rmdp-calendar {
-    min-width: 0 !important;
-    width: 100% !important;
-    max-width: 100vw !important;
-  }
-
-  .calendar-editor {
-    padding: 10px 2vw 10px 2vw;
-  }
-}
-
-@media (max-width: 600px) {
-  .instructor-calendar {
-    padding: 6px 0;
-    border-radius: 0;
-    box-shadow: none;
-  }
-
-  .calendar-header {
-    flex-direction: column;
-    gap: 8px;
-    align-items: flex-start;
-  }
-
-  .calendar-editor,
-  .sessions-container {
-    padding: 6px 0;
-    border-radius: 0;
-  }
-
-  .event-type-selector {
-    flex-direction: column;
-    gap: 6px;
-  }
-
-  .calendar-container label {
-    font-size: 0.95rem;
-  }
-
-  .rmdp-calendar {
-    border-radius: 0;
-    margin-bottom: 6px;
-  }
-
-  .save-section {
-    padding: 0 4vw;
-  }
-
-  .remove-session {
-    width: 32px;
-    height: 32px;
-    min-height: 32px;
-    font-size: 1.2rem;
-  }
-}
-
-@media (max-width: 400px) {
-  .calendar-editor,
-  .sessions-container {
-    padding: 2px 0;
-  }
-
-  .save-section {
-    padding: 0 2vw;
-  }
-
-  .remove-session {
-    width: 30px;
-    min-height: 30px;
-    height: 30px;
-    margin-bottom: 10px;
-    font-size: 1rem;
-  }
-}
-
-
-.datepicker-wrapper {
+select,
+input[type="time"],
+input[type="text"] {
+  padding: 0.5rem;
+  border-radius: 6px;
+  border: 1px solid #ccc;
+  color: #333 !important;
+  font-size: 1rem;
+  margin: 0.25rem 0;
   width: 100%;
-  max-width: 100%;
-  overflow-x: hidden;
-}
-
-.full-width-calendar,
-.rmdp-wrapper,
-.rmdp-container,
-.rmdp-calendar {
-  width: 100% !important;
-  max-width: 100% !important;
   box-sizing: border-box;
-  overflow-x: hidden;
+}
+
+select:disabled {
+  background-color: #f0f0f0;
+}
+
+button {
+  padding: 0.6rem 1rem;
+  background-color: #3498db;
+  color: white;
+  border: none;
+  font-weight: bold;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+  margin-top: 1rem;
+}
+
+button:hover {
+  background-color: #2980b9;
+}
+
+.save-btn {
+  display: block;
+  width: 100%;
+  margin-top: 2rem;
+  background-color: #27ae60;
+}
+
+.save-btn:hover {
+  background-color: #1e8449;
 }
 
 
-.modal-error-validation {
+.session-card[data-type="Clase en vivo"] {
+  border-left: 5px solid #3498db;
+  background-color: #e3f2fd;
+}
+
+.session-card[data-type="AAA"] {
+  border-left: 5px solid #ff9800;
+  background-color: #fff3e0;
+}
+
+.session-card p[data-type-badge] {
+  display: inline-block;
+  padding: 0.2rem 0.5rem;
+  border-radius: 12px;
+  font-size: 0.8rem;
+  font-weight: bold;
+  margin-bottom: 0.5rem;
+}
+
+.session-card p[data-type-badge="Clase en vivo"] {
+  background-color: #3498db;
+  color: white;
+}
+
+.session-card p[data-type-badge="AAA"] {
+  background-color: #ff9800;
+  color: white;
+}
+
+.session-card h4 {
+  margin-bottom: 0.5rem;
+  color: #2c3e50;
+}
+
+.session-card p {
+  margin: 0.3rem 0;
+  color: #34495e;
+}
+
+.error {
+  padding: 0.75rem;
+  border-radius: 6px;
+  margin-bottom: 1rem;
+  font-weight: bold;
+  background-color: #f8d7da;
+  color: #842029;
+}
+
+/* Modal styles */
+.modal-overlay {
   position: fixed;
   top: 0;
   left: 0;
-  width: 100%;
-  height: 100%;
-  background: rgba(0,0,0,0.6);
-  display: none;
-  align-items: center;
-  justify-content: center;
-  z-index: 999;
-}
-
-.modal-error-validation.active {
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.5);
   display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
 }
 
-.modal-error-validation .modal-content {
-  background: #fff;
-  padding: 20px 30px;
+.modal {
+  background-color: white;
+  padding: 2rem;
   border-radius: 8px;
-  max-width: 400px;
+  max-width: 500px;
+  width: 90%;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
   text-align: center;
-  box-shadow: 0 0 15px rgba(0,0,0,0.3);
 }
 
-.modal-error-validation .modal-content h3 {
-  color: #c0392b;
-  margin-bottom: 10px;
+.modal h3 {
+  color: #e74c3c;
+  margin-top: 0;
+  margin-bottom: 1rem;
 }
 
-.modal-error-validation .modal-content button {
-  margin-top: 15px;
-  padding: 8px 16px;
-  background-color: #c0392b;
+.modal p {
+  margin-bottom: 1.5rem;
+  font-size: 1.1rem;
+}
+
+.modal button {
+  background-color: #3498db;
+  margin-top: 0;
+  min-width: 100px;
+}
+
+/* DayPicker calendar tweaks */
+.rdp {
+  --rdp-cell-size: 40px;
+  margin-top: 1rem;
+}
+
+.rdp-day_selected {
+  background-color: #3498db;
   color: white;
-  border: none;
-  border-radius: 4px;
-  cursor: pointer;
+  font-weight: bold;
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+  .instructor-calendar {
+    padding: 1rem;
+  }
+
+  .session-card {
+    font-size: 0.95rem;
+  }
+
+  button,
+  select,
+  input {
+    font-size: 0.95rem;
+  }
+}
+
+@media (max-width: 480px) {
+  h2 {
+    font-size: 1.4rem;
+  }
+
+  .session-card h4 {
+    font-size: 1.1rem;
+  }
+
+  .save-btn {
+    font-size: 1rem;
+    padding: 0.7rem;
+  }
+
+  .modal {
+    padding: 1.5rem;
+  }
 }
