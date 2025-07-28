@@ -1,0 +1,87 @@
+.body {
+  min-height: 100vh;
+  padding: 3rem 1rem;
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  background-color: #e0f2fe; /* Fondo suave */
+}
+
+/* Contenedor del curso y módulos */
+.container {
+  position: relative;
+  background-color: #DBEAFE;
+  padding: 2rem;
+  border-radius: 12px;
+  max-width: 600px;
+  width: 100%;
+  box-shadow: 0 4px 10px rgba(100, 116, 139, 0.2);
+}
+
+/* Encabezado con título */
+.header {
+  margin-bottom: 1.5rem;
+}
+
+/* Título del curso */
+.title {
+  color: #1E3A8A;
+  font-size: 1.8rem;
+  font-weight: bold;
+}
+
+/* Lista de módulos */
+.list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+/* Cada módulo individual */
+.moduleItem {
+  background-color: #FFFFFF;
+  border: 1px solid #CBD5E1;
+  padding: 1rem;
+  border-radius: 8px;
+  margin-bottom: 0.8rem;
+  color: #ffffff;
+  font-weight: 500;
+  transition: transform 0.2s ease;
+  font-size: 15px;
+}
+
+.moduleItem:hover {
+  transform: translateY(-2px);
+}
+
+/* Botón + para agregar módulo */
+.addButton {
+  position: absolute;
+  top: 1.2rem;
+  right: 1.2rem;
+  background-color: #3B82F6;
+  color: white;
+  border: none;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  font-size: 1.5rem;
+  font-weight: bold;
+  cursor: pointer;
+  transition: background-color 0.3s ease, transform 0.2s ease;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.addButton:hover {
+  background-color: #2563EB;
+  transform: scale(1.1);
+}
+
+/* Cargando */
+.loading {
+  text-align: center;
+  font-size: 1.2rem;
+  color: #64748B;
+}

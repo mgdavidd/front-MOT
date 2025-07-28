@@ -1,14 +1,58 @@
-import React from 'react'
+// ModulesCourse.jsx
+import React, { useEffect, useState } from "react";
+import { useLocation } from "react-router-dom";
+import styles from "./ModulesCourse.module.css";
+import CreateModuleModal from "./CreateModuleModal";
 
-function ModulesCourse() {
-    //aqui se cargaran los modulos del curso
-    //debe tener un boton en algun lado para crear un nuevo modulo
-    // y cada vez que se cree un curso siempre habra un modulo por defecto que es el de Introduccion
-    //todo se tomara por el fetch a http://localhost:3000/modules/course/:courseId
-    //al ingresar el contenido estara enlistado en la vista viewContentCourse (habra que cambiarla tambien)
+export default function ModulesCourse() {
+  const location = useLocation();
+  const course = location.state;
+  const [modules, setModules] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [showModal, setShowModal] = useState(false);
+
+  const fetchModules = async () => {
+    try {
+      const response = await fetch(`http://localhost:3000/modules/course/${course.id}`);
+      const data = await response.json();
+      setModules(data);
+    } catch (err) {
+      console.error("Error fetching modules:", err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchModules();
+  }, [course]);
+
+  if (loading) return <div className={styles.loading}>Cargando módulos...</div>;
+
   return (
-    <div>ModulesCourse</div>
-  )
-}
+    <div className={styles.body}>
+      <div className={styles.container}>
+        <div className={styles.header}>
+          <h1 className={styles.title}>Módulos de {course.nombre}</h1>
+        </div>
+        <button className={styles.addButton} onClick={() => setShowModal(true)}>+</button>
 
-export default ModulesCourse
+        <ul className={styles.list}>
+          {modules.map((mod) => (
+            <li key={mod.id} className={styles.moduleItem} style={{ backgroundColor: mod.color || "#FFFFFF" }}>
+              {mod.title || mod.nombre}
+            </li>
+          ))}
+        </ul>
+      </div>
+
+      {showModal && (
+        <CreateModuleModal
+          courseId={course.id}
+          onClose={() => setShowModal(false)}
+          onModuleCreated={fetchModules}
+        />
+      )}
+    </div>
+  );
+}
