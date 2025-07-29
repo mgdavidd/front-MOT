@@ -15,7 +15,6 @@ const InstructorCal = () => {
       return null;
     }
   };
-
   const user = getCurrentUser();
   const userId = user?.id;
 
@@ -212,11 +211,14 @@ const InstructorCal = () => {
             </select>
           </div>
 
-          <DayPicker
+          <div className="calendar-wrapper">
+            <DayPicker
             mode="multiple"
             selected={selectedDates}
             onSelect={handleDateSelect}
           />
+          </div>
+          
         </>
       )}
 

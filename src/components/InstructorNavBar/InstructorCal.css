@@ -59,6 +59,14 @@ button:hover {
   background-color: #1e8449;
 }
 
+.session-card {
+  display: flex;
+  flex-direction: column;
+  padding: 1rem;
+  margin-top: 1rem;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+}
 
 .session-card[data-type="Clase en vivo"] {
   border-left: 5px solid #3498db;
@@ -99,6 +107,19 @@ button:hover {
   color: #34495e;
 }
 
+.session-inputs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-top: 0.5rem;
+}
+
+.session-inputs input {
+  flex: 1 1 30%;
+  min-width: 100px;
+}
+
+/* Error Message */
 .error {
   padding: 0.75rem;
   border-radius: 6px;
@@ -176,6 +197,14 @@ button:hover {
   input {
     font-size: 0.95rem;
   }
+
+  .session-inputs {
+    flex-direction: column;
+  }
+
+  .session-inputs input {
+    flex: 1 1 100%;
+  }
 }
 
 @media (max-width: 480px) {
@@ -195,4 +224,29 @@ button:hover {
   .modal {
     padding: 1.5rem;
   }
+}
+
+.rdp {
+  max-width: 100%;
+  overflow-x: auto;
+  display: block;
+  box-sizing: border-box;
+}
+
+/* Ajuste para móviles */
+@media (max-width: 768px) {
+  .rdp {
+    --rdp-cell-size: 36px;
+  }
+}
+
+@media (max-width: 480px) {
+  .rdp {
+    --rdp-cell-size: 32px;
+  }
+}
+
+.calendar-wrapper {
+  overflow-x: auto;
+  width: 100%;
 }
