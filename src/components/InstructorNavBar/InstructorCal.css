@@ -224,6 +224,13 @@ button:hover {
   .modal {
     padding: 1.5rem;
   }
+
+  .rdp-root * {
+    box-sizing: border-box;
+    max-width: 33px;
+    max-height: 402px;
+    font-size: 10px;
+  }
 }
 
 .rdp {
@@ -233,16 +240,54 @@ button:hover {
   box-sizing: border-box;
 }
 
-/* Ajuste para móviles */
-@media (max-width: 768px) {
-  .rdp {
-    --rdp-cell-size: 36px;
-  }
-}
-
 @media (max-width: 480px) {
   .rdp {
     --rdp-cell-size: 32px;
+  }
+
+  .rdp-root * {
+    box-sizing: border-box;
+    max-width: 35px;
+    max-height: 402px;
+    font-size: 10px;
+  }
+
+  rdp-nav {
+    min-width: 20px !important;
+    display: block !important;
+    margin-left: auto !important;
+  }
+
+  .rdp-button_previous {
+    margin-left: 100px;
+    border: solid black 2px;
+    font-size: 12px;
+    padding: 10px !important;
+    min-height: 0px !important;
+  }
+
+  .rdp-button_next {
+    margin-left: 10px;
+    border: solid black 2px;
+    font-size: 12px;
+    padding: 10px !important;
+    min-height: 0px !important;
+  }
+
+  .rdp-chevron {
+    display: inline-block;
+    fill: #000000;
+    width: 20px !important;
+    height: 30px;
+  }
+
+  .rdp-selected .rdp-day_button {
+    border: var(--rdp-selected-border);
+    font-size: 10px;
+    padding: 0px !important;
+    width: 100px;
+    min-height: 40px !important;
+    height: 40px;
   }
 }
 
