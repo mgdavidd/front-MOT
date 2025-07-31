@@ -13,6 +13,8 @@ import CrearCurso from './pages/Crearcurso/CreateCourse';
 import ViewContentCourse from './pages/ViewContentCourse/ViewContentCourse';
 import ModulesCourse from './pages/ModulesCourse';
 import Chatcourse from './pages/Chatcourse/Chatcourse';
+import StudentNavBar from './pages/StudentNavBar/StudentNavBar';
+import ProfileStudent from './pages/ProfileStudent';
 
 
 function App() {
@@ -32,6 +34,9 @@ function App() {
         <Route path="/viewContent" element={<ViewContentCourse />} />
         <Route path="/crear-curso" element={<CrearCurso />} />
         <Route path="/chat-course" element={<Chatcourse />} />
+
+        <Route path="/StudentNav" element={<StudentNavBar />} />
+        <Route path="/ProfileStudent" element={<ProfileStudent />} />
 
 
       </Routes>

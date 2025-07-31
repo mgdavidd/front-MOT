@@ -1,9 +1,8 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import Cookies from "js-cookie";
-import styles from "./Profile.module.css";
+import styles from "./ProfileStudent.module.css"; // O ProfileStudent.module.css si estás usando otro
 import Logo from "../../components/Logo";
-import { useState } from "react";
 
 export default function Profile() {
   const navigate = useNavigate();
@@ -12,7 +11,7 @@ export default function Profile() {
 
   const normalizeUserData = (userData) => {
     if (!userData) return null;
-    
+
     if (userData.rows) {
       return {
         nombre: userData.rows[0][1],
@@ -42,7 +41,7 @@ export default function Profile() {
       // Aplicar color del tema
       if (normalizedUser?.color_perfil) {
         document.documentElement.style.setProperty(
-          '--color-primary', 
+          '--color-primary',
           normalizedUser.color_perfil
         );
       }
@@ -56,22 +55,37 @@ export default function Profile() {
   const userName = user?.nombre || location.state?.userName || "Invitado";
   const userEmail = user?.email || "Correo no disponible";
   const userArea = user?.area || "Área no disponible";
-  const userRol = user?.rol || "Sin rol";
+  const userRol = user?.rol?.toLowerCase() || "sin rol";
 
   return (
     <div className={styles["app-container"]}>
       <header className={styles.header}>
         <Logo />
-        <h1 className={styles.title}>{userRol}</h1>
+        <h1 className={styles.title}>{user.rol}</h1>
         <p className={styles.subtitle}>{userName}</p>
         <p className={styles.subtitle}>{userEmail}</p>
         <p className={styles.subtitle}>{userArea}</p>
       </header>
 
       <main className={styles["main-content"]}>
-        {userRol === "Estudiante"(
+        {userRol === "estudiante" && (
+          <button
+            className={styles["main-button"]}
+            onClick={() => navigate("/crear-curso")}
+          >
+            Crear curso
+          </button>
         )}
-        
+
+        {userRol === "profesor" && (
+          <button
+            className={styles["main-button"]}
+            onClick={() => navigate("/panel-profesor")}
+          >
+            Panel del profesor
+          </button>
+        )}
+
         <button
           className={styles["main-button"]}
           onClick={() => navigate("/editar-perfil")}
