@@ -1,25 +1,12 @@
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import '../../assets/styles/instructions/instructions.css';
 
 const Instructions = () => {
-  const [seconds, setSeconds] = useState(10);
-  const [isButtonDisabled, setIsButtonDisabled] = useState(true);
+  const [hasRead, setHasRead] = useState(false);
 
-  useEffect(() => {
-    const interval = setInterval(() => {
-      setSeconds((prev) => {
-        if (prev <= 1) {
-          clearInterval(interval);
-          setIsButtonDisabled(false);
-          return 0;
-        }
-        return prev - 1;
-      });
-    }, 1000);
-
-    return () => clearInterval(interval);
-  }, []);
-
+  const handleCheckboxChange = (e) => {
+    setHasRead(e.target.checked);
+  };
 
   const handleContinue = () => {
     window.location.href = 'http://localhost:3000/auth/google';
@@ -47,12 +34,24 @@ const Instructions = () => {
           </li>
           <li>No comparta su cuenta de administrador con terceros.</li>
         </ul>
-        <button 
-          id="continuar-btn" 
-          disabled={isButtonDisabled} 
+
+        <div className="checkbox-container">
+          <label>
+            <input
+              type="checkbox"
+              checked={hasRead}
+              onChange={handleCheckboxChange}
+            />
+            He leído y comprendido las instrucciones
+          </label>
+        </div>
+
+        <button
+          id="continuar-btn"
+          disabled={!hasRead}
           onClick={handleContinue}
         >
-          {isButtonDisabled ? `Espera ${seconds} segundos...` : 'Continuar'}
+          Continuar
         </button>
       </div>
     </div>

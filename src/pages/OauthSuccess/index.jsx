@@ -14,7 +14,7 @@ const OAuthSuccess = () => {
       try {
         const user = JSON.parse(decodeURIComponent(userEncoded));//tomamos los datos del usuario
         Cookies.set("user", JSON.stringify(user), { expires: 7 });//guardamos en cookies(para no se vulnerables)
-        navigate("/profile");
+        navigate("/instructorNav");
       } catch (err) {
         console.error("Error al parsear usuario desde OAuth", err);
         navigate("/");

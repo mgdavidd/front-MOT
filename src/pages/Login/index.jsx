@@ -30,7 +30,7 @@ const Login = () => {
       Cookies.set("user", JSON.stringify(user), { expires: 7 });
       Cookies.set("token", token, { expires: 7 });
 
-      navigate("/profile");
+      navigate("/instructorNav");
     } else {
       alert(data.error || "Ocurrió un error durante el login.");
     }

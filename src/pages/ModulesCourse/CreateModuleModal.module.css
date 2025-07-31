@@ -66,3 +66,28 @@ button {
   color: red;
   font-size: 0.9rem;
 }
+
+.tabContainer {
+  display: flex;
+  gap: 1rem;
+  margin-top: 20px;
+}
+
+.tabButton {
+  flex: 1;
+  padding: 10px;
+  background-color: #e5e7eb;
+  border: none;
+  border-radius: 6px 6px 0 0;
+  cursor: pointer;
+  font-weight: bold;
+}
+
+.tabButton:hover {
+  background-color: #d1d5db;
+}
+
+.active {
+  background-color: #ffffff;
+  border-bottom: 2px solid #3b82f6;
+}

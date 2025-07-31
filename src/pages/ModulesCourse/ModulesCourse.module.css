@@ -85,3 +85,14 @@
   font-size: 1.2rem;
   color: #64748B;
 }
+
+.backButton {
+  margin-top: 30px;
+  padding: 10px 15px;
+  background-color: var(--color-primary);
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  color: #fff;
+  font-size: 1rem;
+}
