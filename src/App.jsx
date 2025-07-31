@@ -12,6 +12,8 @@ import EditarPerfil from './pages/Personalizarperfil';
 import CrearCurso from './pages/Crearcurso/CreateCourse';
 import ModulesCourse from './pages/modulesCourse';
 import ViewContentCourse from './pages/ViewContentCourse/ViewContentCourse';
+import StudentNavBar from './pages/StudentNavBar/StudentNavBar';
+import ProfileStudent from './pages/ProfileStudent';
 
 
 function App() {
@@ -30,6 +32,9 @@ function App() {
         <Route path="/curso" element={<ModulesCourse />} />
         <Route path="/courseContent" element={<ViewContentCourse />} />
         <Route path="/crear-curso" element={<CrearCurso />} />
+
+        <Route path="/StudentNav" element={<StudentNavBar />} />
+        <Route path="/ProfileStudent" element={<ProfileStudent />} />
 
 
       </Routes>
