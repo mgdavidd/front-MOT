@@ -26,11 +26,17 @@ const Login = () => {
     if (res.ok && data.success) {
       const { user, token } = data;
 
-      // Guardar usuario y token en cookies
       Cookies.set("user", JSON.stringify(user), { expires: 7 });
       Cookies.set("token", token, { expires: 7 });
 
-      navigate("/instructorNav");
+      const userRole = user.rol?.toLowerCase();
+      if (userRole === "profesor") {
+        navigate("/instructorNav");
+      } else if (userRole === "estudiante") {
+        navigate("/studentNav");
+      } else {
+        navigate("/");
+      }
     } else {
       alert(data.error || "Ocurrió un error durante el login.");
     }

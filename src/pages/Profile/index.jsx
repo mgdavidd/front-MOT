@@ -1,9 +1,8 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import Cookies from "js-cookie";
 import styles from "./Profile.module.css";
 import Logo from "../../components/Logo";
-import { useState } from "react";
 
 export default function Profile() {
   const navigate = useNavigate();
@@ -39,7 +38,6 @@ export default function Profile() {
       const normalizedUser = normalizeUserData(userData);
       setUser(normalizedUser);
 
-      // Aplicar color del tema
       if (normalizedUser?.color_perfil) {
         document.documentElement.style.setProperty(
           '--color-primary', 
@@ -53,25 +51,47 @@ export default function Profile() {
     }
   }, [navigate]);
 
+  const handleBack = () => {
+    if (!user) {
+      navigate("/");
+      return;
+    }
+
+    const userRole = user.rol?.toLowerCase();
+    if (userRole === "profesor") {
+      navigate("/instructorNav");
+    } else if (userRole === "estudiante") {
+      navigate("/studentNav");
+    } else {
+      navigate("/");
+    }
+  };
+
   const userName = user?.nombre || location.state?.userName || "Invitado";
   const userEmail = user?.email || "Correo no disponible";
   const userArea = user?.area || "Área no disponible";
-  const userRol = user?.rol || "Sin rol";
+  const userRol = user?.rol?.toLowerCase() || "sin rol";
 
   return (
     <div className={styles["app-container"]}>
       <header className={styles.header}>
         <Logo />
-        <h1 className={styles.title}>{userRol}</h1>
+        <h1 className={styles.title}>{user?.rol || "Perfil"}</h1>
         <p className={styles.subtitle}>{userName}</p>
         <p className={styles.subtitle}>{userEmail}</p>
         <p className={styles.subtitle}>{userArea}</p>
       </header>
 
-      <main className={styles["main-content"]}>
-        {userRol === "Estudiante"(
+      <main className={styles["main-content"]}> 
+        {userRol === "profesor" && (
+          <button
+            className={styles["main-button"]}
+            onClick={() => navigate("/crear-curso")}
+          >
+            Crear curso
+          </button>
         )}
-        
+
         <button
           className={styles["main-button"]}
           onClick={() => navigate("/editar-perfil")}
@@ -83,7 +103,7 @@ export default function Profile() {
       <div className={styles.navigation}>
         <button
           className={styles["main-button"]}
-          onClick={() => navigate("/instructorNav")}
+          onClick={handleBack}
           style={{ backgroundColor: "#64748b" }}
         >
           Volver

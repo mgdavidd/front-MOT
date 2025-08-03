@@ -12,14 +12,23 @@ const OAuthSuccess = () => {
 
     if (userEncoded) {
       try {
-        const user = JSON.parse(decodeURIComponent(userEncoded));//tomamos los datos del usuario
-        Cookies.set("user", JSON.stringify(user), { expires: 7 });//guardamos en cookies(para no se vulnerables)
-        navigate("/instructorNav");
+        const user = JSON.parse(decodeURIComponent(userEncoded));
+        Cookies.set("user", JSON.stringify(user), { expires: 7 });
+        
+        // Redirigir según el rol (sin usar /redirect-by-role)
+        const userRole = user.rol?.toLowerCase();
+        if (userRole === "profesor") {
+          navigate("/instructorNav");
+        } else if (userRole === "estudiante") {
+          navigate("/studentNav");
+        } else {
+          navigate("/"); // Rol no reconocido
+        }
       } catch (err) {
         console.error("Error al parsear usuario desde OAuth", err);
         navigate("/");
       }
-    } else {//si no existe
+    } else {
       navigate("/");
     }
   }, [navigate, location]);

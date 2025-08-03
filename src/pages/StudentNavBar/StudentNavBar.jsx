@@ -1,23 +1,46 @@
 // InstructorNavBar.js
-import React, { useState } from 'react';
-import '../../assets/styles/instructorNavBar/index.css';
-import { useNavigate } from 'react-router-dom';
-import Explore from '../../components/StudentNavBar/Explore';
-import MyCourses from '../../components/StudentNavBar/MyCourses';
-import CalendarStudent from '../../components/StudentNavBar/Calendarstudent';
+import React, { useEffect, useState } from "react";
+import "../../assets/styles/instructorNavBar/index.css";
+import { useNavigate } from "react-router-dom";
+import Explore from "../../components/StudentNavBar/Explore";
+import MyCourses from "../../components/StudentNavBar/MyCourses";
+import CalendarStudent from "../../components/StudentNavBar/Calendarstudent";
+import Cookies from "js-cookie";
 
 function StudentNavBar() {
   const navigate = useNavigate();
-  const [activeTab, setActiveTab] = useState('courses');
+  const [activeTab, setActiveTab] = useState("courses");
   const handleSubmit = (e) => {
     e.preventDefault();
-    navigate('/ProfileStudent')
-  }
-  
+    navigate("/profile");
+  };
+
+  useEffect(() => {
+    const userCookie = Cookies.get("user");
+    if (!userCookie) {
+      navigate("/");
+      return;
+    }
+
+    try {
+      const user = JSON.parse(userCookie);
+      const userRole = user.rol?.toLowerCase();
+
+      if (userRole === "profesor") {
+        navigate("/instructorNav");
+      } else if (userRole !== "estudiante") {
+        navigate("/");
+      }
+    } catch (error) {
+      console.log(error);
+      navigate("/");
+    }
+  }, [navigate]);
+
   const tabs = [
-    { id: 'courses', label: 'Explorar' },
-    { id: 'students', label: 'Mis Cursos' },
-    { id: 'calendar', label: 'Calendario' }
+    { id: "courses", label: "Explorar" },
+    { id: "students", label: "Mis Cursos" },
+    { id: "calendar", label: "Calendario" },
   ];
 
   return (
@@ -25,27 +48,27 @@ function StudentNavBar() {
       <header className="dashboard-header">
         <h1>My Online Tutor</h1>
         <form onSubmit={handleSubmit} className="profile-form">
-          <button type="submit" className='profileButton'>
-            <img src="../../../img/usuario.png" alt="" className="profileImg"/>
+          <button type="submit" className="profileButton">
+            <img src="../../../img/usuario.png" alt="" className="profileImg" />
           </button>
         </form>
       </header>
-      
+
       <div className="content-container">
         <nav className="nav-tabs">
-          {tabs.map(tab => (
+          {tabs.map((tab) => (
             <button
               key={tab.id}
-              className={`tab-button ${activeTab === tab.id ? 'active' : ''}`}
+              className={`tab-button ${activeTab === tab.id ? "active" : ""}`}
               onClick={() => setActiveTab(tab.id)}
             >
               {tab.label}
             </button>
           ))}
         </nav>
-        
+
         <div className="tab-content">
-          {activeTab === 'courses' && (
+          {activeTab === "courses" && (
             <div className="content-section">
               <h2>Explorar</h2>
               <div className="content-placeholder">
@@ -53,17 +76,17 @@ function StudentNavBar() {
               </div>
             </div>
           )}
-          
-          {activeTab === 'students' && (
+
+          {activeTab === "students" && (
             <div className="content-section">
               <h2>Mis Cursos</h2>
               <div className="content-placeholder">
-                <MyCourses/>
+                <MyCourses />
               </div>
             </div>
           )}
-          
-          {activeTab === 'calendar' && (
+
+          {activeTab === "calendar" && (
             <div className="content-section">
               <h2>Calendario</h2>
               <div className="content-placeholder">

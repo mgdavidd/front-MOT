@@ -33,17 +33,11 @@ const InstructorCal = () => {
       "Content-Type": "application/json",
       Authorization: `Bearer ${Cookies.get("token")}`,
     };
-
-    const res = await fetch(url, {
-      ...options,
-      headers,
-    });
-
+    const res = await fetch(url, { ...options, headers });
     if (!res.ok) {
       const err = await res.json().catch(() => ({}));
       throw new Error(err.message || "Error en la solicitud");
     }
-
     return res.json();
   }, []);
 
@@ -66,7 +60,6 @@ const InstructorCal = () => {
 
   const loadDates = useCallback(async () => {
     if (!selectedCourseId) return;
-
     try {
       const data = await authFetch(
         `http://localhost:3000/courses/${selectedCourseId}/dates`
@@ -75,20 +68,25 @@ const InstructorCal = () => {
       const newSelectedDates = [];
 
       data.forEach((s) => {
-        console.log("Sesión:", s);
-        const inicioLocal = DateTime.fromISO(s.inicio);
-        const finalLocal = DateTime.fromISO(s.final);
-        const isoDate = inicioLocal.toISODate();
+        // Parsear como UTC y luego convertir a local para visualización
+        const inicioUTC = DateTime.fromISO(s.inicio, { zone: "utc" });
+        const finalUTC = DateTime.fromISO(s.final, { zone: "utc" });
 
+        const inicioLocal = inicioUTC.toLocal();
+        const finalLocal = finalUTC.toLocal();
+
+        const isoDate = inicioUTC.toISODate();
         newDateData[isoDate] = {
-          start: inicioLocal.toFormat("HH:mm"),
-          end: finalLocal.toFormat("HH:mm"),
+          start: inicioLocal.toFormat("HH:mm"), // Mostrar hora local
+          end: finalLocal.toFormat("HH:mm"), // Mostrar hora local
+          utcStart: inicioUTC.toFormat("HH:mm"), // Guardar hora UTC
+          utcEnd: finalUTC.toFormat("HH:mm"), // Guardar hora UTC
           title: s.titulo,
           type: s.tipo,
           link: s.join_link,
-          recording_url: s.recording_url
+          recording_url: s.recording_url,
         };
-        newSelectedDates.push(inicioLocal.toJSDate());
+        newSelectedDates.push(inicioUTC.toJSDate());
       });
 
       setSelectedDates(newSelectedDates);
@@ -107,71 +105,105 @@ const InstructorCal = () => {
 
   const handleDateSelect = (dates) => {
     if (!isEditing || !isOwner) return;
+    const newData = { ...dateData };
+    const newDates = dates || [];
 
-    const newDateData = { ...dateData };
-    const newSelectedDates = dates || [];
-
-    Object.keys(newDateData).forEach((dateStr) => {
-      const exists = newSelectedDates.some((d) => {
-        const ds = DateTime.fromJSDate(d).toISODate();
-        return ds === dateStr;
-      });
-      if (!exists) delete newDateData[dateStr];
+    Object.keys(newData).forEach((d) => {
+      if (!newDates.some((x) => DateTime.fromJSDate(x).toISODate() === d)) {
+        delete newData[d];
+      }
     });
-
-    newSelectedDates.forEach((date) => {
-      const iso = DateTime.fromJSDate(date).toISODate();
-      if (!newDateData[iso]) {
-        newDateData[iso] = { start: "", end: "", title: "", type: eventType };
+    newDates.forEach((x) => {
+      const iso = DateTime.fromJSDate(x).toISODate();
+      if (!newData[iso]) {
+        newData[iso] = {
+          start: "",
+          end: "",
+          utcStart: "",
+          utcEnd: "",
+          title: "",
+          type: eventType,
+        };
       }
     });
 
-    setSelectedDates(newSelectedDates);
-    setDateData(newDateData);
+    setSelectedDates(newDates);
+    setDateData(newData);
+  };
+
+  const handleTimeChange = (date, field, value) => {
+    setDateData((prev) => {
+      const newData = { ...prev };
+      const isoDate = DateTime.fromJSDate(date).toISODate();
+
+      if (!newData[isoDate]) {
+        newData[isoDate] = {
+          start: "",
+          end: "",
+          utcStart: "",
+          utcEnd: "",
+          title: "",
+          type: eventType,
+        };
+      }
+
+      // Actualizar el valor local
+      newData[isoDate][field] = value;
+
+      if (newData[isoDate].start && newData[isoDate].end) {
+        const dateStr = DateTime.fromJSDate(date).toISODate();
+
+        const localStart = DateTime.fromISO(
+          `${dateStr}T${newData[isoDate].start}`,
+          { zone: "local" }
+        );
+        const localEnd = DateTime.fromISO(
+          `${dateStr}T${newData[isoDate].end}`,
+          { zone: "local" }
+        );
+
+        newData[isoDate].utcStart = localStart.toUTC().toFormat("HH:mm");
+        newData[isoDate].utcEnd = localEnd.toUTC().toFormat("HH:mm");
+      }
+
+      return newData;
+    });
   };
 
   const handleSave = async () => {
     try {
-      const invalidEntries = Object.entries(dateData).filter(([date, data]) => {
-        console.log(date, data);
-        return !data.start || !data.end;
+      const invalid = Object.entries(dateData).filter(
+        ([, d]) => !d.start || !d.end
+      );
+      if (invalid.length) throw new Error("Faltan horas de inicio/fin");
+
+      const sessions = Object.entries(dateData).map(([date, d]) => {
+        const dateUTC = DateTime.fromISO(date, { zone: 'local' }).toUTC().toISODate();
+        return {
+          date:  dateUTC.split('T')[0],
+          start_time: d.utcStart,
+          end_time: d.utcEnd,
+          titulo: d.title || "Clase",
+          type: d.type,
+        };
       });
 
-      if (invalidEntries.length > 0) {
-        throw new Error("Faltan horas de inicio/fin para algunas fechas");
-      }
-
-      const sessions = Object.entries(dateData).map(([date, data]) => ({
-        date,
-        start_time: data.start,
-        end_time: data.end,
-        titulo: data.title || "Clase",
-        type: data.type,
-      }));
-
-      const response = await authFetch(
+      await authFetch(
         `http://localhost:3000/courses/${selectedCourseId}/dates`,
         {
           method: "POST",
           body: JSON.stringify({ sessions }),
         }
       );
-
-      console.log("Respuesta al guardar:", response);
       setIsEditing(false);
       loadDates();
       setModal({
         isOpen: true,
         title: "Éxito",
-        message: "Calendario actualizado correctamente",
+        message: "Calendario actualizado",
       });
     } catch (err) {
-      console.error("Error al guardar:", err);
-      setModal({
-        isOpen: true,
-        title: "Error",
-        message: err.message || "Error al guardar los cambios",
-      });
+      setModal({ isOpen: true, title: "Error", message: err.message });
     }
   };
 
@@ -213,12 +245,15 @@ const InstructorCal = () => {
 
           <div className="calendar-wrapper">
             <DayPicker
-            mode="multiple"
-            selected={selectedDates}
-            onSelect={handleDateSelect}
-          />
+              mode="multiple"
+              selected={selectedDates}
+              onSelect={handleDateSelect}
+            />
           </div>
-          
+
+          <button onClick={handleSave} className="save-btn">
+            Guardar Cambios
+          </button>
         </>
       )}
 
@@ -226,27 +261,28 @@ const InstructorCal = () => {
         {Object.entries(dateData)
           .sort(([a], [b]) => new Date(a) - new Date(b))
           .map(([date, data]) => {
+            const dateObj = DateTime.fromISO(date);
             const isPast =
-              DateTime.fromISO(date).startOf("day") < DateTime.local().startOf("day");
+              dateObj.startOf("day") < DateTime.local().startOf("day");
 
             return (
               <div key={date} className="session-card" data-type={data.type}>
                 <h4>
-                  {DateTime.fromISO(date)
-                    .setLocale("es")
-                    .toLocaleString(DateTime.DATE_FULL)}
+                  {dateObj.setLocale("es").toLocaleString(DateTime.DATE_FULL)}
                 </h4>
-                <p  data-type-badge={data.type}>Tipo: {data.type}</p>
+                <p data-type-badge={data.type}>Tipo: {data.type}</p>
+
                 {isEditing ? (
                   <>
                     <input
                       type="time"
                       value={data.start}
                       onChange={(e) =>
-                        setDateData((prev) => ({
-                          ...prev,
-                          [date]: { ...prev[date], start: e.target.value },
-                        }))
+                        handleTimeChange(
+                          dateObj.toJSDate(),
+                          "start",
+                          e.target.value
+                        )
                       }
                       disabled={isPast || data.recording_url}
                     />
@@ -254,12 +290,13 @@ const InstructorCal = () => {
                       type="time"
                       value={data.end}
                       onChange={(e) =>
-                        setDateData((prev) => ({
-                          ...prev,
-                          [date]: { ...prev[date], end: e.target.value },
-                        }))
+                        handleTimeChange(
+                          dateObj.toJSDate(),
+                          "end",
+                          e.target.value
+                        )
                       }
-                      disabled={isPast  || data.recording_url}
+                      disabled={isPast || data.recording_url}
                     />
                     <input
                       type="text"
@@ -273,18 +310,39 @@ const InstructorCal = () => {
                       placeholder="Título"
                       disabled={isPast || data.recording_url}
                     />
+                    {data.utcStart && data.utcEnd && (
+                      <p className="utc-info">
+                        Horario UTC: {data.utcStart} - {data.utcEnd}
+                      </p>
+                    )}
                   </>
                 ) : (
                   <>
-                    <p>Hora: {data.start} - {data.end}</p>
+                    <p>
+                      Hora: {data.start} - {data.end} (tu hora local)
+                    </p>
                     <p>Título: {data.title || "Clase"}</p>
                     {data.link && (
                       <p>
-                        Enlace:{" "}<a href={`http://localhost:3001${data.link}`} target="_blank" rel="noopener noreferrer">Unirse a la clase</a>
+                        Enlace:{" "}
+                        <a
+                          href={`http://localhost:3001${data.link}`}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                        >
+                          Unirse a la clase
+                        </a>
                       </p>
-                      
                     )}
-                    {data.recording_url && <a href={data.recording_url} target="_blank" rel="noopener noreferrer"><button>Ver Grabación</button></a>}
+                    {data.recording_url && (
+                      <a
+                        href={data.recording_url}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                      >
+                        <button>Ver Grabación</button>
+                      </a>
+                    )}
                   </>
                 )}
               </div>
@@ -292,18 +350,16 @@ const InstructorCal = () => {
           })}
       </div>
 
-      {isEditing && (
-        <button onClick={handleSave} className="save-btn">
-          Guardar Cambios
-        </button>
-      )}
-
       {modal.isOpen && (
         <div className="modal-overlay">
           <div className="modal">
             <h3>{modal.title}</h3>
             <p>{modal.message}</p>
-            <button onClick={() => setModal({ isOpen: false, title: "", message: "" })}>
+            <button
+              onClick={() =>
+                setModal({ isOpen: false, title: "", message: "" })
+              }
+            >
               Cerrar
             </button>
           </div>

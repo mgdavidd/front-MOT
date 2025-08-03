@@ -2,8 +2,25 @@ import React, { useEffect, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import styles from "./ModulesCourse.module.css";
 import CreateModuleModal from "./CreateModuleModal";
+import Cookies from "js-cookie" 
+
+const getCurrentUser = () => {
+  try {
+    const userCookie = Cookies.get("user");
+    if (!userCookie) return null;
+    const decoded = decodeURIComponent(userCookie);
+    return JSON.parse(decoded);
+  } catch (error) {
+    console.error("Error al parsear cookie:", error);
+    return null;
+  }
+};
+
+const currentUser = getCurrentUser();
+const userId = currentUser?.id;
 
 export default function ModulesCourse() {
+
   const location = useLocation();
   const course = location.state;
   const navigate = useNavigate();
@@ -13,7 +30,7 @@ export default function ModulesCourse() {
 
   const fetchModules = async () => {
     try {
-      const response = await fetch(`http://localhost:3000/modules/course/${course.id}`);
+      const response = await fetch(`http://localhost:3000/courses/${course.id}/modules/${userId}`);
       const data = await response.json();
       setModules(data);
     } catch (err) {
