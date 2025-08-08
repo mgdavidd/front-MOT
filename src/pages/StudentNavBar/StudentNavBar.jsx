@@ -3,9 +3,9 @@ import React, { useEffect, useState } from "react";
 import "../../assets/styles/instructorNavBar/index.css";
 import { useNavigate } from "react-router-dom";
 import Explore from "../../components/StudentNavBar/Explore";
-import MyCourses from "../../components/StudentNavBar/MyCourses";
 import CalendarStudent from "../../components/StudentNavBar/Calendarstudent";
 import Cookies from "js-cookie";
+import MisCursos from "../MyCourses.js/miscursos";
 
 function StudentNavBar() {
   const navigate = useNavigate();
@@ -81,7 +81,7 @@ function StudentNavBar() {
             <div className="content-section">
               <h2>Mis Cursos</h2>
               <div className="content-placeholder">
-                <MyCourses />
+                <MisCursos />
               </div>
             </div>
           )}

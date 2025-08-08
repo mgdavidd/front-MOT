@@ -68,25 +68,26 @@ const InstructorCal = () => {
       const newSelectedDates = [];
 
       data.forEach((s) => {
-        // Parsear como UTC y luego convertir a local para visualización
         const inicioUTC = DateTime.fromISO(s.inicio, { zone: "utc" });
         const finalUTC = DateTime.fromISO(s.final, { zone: "utc" });
 
-        const inicioLocal = inicioUTC.toLocal();
-        const finalLocal = finalUTC.toLocal();
+        const inicioLocal = inicioUTC.setZone("local");
+        const finalLocal = finalUTC.setZone("local");
 
-        const isoDate = inicioUTC.toISODate();
-        newDateData[isoDate] = {
-          start: inicioLocal.toFormat("HH:mm"), // Mostrar hora local
-          end: finalLocal.toFormat("HH:mm"), // Mostrar hora local
-          utcStart: inicioUTC.toFormat("HH:mm"), // Guardar hora UTC
-          utcEnd: finalUTC.toFormat("HH:mm"), // Guardar hora UTC
+        const localDateKey = inicioLocal.toISODate(); // ✅ clave basada en la fecha LOCAL
+
+        newDateData[localDateKey] = {
+          start: inicioLocal.toFormat("HH:mm"),
+          end: finalLocal.toFormat("HH:mm"),
+          utcStart: inicioUTC.toFormat("HH:mm"),
+          utcEnd: finalUTC.toFormat("HH:mm"),
           title: s.titulo,
           type: s.tipo,
           link: s.join_link,
           recording_url: s.recording_url,
         };
-        newSelectedDates.push(inicioUTC.toJSDate());
+
+        newSelectedDates.push(inicioLocal.toJSDate()); // ✅ también basado en fecha local
       });
 
       setSelectedDates(newSelectedDates);
@@ -147,23 +148,23 @@ const InstructorCal = () => {
         };
       }
 
-      // Actualizar el valor local
       newData[isoDate][field] = value;
 
       if (newData[isoDate].start && newData[isoDate].end) {
-        const dateStr = DateTime.fromJSDate(date).toISODate();
+        const dateStr = isoDate;
 
-        const localStart = DateTime.fromISO(
+        // ⚠️ Aquí definimos bien la hora local y la convertimos una vez a UTC
+        const startLocal = DateTime.fromISO(
           `${dateStr}T${newData[isoDate].start}`,
           { zone: "local" }
         );
-        const localEnd = DateTime.fromISO(
+        const endLocal = DateTime.fromISO(
           `${dateStr}T${newData[isoDate].end}`,
           { zone: "local" }
         );
 
-        newData[isoDate].utcStart = localStart.toUTC().toFormat("HH:mm");
-        newData[isoDate].utcEnd = localEnd.toUTC().toFormat("HH:mm");
+        newData[isoDate].utcStart = startLocal.toUTC().toFormat("HH:mm");
+        newData[isoDate].utcEnd = endLocal.toUTC().toFormat("HH:mm");
       }
 
       return newData;
@@ -178,13 +179,19 @@ const InstructorCal = () => {
       if (invalid.length) throw new Error("Faltan horas de inicio/fin");
 
       const sessions = Object.entries(dateData).map(([date, d]) => {
-        const dateUTC = DateTime.fromISO(date, { zone: 'local' }).toUTC().toISODate();
+        const localStart = DateTime.fromISO(`${date}T${d.start}`, {
+          zone: "local",
+        });
+        const localEnd = DateTime.fromISO(`${date}T${d.end}`, {
+          zone: "local",
+        });
+
         return {
-          date:  dateUTC.split('T')[0],
-          start_time: d.utcStart,
-          end_time: d.utcEnd,
+          inicio: localStart.toUTC().toISO(), // Fecha completa UTC
+          final: localEnd.toUTC().toISO(), // Fecha completa UTC
           titulo: d.title || "Clase",
           type: d.type,
+          timezone: DateTime.local().zoneName, // Enviar zona horaria del usuario
         };
       });
 
@@ -211,6 +218,9 @@ const InstructorCal = () => {
     <div className="instructor-calendar">
       <h2>Calendario de Clases</h2>
       {error && <p className="error">{error}</p>}
+      <div className="timezone-info">
+        Zona horaria actual: {DateTime.local().zoneName}
+      </div>
 
       <select
         value={selectedCourseId || ""}

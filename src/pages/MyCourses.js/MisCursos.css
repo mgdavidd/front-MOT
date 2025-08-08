@@ -1,0 +1,127 @@
+:root {
+  --azul-pastel: #dbeafe;
+  --azul-medio: #3b82f6;
+  --azul-hover: #2563eb;
+  --gris-claro: #cbd5e1;
+  --gris-texto: #64748b;
+  --texto-oscuro: #1e3a8a;
+  --blanco: #ffffff;
+}
+
+.course-wrapper {
+  padding: 2rem 1rem;
+  background-color: var(--azul-pastel);
+  min-height: 100vh;
+}
+
+.course-title {
+  text-align: center;
+  color: var(--texto-oscuro);
+  font-size: 1.8rem;
+  margin-bottom: 2rem;
+}
+
+.course-status {
+  text-align: center;
+  color: var(--gris-texto);
+  font-size: 1rem;
+}
+
+.course-status.error {
+  color: red;
+}
+
+.course-list {
+  max-width: 600px;
+  margin: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.course-card {
+  background-color: var(--blanco);
+  border: 1px solid var(--gris-claro);
+  border-radius: 12px;
+  padding: 1.2rem;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+  transition: transform 0.2s ease;
+}
+
+.course-card:hover {
+  transform: translateY(-2px);
+}
+
+.card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.card-name {
+  font-weight: bold;
+  color: var(--texto-oscuro);
+  font-size: 1rem;
+  cursor: pointer;
+}
+
+.chat-btn {
+  background-color: var(--azul-medio);
+  color: white;
+  border: none;
+  padding: 6px 10px;
+  border-radius: 8px;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.chat-btn:hover {
+  background-color: var(--azul-hover);
+}
+
+.card-preview {
+  font-size: 0.9rem;
+  color: var(--gris-texto);
+  margin-top: 0.4rem;
+  cursor: pointer;
+}
+
+.card-details {
+  margin-top: 0.7rem;
+  background-color: var(--azul-pastel);
+  padding: 1rem;
+  border-radius: 8px;
+  font-size: 0.9rem;
+  color: var(--texto-oscuro);
+  border: 1px solid var(--gris-claro);
+}
+
+/* Responsive para móviles */
+@media (max-width: 400px) {
+  .course-title {
+    font-size: 1.4rem;
+  }
+
+  .chat-img {
+    max-width: 25px;
+  }
+
+  .card-name {
+    font-size: 0.95rem;
+  }
+
+  .card-preview,
+  .card-details {
+    font-size: 0.85rem;
+  }
+
+  .chat-btn {
+    font-size: 0.9rem;
+    padding: 4px 9px !important;
+  }
+}
+
+.chat-img {
+  width: 30px;
+}

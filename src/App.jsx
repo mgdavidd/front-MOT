@@ -34,8 +34,6 @@ function App() {
         <Route path="/crear-curso" element={<CrearCurso />} />
         <Route path="/chat-course" element={<Chatcourse />} />
         <Route path="/StudentNav" element={<StudentNavBar />} />
-
-
       </Routes>
     </div>
   );
