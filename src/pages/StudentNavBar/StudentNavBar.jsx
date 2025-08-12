@@ -2,7 +2,7 @@
 import React, { useEffect, useState } from "react";
 import "../../assets/styles/instructorNavBar/index.css";
 import { useNavigate } from "react-router-dom";
-import Explore from "../../components/StudentNavBar/Explore";
+import Explore from "../../components/StudentNavBar/Explore/Explore";
 import CalendarStudent from "../../components/StudentNavBar/CalendarStudent";
 import Cookies from "js-cookie";
 import MisCursos from "../../components/StudentNavBar/MyCourses.js/MisCursos"
