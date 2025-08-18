@@ -27,7 +27,7 @@ export default function EditarPerfil() {
     const loadUserData = () => {
       const cookieValue = Cookies.get("user");
       if (!cookieValue) {
-        navigate("/login");
+        navigate("/");
         return;
       }
 
@@ -60,7 +60,7 @@ export default function EditarPerfil() {
       } catch (error) {
         console.error(error)
         Cookies.remove("user");
-        navigate("/login");
+        navigate("/");
       }
     };
 

@@ -29,11 +29,11 @@ export default function CoursesList() {
       let url = "";
 
       if (search.trim() !== "") {
-        // Buscar usando la nueva ruta de filtrado
-        url = `http://localhost:3000/filterCourses/${search}`;
+        // Ruta de filtrado
+        url = `http://localhost:3000/filterCourses/${encodeURIComponent(search)}`;
       } else {
-        // Cargar cursos por preferencias
-        url = `http://localhost:3000/AllCourses/${preferences}`;
+        // Ruta por preferencias
+        url = `http://localhost:3000/AllCourses/${encodeURIComponent(preferences)}`;
       }
 
       const res = await fetch(url);
@@ -63,8 +63,7 @@ export default function CoursesList() {
   const handleSearchChange = (e) => {
     const value = e.target.value;
     setSearchTerm(value);
-    const preferences = value.trim() !== "" ? value : getUserPreferences();
-    fetchCourses(preferences);
+    fetchCourses(getUserPreferences(), value);
   };
 
   return (
@@ -81,19 +80,24 @@ export default function CoursesList() {
       {error && <p className={styles.error}>{error}</p>}
 
       <div className={styles.cardsContainer}>
-        {courses.map((course) => (
+        {courses.map((course) => ( console.log(course),
           <div
             key={course.id}
             className={styles.card}
             onClick={() => setSelectedCourse(course)}
           >
-            <img
-              src={course.imagen}
-              alt={course.nombre}
-              className={styles.cardImage}
-            />
-            <h3>{course.nombre}</h3>
-            <p>Precio: ${course.precio}</p>
+            <div className={styles.cardLeft}>
+              <img
+                src={course.imagen}
+                alt={course.nombre}
+                className={styles.cardImage}
+              />
+            </div>
+            <div className={styles.cardRight}>
+              <h3 className={styles.cardTitle}>{course.nombre}</h3>
+              <p className={styles.cardDescription}>{course.descripcion}</p>
+              <p className={styles.cardPrice}>Precio: ${course.precio.toLocaleString('es-ES')} CO</p>
+            </div>
           </div>
         ))}
       </div>
@@ -107,7 +111,7 @@ export default function CoursesList() {
             <h2>{selectedCourse.nombre}</h2>
             <p>{selectedCourse.descripcion}</p>
             <p>
-              <strong>Precio:</strong> ${selectedCourse.precio}
+              <strong>Precio:</strong> ${selectedCourse.precio.toLocaleString('es-ES')}
             </p>
             <button className={styles.inscriptionBtn}>Inscribirme</button>
           </div>

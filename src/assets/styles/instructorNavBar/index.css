@@ -341,3 +341,30 @@ button.profileButton {
     }
   }
 }
+
+.header-buttons {
+  display: flex;
+  align-items: center;
+  gap: 12px; /* separación entre botones */
+}
+
+.profileButton,
+.chatsButton {
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 6px;
+  border-radius: 50%;
+  transition: background 0.2s ease-in-out;
+}
+
+.profileButton:hover,
+.chatsButton:hover {
+  background: rgba(0, 0, 0, 0.1);
+}
+
+.chatsImg {
+  width: 32px;
+  height: 32px;
+  object-fit: cover;
+}

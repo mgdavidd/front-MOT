@@ -5,7 +5,7 @@ export function getUserTheme() {
   if (!cookie) return null;
 
   try {
-    const user = JSON.parse(cookie); // Eliminamos decodeURIComponent
+    const user = JSON.parse(cookie);
     return user.color_perfil || null;
   } catch (error) {
     console.error("Error al analizar tema del usuario:", error);

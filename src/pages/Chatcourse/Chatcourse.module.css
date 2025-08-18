@@ -1,90 +1,196 @@
 .container {
-  max-width: 600px;
-  margin: auto;
-  padding: 1rem;
-  font-family: Arial, sans-serif;
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 1.5rem;
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  background-color: #f9fafb;
+  box-sizing: border-box;
 }
 
+/* Botón volver */
 .returnContainer {
-  margin-bottom: 10px;
+  margin-bottom: 1rem;
 }
 
 .returnButton {
-  background-color: #2563eb;
-  color: white;
+  background: none;
   border: none;
-  border-radius: 4px;
-  padding: 0.5rem;
+  color: #3b82f6;
+  font-weight: 600;
   cursor: pointer;
+  font-size: 0.95rem;
+  transition: color 0.2s ease-in-out;
+}
+.returnButton:hover {
+  color: #2563eb;
 }
 
+/* Sección del chat */
 .chatSection {
-  border: 1px solid #ccc;
-  border-radius: 10px;
-  background-color: #f9f9f9;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  border: 1px solid #e5e7eb;
+  border-radius: 12px;
   overflow: hidden;
+  background-color: #fff;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
 }
 
 .header {
   padding: 1rem;
-  background-color: #3b82f6;
-  color: white;
+  border-bottom: 1px solid #e5e7eb;
+  background-color: #f8fafc;
 }
 
-.info h1 {
+.header .info h1 {
   margin: 0;
+  font-size: 1.25rem;
+  color: #111827;
+  font-weight: 700;
+}
+
+.courseDescription {
+  font-size: 0.9rem;
+  color: #6b7280;
+}
+
+/* Lista de mensajes */
+.messageListContainer {
+  flex: 1;
+  overflow-y: auto;
+  padding: 1rem;
+  background-color: #fafafa;
+  scrollbar-width: thin;
+  scrollbar-color: #d1d5db transparent;
+}
+
+.messageListContainer::-webkit-scrollbar {
+  width: 6px;
+}
+.messageListContainer::-webkit-scrollbar-thumb {
+  background-color: #d1d5db;
+  border-radius: 3px;
 }
 
 .messageList {
   list-style: none;
-  padding: 1rem;
-  height: 300px;
-  overflow-y: auto;
   margin: 0;
-  background-color: #fff;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
 }
 
+/* Mensajes */
 .myMessage {
-  background-color: #dbeafe;
-  padding: 0.5rem;
-  margin-bottom: 10px;
-  border-radius: 6px;
-  text-align: right;
+  align-self: flex-end;
+  background-color: #d0e4fd;
+  padding: 0.75rem 1rem;
+  border-radius: 18px 18px 4px 18px;
+  max-width: 65%;
+  word-wrap: break-word;
+  box-shadow: 0 1px 2px rgba(0,0,0,0.05);
 }
 
 .otherMessage {
-  background-color: #f3f4f6;
-  padding: 0.5rem;
-  margin-bottom: 10px;
-  border-radius: 6px;
-  text-align: left;
+  align-self: flex-start;
+  background-color: #fcd7d7;
+  padding: 0.75rem 1rem;
+  border-radius: 18px 18px 18px 4px;
+  max-width: 65%;
+  word-wrap: break-word;
+  box-shadow: 0 1px 2px rgba(0,0,0,0.05);
 }
 
-.date {
+.teacherMessage {
+  padding: 15px;
+  align-self: flex-start;
+  background-color: color-mix(in srgb, var(--color-primary) 10%, white 90%);
+  border-bottom-left-radius: 5px;
+  border-left: 3px solid var(--color-primary);
+  border-radius: 18px;
+}
+
+.teacherMessage .userName {
+  color: #3b82f6;
+  font-weight: 600;
+}
+
+.messageHeader {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 0.25rem;
+}
+
+.userAvatar {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.userName {
+  font-weight: 600;
+  font-size: 0.9rem;
+  color: #111827;
+}
+
+.messageContent {
+  font-size: 0.95rem;
+  color: #111827;
+}
+
+.messageDate {
   font-size: 0.75rem;
   color: #6b7280;
+  text-align: right;
+  margin-top: 0.25rem;
 }
 
+/* Formulario */
 .form {
   display: flex;
-  border-top: 1px solid #ddd;
-  padding: 0.5rem;
-  background-color: #fff;
+  padding: 0.75rem;
+  border-top: 1px solid #e5e7eb;
+  background-color: #f9fafb;
 }
 
 .input {
-  flex-grow: 1;
-  border: 1px solid #ccc;
-  border-radius: 6px;
-  padding: 0.5rem;
+  flex: 1;
+  padding: 0.7rem 1rem;
+  border: 1px solid #d1d5db;
+  border-radius: 9999px;
   margin-right: 0.5rem;
+  font-size: 0.9rem;
 }
 
 .sendButton {
+  padding: 0 1.25rem;
   background-color: #3b82f6;
   color: white;
   border: none;
-  padding: 0.5rem 1rem;
-  border-radius: 6px;
+  border-radius: 9999px;
   cursor: pointer;
+  font-size: 0.9rem;
+  font-weight: 500;
+  transition: background 0.2s;
+}
+.sendButton:hover {
+  background-color: #2563eb;
+}
+
+/* Estado leído/no leído */
+.seen {
+  color: #3b82f6;
+  font-size: 0.75rem;
+  margin-left: 6px;
+}
+.unseen {
+  color: #9ca3af;
+  font-size: 0.75rem;
+  margin-left: 6px;
 }

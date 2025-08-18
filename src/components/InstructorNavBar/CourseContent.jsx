@@ -46,18 +46,42 @@ export default function CourseContent() {
 
   if (loading) return <div>Cargando cursos...</div>;
 
+  const openGroupChat = (course) => {
+    navigate(`/course-chat/${course.id}`);
+  };
+
   return (
     <div className={styles.container}>
       <h1 className={styles.title}>Mis Cursos</h1>
-      {courses.map((curso) => (
-        <button
-          key={curso.id}
-          className={styles.button}
-          onClick={() => navigate("/curso", { state: curso })}
-        >
-          {curso.nombre}
-        </button>
-      ))}
+      <div className={styles.coursesContainer}>
+        {courses.map((curso) => (
+          <div key={curso.id} className={styles.courseWrapper}>
+            <div className={styles.courseTitle}>{curso.nombre}</div>
+            <div
+              className={styles.courseCard}
+              style={{
+                backgroundImage: curso.portada ? `url(${curso.portada})` : "none",
+              }}
+              onClick={() => navigate("/curso", { state: curso })}
+            >
+              <button
+                className={styles.chatBtn}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  openGroupChat(curso);
+                }}
+                title="Chat grupal"
+              >
+                <img
+                  src="../../img/mensajero.png"
+                  alt="Chat"
+                  className={styles.chatImg}
+                />
+              </button>
+            </div>
+          </div>
+        ))}
+      </div>
     </div>
   );
 }

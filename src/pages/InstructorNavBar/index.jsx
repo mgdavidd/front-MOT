@@ -9,9 +9,15 @@ import Cookies from "js-cookie";
 function InstructorNavBar() {
   const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState("courses");
-  const handleSubmit = (e) => {
+
+  const handleProfile = (e) => {
     e.preventDefault();
     navigate("/profile");
+  };
+
+  const handleChats = (e) => {
+    e.preventDefault();
+    navigate("/mychats");
   };
 
   useEffect(() => {
@@ -46,11 +52,14 @@ function InstructorNavBar() {
     <div className="instructor-dashboard">
       <header className="dashboard-header">
         <h1>My Online Tutor</h1>
-        <form onSubmit={handleSubmit} className="profile-form">
-          <button type="submit" className="profileButton">
-            <img src="../../../img/usuario.png" alt="" className="profileImg" />
+        <div className="header-buttons">
+          <button onClick={handleChats} className="chatsButton">
+            <img src="../../../img/mensajero.png" alt="Chats" className="chatsImg" />
           </button>
-        </form>
+          <button onClick={handleProfile} className="profileButton">
+            <img src="../../img/usuario.png" alt="Perfil" className="profileImg" />
+          </button>
+        </div>
       </header>
 
       <div className="content-container">

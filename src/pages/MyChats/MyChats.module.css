@@ -1,0 +1,99 @@
+/* MyChats.module.css */
+.container {
+  max-width: 700px;
+  margin: 0 auto;
+  padding: 1.5rem;
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  background-color: #f9fafb;
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 1rem;
+}
+
+.title {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #111827;
+}
+
+.backButton {
+  background: none;
+  border: none;
+  color: #3b82f6;
+  font-weight: 600;
+  cursor: pointer;
+  transition: color 0.2s ease-in-out;
+}
+.backButton:hover {
+  color: #2563eb;
+}
+
+.chatList {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  flex: 1;
+  overflow-y: auto;
+}
+
+.chatItem {
+  display: flex;
+  align-items: center;
+  padding: 0.85rem 1rem;
+  border-bottom: 1px solid #e5e7eb;
+  background-color: #fff;
+  transition: background 0.2s ease-in-out;
+  cursor: pointer;
+}
+.chatItem:hover {
+  background-color: #f3f4f6;
+}
+
+.avatar {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  object-fit: cover;
+  margin-right: 0.75rem;
+  flex-shrink: 0;
+}
+
+.chatInfo {
+  flex: 1;
+  min-width: 0;
+}
+
+.nameRow {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.name {
+  font-weight: 600;
+  font-size: 1rem;
+  color: #111827;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.time {
+  font-size: 0.75rem;
+  color: #6b7280;
+  margin-left: 0.5rem;
+}
+
+.lastMessage {
+  font-size: 0.9rem;
+  color: #6b7280;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}

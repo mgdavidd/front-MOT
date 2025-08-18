@@ -39,30 +39,47 @@
   gap: 1rem;
 }
 
+.course-item {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.course-name {
+  font-weight: bold;
+  color: var(--texto-oscuro);
+  font-size: 1.1rem;
+  padding-left: 0.5rem;
+  cursor: pointer;
+}
+
 .course-card {
   background-color: var(--blanco);
   border: 1px solid var(--gris-claro);
   border-radius: 12px;
-  padding: 1.2rem;
+  height: 120px;
   box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
   transition: transform 0.2s ease;
+  position: relative;
+  overflow: hidden;
+  cursor: pointer;
+  display: flex;
+  justify-content: flex-end;
+  align-items: flex-start;
+  background-size: cover;
+  background-position: center;
+}
+
+.course-card::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.3);
+  border-radius: 12px;
 }
 
 .course-card:hover {
   transform: translateY(-2px);
-}
-
-.card-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
-
-.card-name {
-  font-weight: bold;
-  color: var(--texto-oscuro);
-  font-size: 1rem;
-  cursor: pointer;
 }
 
 .chat-btn {
@@ -74,6 +91,9 @@
   font-size: 1rem;
   cursor: pointer;
   transition: background-color 0.2s ease;
+  margin: 0.5rem;
+  position: relative;
+  z-index: 1;
 }
 
 .chat-btn:hover {
@@ -83,8 +103,8 @@
 .card-preview {
   font-size: 0.9rem;
   color: var(--gris-texto);
-  margin-top: 0.4rem;
   cursor: pointer;
+  padding-left: 0.5rem;
 }
 
 .card-details {
@@ -95,6 +115,13 @@
   font-size: 0.9rem;
   color: var(--texto-oscuro);
   border: 1px solid var(--gris-claro);
+  position: relative;
+  z-index: 1;
+}
+
+.chat-img {
+  width: 24px;
+  height: 24px;
 }
 
 /* Responsive para móviles */
@@ -103,12 +130,12 @@
     font-size: 1.4rem;
   }
 
-  .chat-img {
-    max-width: 25px;
+  .course-name {
+    font-size: 1rem;
   }
 
-  .card-name {
-    font-size: 0.95rem;
+  .chat-img {
+    max-width: 25px;
   }
 
   .card-preview,
@@ -120,8 +147,4 @@
     font-size: 0.9rem;
     padding: 4px 9px !important;
   }
-}
-
-.chat-img {
-  width: 30px;
 }

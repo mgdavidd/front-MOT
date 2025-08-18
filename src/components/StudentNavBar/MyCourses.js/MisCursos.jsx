@@ -6,7 +6,6 @@ import { useNavigate } from "react-router-dom";
 export default function MisCursos() {
   const navigate = useNavigate();
   const [courses, setCourses] = useState([]);
-  const [expanded, setExpanded] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
@@ -29,13 +28,9 @@ export default function MisCursos() {
       .finally(() => setLoading(false));
   }, [navigate]);
 
-  const toggleExpand = (id) => {
-    setExpanded(expanded === id ? null : id);
-  };
-
-  const openGroupChat = (course) => {
-    alert(`Abriendo chat grupal para: ${course.nombre}`);
-    // Puedes redirigir o abrir un modal aquí
+  const openGroupChat = (course, e) => {
+    e.stopPropagation();
+    navigate(`/course-chat/${course.id}`);
   };
 
   return (
@@ -47,36 +42,27 @@ export default function MisCursos() {
 
       <div className="course-list">
         {courses.map((course) => (
-          <div key={course.id} className="course-card">
-            <div className="card-header">
-              <div
-                className="card-name"
-                onClick={() => toggleExpand(course.id)}
-              >
-                {course.nombre}
-              </div>
+          <div key={course.id} className="course-item">
+            <div className="course-name">{course.nombre}</div>
+            <div
+              className="course-card"
+              style={{
+                backgroundImage: course.portada ? `url(${course.portada})` : "none",
+              }}
+              onClick={() => navigate("/curso", { state: course })} // 👈 redirige al detalle del curso
+            >
               <button
                 className="chat-btn"
-                onClick={() => openGroupChat(course)}
+                onClick={(e) => openGroupChat(course, e)}
                 title="Chat grupal"
               >
-                <img src="../../img/mensajero.png" alt="" className="chat-img"/>
-                <i className="fas fa-comments"></i>
+                <img
+                  src="../../img/mensajero.png"
+                  alt="Chat"
+                  className="chat-img"
+                />
               </button>
             </div>
-
-            <div
-              className="card-preview"
-              onClick={() => toggleExpand(course.id)}
-            >
-              {(course.descripcion || "Sin descripción").slice(0, 40)}...
-            </div>
-
-            {expanded === course.id && (
-              <div className="card-details">
-                {course.descripcion || "Este curso no tiene descripción."}
-              </div>
-            )}
           </div>
         ))}
       </div>

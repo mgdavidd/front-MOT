@@ -1,18 +1,23 @@
-// InstructorNavBar.js
 import React, { useEffect, useState } from "react";
 import "../../assets/styles/instructorNavBar/index.css";
 import { useNavigate } from "react-router-dom";
 import Explore from "../../components/StudentNavBar/Explore/Explore";
 import CalendarStudent from "../../components/StudentNavBar/CalendarStudent";
 import Cookies from "js-cookie";
-import MisCursos from "../../components/StudentNavBar/MyCourses.js/MisCursos"
+import MisCursos from "../../components/StudentNavBar/MyCourses.js/MisCursos";
 
 function StudentNavBar() {
   const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState("courses");
-  const handleSubmit = (e) => {
+
+  const handleProfile = (e) => {
     e.preventDefault();
     navigate("/profile");
+  };
+
+  const handleChats = (e) => {
+    e.preventDefault();
+    navigate("/mychats");
   };
 
   useEffect(() => {
@@ -47,11 +52,14 @@ function StudentNavBar() {
     <div className="instructor-dashboard">
       <header className="dashboard-header">
         <h1>My Online Tutor</h1>
-        <form onSubmit={handleSubmit} className="profile-form">
-          <button type="submit" className="profileButton">
-            <img src="../../../img/usuario.png" alt="" className="profileImg" />
+        <div className="header-buttons">
+          <button onClick={handleChats} className="chatsButton">
+            <img src="../../../img/chat.png" alt="Chats" className="chatsImg" />
           </button>
-        </form>
+          <button onClick={handleProfile} className="profileButton">
+            <img src="../../../img/usuario.png" alt="Perfil" className="profileImg" />
+          </button>
+        </div>
       </header>
 
       <div className="content-container">

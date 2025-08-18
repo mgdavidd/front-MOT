@@ -12,32 +12,65 @@
 
 .cardsContainer {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
   gap: 1rem;
+  justify-items: center;
 }
 
 .card {
-  background: #f9f9f9;
-  padding: 1rem;
+  display: flex;
+  background: #fff;
   border-radius: 8px;
   box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-  text-align: center;
   cursor: pointer;
+  overflow: hidden;
+  max-width: 500px;
   transition: transform 0.2s ease-in-out;
 }
 
 .card:hover {
-  transform: scale(1.03);
+  transform: scale(1.02);
+}
+
+.cardLeft {
+  flex: 0 0 150px;
 }
 
 .cardImage {
   width: 100%;
-  height: 120px;
+  height: 100%;
   object-fit: cover;
-  border-radius: 6px;
-  margin-bottom: 0.5rem;
+  display: block;
+  min-width: 180px;
 }
 
+.cardRight {
+  flex: 1;
+  padding: 0.8rem;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.cardTitle {
+  font-size: 1.1rem;
+  font-weight: bold;
+  margin-bottom: 0.3rem;
+}
+
+.cardDescription {
+  font-size: 0.9rem;
+  color: #555;
+  flex: 1;
+}
+
+.cardPrice {
+  font-weight: bold;
+  color: #2196F3;
+  margin-top: 0.5rem;
+}
+
+/* Modal */
 .modalOverlay {
   position: fixed;
   top: 0;
@@ -48,6 +81,7 @@
   display: flex;
   justify-content: center;
   align-items: center;
+  padding: 1rem;
 }
 
 .modal {
@@ -55,7 +89,7 @@
   padding: 2rem;
   border-radius: 10px;
   max-width: 400px;
-  width: 90%;
+  width: 100%;
 }
 
 .inscriptionBtn {
@@ -74,4 +108,24 @@
 .error {
   color: red;
   margin-bottom: 1rem;
+}
+
+/* ========================= */
+/* 📱 MÓVILES */
+/* ========================= */
+@media (max-width: 600px) {
+  .card {
+    flex-direction: column;
+    max-width: 100%;
+  }
+
+  .cardLeft {
+    flex: 0 0 auto;
+    width: 100%;
+    height: 180px;
+  }
+
+  .cardRight {
+    padding: 1rem;
+  }
 }

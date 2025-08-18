@@ -14,6 +14,8 @@ import ViewContentCourse from './pages/ViewContentCourse/ViewContentCourse';
 import ModulesCourse from './pages/ModulesCourse';
 import Chatcourse from './pages/Chatcourse/Chatcourse';
 import StudentNavBar from './pages/StudentNavBar/StudentNavBar';
+import PrivateChat from './pages/Chatcourse/PrivateChat';
+import MyChats from './pages/MyChats/Mychats';
 
 
 function App() {
@@ -32,8 +34,11 @@ function App() {
         <Route path="/curso" element={<ModulesCourse />} />
         <Route path="/viewContent" element={<ViewContentCourse />} />
         <Route path="/crear-curso" element={<CrearCurso />} />
-        <Route path="/chat-course" element={<Chatcourse />} />
+        <Route path="/course-chat/:courseId" element={<Chatcourse />} />
         <Route path="/StudentNav" element={<StudentNavBar />} />
+        <Route path="/private-chat/:otherUserId" element={<PrivateChat />} />
+        <Route path="/mychats" element={<MyChats/>} />
+
       </Routes>
     </div>
   );

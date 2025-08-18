@@ -5,39 +5,31 @@ import io from "socket.io-client";
 import { DateTime } from "luxon";
 import styles from "./ChatCourse.module.css";
 
-export default function ChatCourse() {
-  const { courseId } = useParams();
+export default function PrivateChat() {
+  const { otherUserId } = useParams();
   const navigate = useNavigate();
   const [messages, setMessages] = useState([]);
   const [inputValue, setInputValue] = useState("");
-  const [loading, setLoading] = useState(true);
+  const [otherUser, setOtherUser] = useState(null);
+  const [conversationId, setConversationId] = useState(null);
   const [error, setError] = useState(null);
-  const [courseInfo, setCourseInfo] = useState(null);
   const messagesEndRef = useRef();
   const socketRef = useRef();
 
   const getUserData = () => {
     const userCookie = Cookies.get("user");
     if (!userCookie) {
-      navigate("/");
+      navigate("/login");
       return null;
     }
     return JSON.parse(userCookie);
   };
 
-  const userData = getUserData();
-
   const formatDate = (dateString) => {
     if (!dateString) return "Fecha no disponible";
 
     try {
-      // Manejar diferentes formatos de fecha
-      let dateTime;
-      if (dateString.includes("T")) {
-        dateTime = DateTime.fromISO(dateString);
-      } else {
-        dateTime = DateTime.fromSQL(dateString, { zone: "utc" });
-      }
+      const dateTime = DateTime.fromSQL(dateString, { zone: "utc" });
       return dateTime.toLocal().toLocaleString(DateTime.DATETIME_MED);
     } catch (err) {
       console.error("Error al formatear fecha:", dateString, err);
@@ -45,61 +37,47 @@ export default function ChatCourse() {
     }
   };
 
-  const scrollToBottom = () => {
-    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
-  };
-
   useEffect(() => {
-    const fetchCourseData = async () => {
+    const fetchOtherUser = async () => {
       try {
-        const [courseRes, messagesRes] = await Promise.all([
-          fetch(`http://localhost:3000/courses/${courseId}`),
-          fetch(`http://localhost:3000/courses/${courseId}/messages`),
-        ]);
-
-        if (!courseRes.ok) throw new Error(`Error HTTP: ${courseRes.status}`);
-        if (!messagesRes.ok)
-          throw new Error(`Error HTTP: ${messagesRes.status}`);
-
-        const [courseData, messagesData] = await Promise.all([
-          courseRes.json(),
-          messagesRes.json(),
-        ]);
-
-        setCourseInfo(courseData);
-        setMessages(
-          messagesData.map((msg) => ({
-            ...msg,
-            fecha_local: formatDate(msg.fecha_envio),
-          }))
+        const response = await fetch(
+          `http://localhost:3000/users/${otherUserId}`
         );
+        if (!response.ok) throw new Error(`Error HTTP: ${response.status}`);
+        setOtherUser(await response.json());
       } catch (err) {
-        console.error("Error:", err);
-        setError(err.message || "Error al cargar datos del curso");
-      } finally {
-        setLoading(false);
+        console.error("Error al cargar usuario:", err);
+        setError("No se pudo cargar la información del usuario");
       }
     };
 
-    fetchCourseData();
-  }, [courseId]);
+    fetchOtherUser();
+  }, [otherUserId]);
 
   useEffect(() => {
     const userData = getUserData();
-    if (!userData) return;
+    if (!userData || !otherUser || error) return;
 
     socketRef.current = io("http://localhost:3000", {
       withCredentials: true,
       transports: ["websocket"],
+      reconnection: true,
+      reconnectionAttempts: 5,
     });
 
     const socket = socketRef.current;
+
+    socket.on("connect", () => {
+      console.log("Conectado al servidor Socket.io");
+      setError(null);
+    });
+
     socket.on("connect_error", (err) => {
       console.error("Error de conexión:", err);
       setError("Error de conexión con el servidor");
     });
 
-    socket.on("course_message", (message) => {
+    socket.on("new_private_message", (message) => {
       setMessages((prev) => [
         ...prev,
         {
@@ -109,13 +87,17 @@ export default function ChatCourse() {
       ]);
     });
 
-    socket.on("course_chat_history", (history) => {
+    socket.on("private_chat_history", (history) => {
       setMessages(
         history.map((msg) => ({
           ...msg,
           fecha_local: formatDate(msg.fecha_envio),
         }))
       );
+
+      if (history.length > 0) {
+        setConversationId(history[0].conversacion_id);
+      }
     });
 
     socket.emit("authenticate", {
@@ -124,16 +106,20 @@ export default function ChatCourse() {
       userPhoto: userData.fotoPerfil,
     });
 
-    socket.emit("join_course_chat", courseId);
+    // Unirse al chat con IDs ordenados
+    socket.emit("join_private_chat", {
+      userId: userData.id,
+      otherUserId: otherUser.id,
+    });
 
     return () => {
       if (socketRef.current) socketRef.current.disconnect();
     };
-  }, [courseId]);
+  }, [otherUser, error, conversationId]);
 
   useEffect(() => {
-    if (!loading) scrollToBottom();
-  }, [messages, loading]);
+    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+  }, [messages]);
 
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -143,22 +129,14 @@ export default function ChatCourse() {
     const userData = getUserData();
     if (!userData) return;
 
-    socketRef.current.emit("course_message", {
-      courseId,
-      userId: userData.id,
+    socketRef.current.emit("send_private_message", {
+      senderId: userData.id,
+      receiverId: otherUserId,
       message: trimmed,
     });
 
     setInputValue("");
   };
-
-  if (loading) {
-    return (
-      <div className={styles.container}>
-        <div className={styles.loading}>Cargando chat del curso...</div>
-      </div>
-    );
-  }
 
   if (error) {
     return (
@@ -174,6 +152,14 @@ export default function ChatCourse() {
     );
   }
 
+  if (!otherUser) {
+    return (
+      <div className={styles.container}>
+        <div className={styles.loading}>Cargando...</div>
+      </div>
+    );
+  }
+
   return (
     <div className={styles.container}>
       <div className={styles.returnContainer}>
@@ -185,37 +171,32 @@ export default function ChatCourse() {
       <section className={styles.chatSection}>
         <div className={styles.header}>
           <div className={styles.info}>
-            <h1>{courseInfo?.nombre || "Chat del Curso"}</h1>
-            <p className={styles.courseDescription}>
-              {courseInfo?.descripcion || ""}
-            </p>
+            <h1>Chat con {otherUser.nombre}</h1>
           </div>
         </div>
 
         <div className={styles.messageListContainer}>
           <ul className={styles.messageList}>
-            {messages.map((message, index) => (
+            {messages.map((msg, i) => (
               <li
-                key={index}
+                key={i}
                 className={
-                  message.usuario_id === userData.id
+                  msg.remitente_id === getUserData()?.id
                     ? styles.myMessage
-                    : message.rol_usuario === "profesor"
-                    ? styles.teacherMessage
                     : styles.otherMessage
                 }
               >
                 <div className={styles.messageHeader}>
                   <img
-                    src={message.fotoPerfil || "../../img/usuario.png"}
-                    alt={message.nombre}
+                    src={msg.fotoPerfil || "../../img/usuario.png"}
+                    alt={msg.nombre}
                     className={styles.userAvatar}
                   />
-                  <span className={styles.userName}>{message.nombre}</span>
+                  <span className={styles.userName}>{msg.nombre}</span>
                 </div>
-                <p className={styles.messageContent}>{message.mensaje}</p>
+                <p className={styles.messageContent}>{msg.mensaje}</p>
                 <div className={styles.messageFooter}>
-                  <p className={styles.messageDate}>{message.fecha_local}</p>
+                  <p className={styles.messageDate}>{msg.fecha_local}</p>
                 </div>
               </li>
             ))}
@@ -227,9 +208,9 @@ export default function ChatCourse() {
           <input
             type="text"
             className={styles.input}
-            placeholder="Escribe tu mensaje..."
             value={inputValue}
             onChange={(e) => setInputValue(e.target.value)}
+            placeholder="Escribe tu mensaje..."
             disabled={!!error}
           />
           <button
