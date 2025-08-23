@@ -45,6 +45,11 @@
   cursor: pointer;
 }
 
+.addButton:hover {
+  background-color: #1565c0 !important; /* más oscuro que var(--color-primary) */
+  color: #fff !important;
+}
+
 .backButton {
   margin-top: 30px;
   padding: 10px 15px;
@@ -53,6 +58,12 @@
   border-radius: 6px;
   cursor: pointer;
   color: #fff;
+}
+
+.backButton:hover,
+.button:hover {
+  background-color: #1565c0 !important; /* más oscuro que var(--color-primary) */
+  color: #fff !important;
 }
 
 .message {
@@ -90,4 +101,10 @@
   color: var(--color-primary);
   text-decoration: none;
   font-weight: bold;
+}
+
+.notaMaxima {
+  margin: 1rem 0;
+  font-size: 1.08rem;
+  color: #1976d2;
 }

@@ -96,3 +96,18 @@
   color: #fff;
   font-size: 1rem;
 }
+
+.lockedModule {
+  cursor: not-allowed !important;
+  opacity: 0.6 !important;
+}
+
+.lockIcon {
+  margin-left: 8px;
+}
+
+.progressInfo {
+  font-size: 14px;
+  color: #666;
+  margin-top: 5px;
+}

@@ -9,14 +9,6 @@ function ListStudents() {
   const [selectedStudent, setSelectedStudent] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
 
-  // Clasificación visual de promedio
-  const getPromedioClass = (promedio) => {
-    if (promedio >= 4.6 && promedio <= 5.0) return "alto";
-    if (promedio >= 4.0) return "bueno";
-    if (promedio >= 3.0) return "regular";
-    return "bajo";
-  };
-
   useEffect(() => {
     const userCookie = Cookies.get("user");
     if (!userCookie) {
@@ -132,11 +124,6 @@ function ListStudents() {
                     <strong>{student.nombre}</strong>
                   </p>
                   <p>{student.nombre_usuario}</p>
-                  <p
-                    className={`promedio ${getPromedioClass(student.promedio)}`}
-                  >
-                    {student.promedio ?? "—"}
-                  </p>
                 </li>
               ))}
             </ul>
@@ -150,16 +137,6 @@ function ListStudents() {
             <h2>{selectedStudent.nombre}</h2>
             <p>
               <strong>Usuario:</strong> {selectedStudent.nombre_usuario}
-            </p>
-            <p>
-              <strong>Promedio:</strong>
-              <span
-                className={`promedio ${getPromedioClass(
-                  selectedStudent.promedio
-                )}`}
-              >
-                {selectedStudent.promedio ?? "—"}
-              </span>
             </p>
             <button
               onClick={() =>

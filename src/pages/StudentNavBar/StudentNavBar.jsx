@@ -54,7 +54,7 @@ function StudentNavBar() {
         <h1>My Online Tutor</h1>
         <div className="header-buttons">
           <button onClick={handleChats} className="chatsButton">
-            <img src="../../../img/chat.png" alt="Chats" className="chatsImg" />
+            <img src="../../../img/mensajero.png" alt="Chats" className="chatsImg" />
           </button>
           <button onClick={handleProfile} className="profileButton">
             <img src="../../../img/usuario.png" alt="Perfil" className="profileImg" />

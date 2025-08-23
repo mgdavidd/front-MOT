@@ -1,0 +1,124 @@
+.listContainer {
+  margin-top: 2rem;
+  background: #f8fafc;
+  border-radius: 12px;
+  padding: 1.2rem 1rem;
+  box-shadow: 0 2px 8px rgba(100,116,139,0.08);
+}
+
+.sectionTitle {
+  font-size: 1.2rem;
+  font-weight: 600;
+  color: #1e3a8a;
+  margin-bottom: 1rem;
+}
+
+.userList {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.userItem {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  background: #fff;
+  border-radius: 8px;
+  margin-bottom: 0.7rem;
+  padding: 0.7rem 0.8rem;
+  box-shadow: 0 1px 4px rgba(100,116,139,0.06);
+  transition: box-shadow 0.2s;
+}
+
+.userItem:hover {
+  box-shadow: 0 2px 8px rgba(100,116,139,0.12);
+}
+
+.docente {
+  border-left: 5px solid #3b82f6;
+  background: #e0f2fe;
+}
+
+.userImg {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 2px solid #cbd5e1;
+  background: #f0f4fa;
+}
+
+.userInfo {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+}
+
+.userName {
+  font-weight: 500;
+  color: #1e293b;
+  font-size: 1.05rem;
+}
+
+.role {
+  background: #3b82f6;
+  color: #fff;
+  font-size: 0.85rem;
+  padding: 2px 8px;
+  border-radius: 8px;
+  margin-left: 8px;
+}
+
+.username {
+  color: #64748b;
+  font-size: 0.95rem;
+}
+
+.chatBtn {
+  margin-top: 4px;
+  background: #3b82f6;
+  color: #fff;
+  border: none;
+  border-radius: 6px;
+  padding: 6px 14px;
+  font-size: 0.98rem;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.chatBtn:hover {
+  background: #2563eb;
+}
+
+.loading, .empty {
+  color: #64748b;
+  font-size: 1rem;
+  padding: 0.8rem;
+  text-align: center;
+}
+
+@media (max-width: 600px) {
+  .listContainer {
+    padding: 0.7rem 0.2rem;
+    border-radius: 0;
+  }
+  .userItem {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.5rem;
+    padding: 0.7rem 0.3rem;
+  }
+  .userImg {
+    width: 40px;
+    height: 40px;
+  }
+  .userInfo {
+    gap: 0.1rem;
+  }
+  .chatBtn {
+    width: 100%;
+    font-size: 1rem;
+  }
+}

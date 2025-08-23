@@ -45,6 +45,11 @@
   color: white;
 }
 
+.cancelButton:hover {
+  background-color: #666 !important; /* más oscuro que #999 */
+  color: #fff !important;
+}
+
 .submitButton {
   padding: 8px 15px;
   background-color: var(--color-primary);
@@ -52,4 +57,9 @@
   border-radius: 6px;
   cursor: pointer;
   color: white;
+}
+
+.submitButton:hover {
+  background-color: #1565c0 !important; /* más oscuro que var(--color-primary) */
+  color: #fff !important;
 }

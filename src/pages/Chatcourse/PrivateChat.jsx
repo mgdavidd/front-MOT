@@ -106,7 +106,6 @@ export default function PrivateChat() {
       userPhoto: userData.fotoPerfil,
     });
 
-    // Unirse al chat con IDs ordenados
     socket.emit("join_private_chat", {
       userId: userData.id,
       otherUserId: otherUser.id,

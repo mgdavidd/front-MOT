@@ -1,0 +1,225 @@
+.modalOverlay,
+.modalOverlay * {
+  box-sizing: border-box !important;
+  writing-mode: horizontal-tb !important;
+  text-orientation: mixed !important;
+  white-space: normal !important;
+  transform: none !important;
+  rotate: 0deg !important;
+  direction: ltr !important;
+  -webkit-text-orientation: mixed !important;
+}
+
+.modal,
+.modal * {
+  display: revert !important;
+}
+
+.modalOverlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0,0,0,0.25);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+}
+
+.modal {
+  background: #fff;
+  border-radius: 12px;
+  padding: 1.8rem 1.2rem;
+  max-width: 720px;
+  width: 95vw;
+  box-shadow: 0 6px 30px rgba(0,0,0,0.12);
+  overflow-y: auto;
+  max-height: 90vh;
+  box-sizing: border-box;
+  -webkit-font-smoothing: antialiased;
+  scrollbar-width: thin;
+  scrollbar-color: #cfcfcf transparent;
+}
+
+.modal::-webkit-scrollbar { width: 6px; height: 6px; }
+.modal::-webkit-scrollbar-thumb { background: #cfcfcf; border-radius: 6px; }
+
+.preguntasList {
+  margin-top: 1rem;
+}
+
+.preguntaBlock {
+  margin-bottom: 1.25rem;
+  padding: 0.95rem;
+  border: 1px solid #e6e6e6;
+  border-radius: 8px;
+  background: #fbfbfb;
+  box-sizing: border-box;
+}
+
+.preguntaBlock > label {
+  display: block;
+  font-weight: 600;
+  margin-bottom: 0.5rem;
+  color: #222;
+  font-size: 0.98rem;
+}
+
+.preguntaBlock > input[type="text"] {
+  width: 100%;
+  padding: 8px 10px;
+  border-radius: 6px;
+  border: 1px solid #cfcfcf;
+  margin-bottom: 0.8rem;
+  font-size: 0.95rem;
+  background: #fff;
+  box-sizing: border-box;
+  outline: none;
+}
+.preguntaBlock > input[type="text"]:focus {
+  box-shadow: 0 0 0 3px rgba(25,118,210,0.08);
+  border-color: #1976d2;
+}
+
+.opcionesList {
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 0.6rem;
+  margin-top: 0.5rem;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.modal .opcionesList .opcionBlock {
+  display: flex !important;
+  flex-direction: row !important;
+  justify-content: flex-start !important;
+  align-items: center !important;
+  gap: 0.75rem;
+  width: 100% !important;
+  min-height: 48px;
+  padding: 8px 10px;
+  border-radius: 6px;
+  border: 1px solid #eaeaea;
+  background: #ffffff;
+  box-sizing: border-box;
+  overflow: visible !important;
+  position: relative;
+}
+
+.modal .opcionesList .opcionBlock:hover {
+  background: #fbfbfb;
+}
+
+.modal .opcionesList .opcionBlock input[type="radio"] {
+  flex: 0 0 auto !important;
+  margin: 0 !important;
+  align-self: center !important;
+  transform: none !important;
+  cursor: pointer !important;
+  z-index: 3 !important;
+  width: auto;
+  height: auto;
+}
+
+.modal .opcionesList .opcionBlock span {
+  display: block !important;
+  flex: 1 1 auto !important;
+  min-width: 0 !important;
+  text-align: left !important;
+  white-space: normal !important;
+  word-break: break-word !important;
+  overflow-wrap: anywhere !important;
+  writing-mode: horizontal-tb !important;
+  text-orientation: mixed !important;
+  line-height: 1.35;
+  color: #222;
+  cursor: pointer;
+  box-sizing: border-box;
+  padding-right: 6px;
+}
+
+.modal .opcionesList .opcionBlock input[type="text"] {
+  flex: 1 1 auto !important;
+  min-width: 0 !important;
+  width: auto !important;
+  padding: 8px 10px !important;
+  border-radius: 6px !important;
+  border: 1px solid #cfcfcf !important;
+  font-size: 0.95rem !important;
+  z-index: 2 !important;
+  box-sizing: border-box;
+  background: #fff !important;
+  pointer-events: auto !important;
+  outline: none !important;
+}
+.modal .opcionesList .opcionBlock input[type="text"]:focus {
+  box-shadow: 0 0 0 3px rgba(25,118,210,0.06) !important;
+  border-color: #1976d2 !important;
+}
+
+.modal .opcionesList .opcionBlock > * {
+  max-width: 100%;
+  box-sizing: border-box;
+}
+
+.addOptionBtn,
+.addQuestionBtn {
+  margin-top: 0.7rem;
+  background: var(--color-primary);
+  border: none;
+  border-radius: 6px;
+  padding: 8px 14px;
+  cursor: pointer;
+  font-size: 0.95rem;
+  color: #fff;
+  transition: filter 0.15s ease, transform 0.08s ease;
+}
+.addOptionBtn:hover,
+.addQuestionBtn:hover { filter: brightness(0.93); }
+
+.saveBtn {
+  background: #1976d2;
+  color: #fff;
+  border: none;
+  border-radius: 7px;
+  padding: 8px 22px;
+  font-size: 1rem;
+  cursor: pointer;
+  margin-right: 12px;
+  transition: filter 0.15s;
+}
+.saveBtn:hover { filter: brightness(0.88); }
+
+.cancelBtn {
+  background: #e9e9e9;
+  color: #333;
+  border: none;
+  border-radius: 7px;
+  padding: 8px 22px;
+  font-size: 1rem;
+  cursor: pointer;
+}
+.cancelBtn:hover { background: #d4d4d4; color: #111; }
+
+.modalActions {
+  margin-top: 1.25rem;
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.9rem;
+}
+
+@media (max-width: 600px) {
+  .modal { padding: 1rem; }
+  .preguntaBlock { padding: 0.8rem; }
+  .modal .opcionesList .opcionBlock {
+    flex-direction: row !important;
+    align-items: center !important;
+    min-height: 56px;
+  }
+  .modal .opcionesList .opcionBlock input[type="radio"] {
+    margin-right: 8px !important;
+  }
+}
