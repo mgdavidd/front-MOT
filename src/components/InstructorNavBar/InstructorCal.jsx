@@ -47,8 +47,9 @@ const InstructorCal = () => {
       const data = await authFetch(
         `http://localhost:3000/teachers/${userId}/courses`
       );
-      setCourses(data);
-      setSelectedCourseId(data[0]?.id || null);
+      const filteredCourses = data.filter((course) => course.tipoCurso !== "pregrabado");
+      setCourses(filteredCourses);
+      setSelectedCourseId(filteredCourses[0]?.id || null);
     } catch (err) {
       setError(err.message);
     }

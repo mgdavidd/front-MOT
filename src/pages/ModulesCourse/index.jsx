@@ -29,6 +29,8 @@ export default function ModulesCourse() {
   const [loading, setLoading] = useState(true);
   const [showModal, setShowModal] = useState(false);
 
+  console.log(course)
+
   const fetchModules = async () => {
     try {
       const response = await fetch(`http://localhost:3000/courses/${course.id}/modules/${userId}`);
@@ -67,7 +69,8 @@ export default function ModulesCourse() {
         descripcion: module.descripcion || "",
         profesor: course.profesor || "Profesor no especificado",
         courseName: course.nombre,
-        id_curso: course.id
+        id_curso: course.id,
+        tipoCurso: course.tipoCurso,
       },
     });
   };

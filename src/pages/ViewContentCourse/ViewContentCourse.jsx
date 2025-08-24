@@ -10,6 +10,7 @@ import Cookies from "js-cookie";
 function ViewContentCourse() {
   const navigate = useNavigate();
   const { state: modulo } = useLocation();
+  console.log(modulo); // modulo.tipoCurso nuevo campo para boton de agregar grabaciones de forma manual
 
   const [contenido, setContenido] = useState([]);
   const [grabaciones, setGrabaciones] = useState([]);
@@ -152,13 +153,16 @@ function ViewContentCourse() {
       payload.append("adminUserName", userName);
       payload.append("courseName", modulo.courseName);
 
-      const res = await fetch(
-        `http://localhost:3000/upload-module-content/${modulo.id}`,
-        {
-          method: "POST",
-          body: payload,
-        }
-      );
+      // Detectar si es pregrabado → usar el nuevo endpoint
+      const endpoint =
+        modulo.tipoCurso === "pregrabado"
+          ? `http://localhost:3000/upload-pre-recording/${modulo.id}`
+          : `http://localhost:3000/upload-module-content/${modulo.id}`;
+
+      const res = await fetch(endpoint, {
+        method: "POST",
+        body: payload,
+      });
 
       const data = await res.json();
 
@@ -167,15 +171,21 @@ function ViewContentCourse() {
         return;
       }
 
-      setContenido((prev) => [
-        ...prev,
-        {
-          titulo: formData.title,
-          link: data.fileLink,
-        },
-      ]);
+      if (modulo.tipoCurso === "pregrabado") {
+        // Agregar a lista de grabaciones
+        setGrabaciones((prev) => [
+          ...prev,
+          { titulo: formData.title, link: data.fileLink, inicio: null },
+        ]);
+      } else {
+        // Agregar a lista de contenidos
+        setContenido((prev) => [
+          ...prev,
+          { titulo: formData.title, link: data.fileLink },
+        ]);
+      }
     } catch (err) {
-      console.error("Error al subir contenido:", err);
+      console.error("Error al subir:", err);
     }
   };
 
@@ -475,6 +485,16 @@ function ViewContentCourse() {
               </tbody>
             </table>
           )}
+          {currentUser &&
+            currentUser.rol === "profesor" &&
+            modulo.tipoCurso === "pregrabado" && (
+              <button
+                className={styles.addButton}
+                onClick={() => setShowUploadModal(true)}
+              >
+                + Agregar grabación
+              </button>
+            )}
         </div>
       )}
 
@@ -527,6 +547,9 @@ function ViewContentCourse() {
         <UploadContentCourse
           onClose={() => setShowUploadModal(false)}
           onSubmit={handleUpload}
+          isRecording={
+            activeTab === "grabaciones" && modulo.tipoCurso === "pregrabado"
+          }
         />
       )}
 
