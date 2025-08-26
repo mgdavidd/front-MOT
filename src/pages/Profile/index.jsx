@@ -58,9 +58,9 @@ export default function Profile() {
     }
 
     const userRole = user.rol?.toLowerCase();
-    if (userRole === "profesor") {
+    if (userRole === "PROFESOR") {
       navigate("/instructorNav");
-    } else if (userRole === "estudiante") {
+    } else if (userRole === "ESTUDIANTE") {
       navigate("/studentNav");
     } else {
       navigate("/");
@@ -83,7 +83,7 @@ export default function Profile() {
       </header>
 
       <main className={styles["main-content"]}> 
-        {userRol === "profesor" && (
+        {userRol === "PROFESOR" && (
           <button
             className={styles["main-button"]}
             onClick={() => navigate("/crear-curso")}

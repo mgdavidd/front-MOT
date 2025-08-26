@@ -572,6 +572,22 @@ function ViewContentCourse() {
           </label>
         </div>
       )}
+      {currentUser && (
+        <button
+          className={styles.addButton}
+          onClick={() =>
+            navigate("/forum", {
+              state: {
+                idModulo: modulo.id,
+                idUsuario: currentUser.id,
+                modulo,
+              },
+            })
+          }
+        >
+          Ir al foro del módulo
+        </button>
+      )}
     </div>
   );
 }
