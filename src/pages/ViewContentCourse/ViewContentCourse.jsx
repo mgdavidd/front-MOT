@@ -7,7 +7,7 @@ import ModalEditarPruebaFinal from "../../components/ViewContentCourse/ModalEdit
 import ModalResponderPruebaFinal from "../../components/ViewContentCourse/ModalResponderPruebaFinal";
 import Cookies from "js-cookie";
 
-function ViewContentCourse() {
+export default function ViewContentCourse() {
   const navigate = useNavigate();
   const { state: modulo } = useLocation();
   console.log(modulo); // modulo.tipoCurso nuevo campo para boton de agregar grabaciones de forma manual
@@ -572,26 +572,6 @@ function ViewContentCourse() {
           </label>
         </div>
       )}
-      {"boton que redirige al foro"}
-      <div style={{ marginTop: "1rem" }}>
-        <button
-          className={styles.forumButton}
-          onClick={() =>
-            navigate("/forum", {
-              state: {
-                courseId: modulo.id_curso,
-                courseName: modulo.courseName,
-                moduleId: modulo.id,
-                moduleName: modulo.nombre,
-              },
-            })
-          }
-        >
-          Ir al foro del curso
-        </button>
-        </div>
     </div>
   );
 }
-
-export default ViewContentCourse;

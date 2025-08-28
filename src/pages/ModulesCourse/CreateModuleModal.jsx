@@ -29,12 +29,13 @@ export default function CreateModuleModal({ courseId, onClose, onModuleCreated }
       const result = await response.json();
 
       if (result.success) {
-        onModuleCreated(); // Actualiza la vista
-        onClose();         // Cierra el modal
+        onModuleCreated();
+        onClose();
       } else {
         setError(result.message || "Error al crear el módulo.");
       }
     } catch (err) {
+      console.error(err);
       setError("Error en la conexión con el servidor.");
     } finally {
       setLoading(false);

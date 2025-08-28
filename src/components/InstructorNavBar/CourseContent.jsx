@@ -52,7 +52,6 @@ export default function CourseContent() {
 
   return (
     <div className={styles.container}>
-      <h1 className={styles.title}>Mis Cursos</h1>
       <div className={styles.coursesContainer}>
         {courses.map((curso) => (
           <div key={curso.id} className={styles.courseWrapper}>
