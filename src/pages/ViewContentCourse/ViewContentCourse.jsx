@@ -572,6 +572,24 @@ function ViewContentCourse() {
           </label>
         </div>
       )}
+      {"boton que redirige al foro"}
+      <div style={{ marginTop: "1rem" }}>
+        <button
+          className={styles.forumButton}
+          onClick={() =>
+            navigate("/forum", {
+              state: {
+                courseId: modulo.id_curso,
+                courseName: modulo.courseName,
+                moduleId: modulo.id,
+                moduleName: modulo.nombre,
+              },
+            })
+          }
+        >
+          Ir al foro del curso
+        </button>
+        </div>
     </div>
   );
 }

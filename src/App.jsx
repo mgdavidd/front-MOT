@@ -16,6 +16,7 @@ import Chatcourse from './pages/Chatcourse/Chatcourse';
 import StudentNavBar from './pages/StudentNavBar/StudentNavBar';
 import PrivateChat from './pages/Chatcourse/PrivateChat';
 import MyChats from './pages/MyChats/Mychats';
+import ForumModule from './pages/forum/ForumModule';
 
 
 function App() {
@@ -38,6 +39,7 @@ function App() {
         <Route path="/StudentNav" element={<StudentNavBar />} />
         <Route path="/private-chat/:otherUserId" element={<PrivateChat />} />
         <Route path="/mychats" element={<MyChats/>} />
+        <Route path="/forum" element={<ForumModule/>} />
 
       </Routes>
     </div>

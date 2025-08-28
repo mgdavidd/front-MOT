@@ -1,0 +1,115 @@
+.foro-container {
+  padding: 2rem;
+  background: #f4f6fb;
+  min-height: 100vh;
+  font-family: Arial, sans-serif;
+}
+
+.foro-title {
+  font-size: 1.8rem;
+  font-weight: bold;
+}
+
+.foro-subtitle {
+  font-size: 1.2rem;
+  color: #555;
+  margin-bottom: 1.5rem;
+}
+
+/* Crear foro */
+.crear-foro {
+  background: #fff;
+  padding: 1rem;
+  border-radius: 0.8rem;
+  margin-bottom: 2rem;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+}
+
+.foro-input {
+  width: 100%;
+  padding: 0.6rem;
+  margin: 0.5rem 0;
+  border-radius: 0.5rem;
+  border: 1px solid #ccc;
+  font-size: 1rem;
+}
+
+.publicar-btn {
+  background: #2563eb;
+  color: white;
+  padding: 0.6rem 1.2rem;
+  border-radius: 0.5rem;
+  font-weight: bold;
+  cursor: pointer;
+  border: none;
+  transition: background 0.2s;
+}
+
+.publicar-btn:hover {
+  background: #1d4ed8;
+}
+
+/* Tabs */
+.tabs {
+  display: flex;
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+.tab-btn {
+  flex: 1;
+  background: #e0e7ff;
+  border: none;
+  padding: 0.6rem;
+  border-radius: 0.5rem;
+  cursor: pointer;
+  font-weight: bold;
+  transition: 0.2s;
+}
+
+.tab-btn:hover {
+  background: #c7d2fe;
+}
+
+.tab-btn.active {
+  background: #2563eb;
+  color: white;
+}
+
+.tab-content {
+  background: #fff;
+  border-radius: 0.8rem;
+  padding: 1rem;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+}
+
+/* Cards */
+.foro-card {
+  background: #f9f9f9;
+  padding: 1rem;
+  margin: 0.6rem 0;
+  border-radius: 0.8rem;
+  border: 1px solid #ddd;
+}
+
+.foro-card h4 {
+  margin: 0;
+  font-size: 1.1rem;
+  font-weight: bold;
+}
+
+.foro-card p {
+  margin: 0.5rem 0;
+}
+
+.autor {
+  display: block;
+  margin-top: 0.5rem;
+  font-size: 0.9rem;
+  color: #666;
+}
+
+.no-content {
+  color: #666;
+  font-style: italic;
+}
