@@ -498,6 +498,10 @@ export default function ViewContentCourse() {
         </div>
       )}
 
+      <button className={styles.backButton} onClick={() => navigate(-1)}>
+        ← Volver
+      </button>
+
       {/* Botones y modales para prueba final */}
       {currentUser?.rol === "profesor" && !pruebaFinal && (
         <button onClick={() => setShowCrearPrueba(true)}>
@@ -539,10 +543,6 @@ export default function ViewContentCourse() {
         />
       )}
 
-      <button className={styles.backButton} onClick={() => navigate(-1)}>
-        ← Volver
-      </button>
-
       {showUploadModal && (
         <UploadContentCourse
           onClose={() => setShowUploadModal(false)}
@@ -572,6 +572,21 @@ export default function ViewContentCourse() {
           </label>
         </div>
       )}
+
+      <button
+        className={styles.forumButton}
+        onClick={() =>
+          navigate("/forum", {
+            state: {
+              idModulo: modulo.id,
+              idUsuario: currentUser.id,
+              modulo,
+            },
+          })
+        }
+      >
+        Ir al Foro del módulo
+      </button>
     </div>
   );
 }

@@ -6,6 +6,8 @@ import "../../assets/styles/auth/auth-base.css";
 import "../../assets/styles/auth/auth-components.css";
 import "../../assets/styles/auth/auth-variables.css";
 import Logo from "../../components/Logo";
+import { applyUserThemeFromCookies } from "../../utils/initUserTheme.js";
+
 
 const Signup = () => {
   const navigate = useNavigate();
@@ -37,9 +39,10 @@ const Signup = () => {
       if (res.ok && data.success) {
         const { user, token } = data;
 
-        // Guardar usuario y token
         Cookies.set("user", JSON.stringify(user), { expires: 7 });
         Cookies.set("token", token, { expires: 7 });
+
+        applyUserThemeFromCookies();
 
         if (isAdmin) {
           navigate("/checksKnowledge", {

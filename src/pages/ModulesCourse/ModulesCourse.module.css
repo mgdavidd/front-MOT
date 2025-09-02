@@ -44,14 +44,40 @@
   padding: 1rem;
   border-radius: 8px;
   margin-bottom: 0.8rem;
-  color: #ffffff;
+  color: #000000;
   font-weight: 500;
   transition: transform 0.2s ease;
   font-size: 15px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
 }
 
 .moduleItem:hover {
   transform: translateY(-2px);
+}
+
+/* Contenedor del contenido del módulo */
+.moduleContent {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+}
+
+/* Botón de eliminar módulo */
+.deleteModuleButton {
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 1.2rem;
+  padding: 5px;
+  border-radius: 4px;
+  transition: background-color 0.2s ease;
+}
+
+.deleteModuleButton:hover {
+  background-color: rgba(255, 0, 0, 0.1);
 }
 
 /* Botón + para agregar módulo */
@@ -110,4 +136,10 @@
   font-size: 14px;
   color: #666;
   margin-top: 5px;
+}
+
+.deleteIcon {
+  filter: invert(100%);
+  width: 20px;
+  height: auto;
 }

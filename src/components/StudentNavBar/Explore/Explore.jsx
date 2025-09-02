@@ -9,6 +9,32 @@ export default function CoursesList() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
+  const handleInscripcion = () => {
+    if (!selectedCourse) return;
+    const userCookie = Cookies.get("user");
+    if (!userCookie) return "";
+    const userData = JSON.parse(decodeURIComponent(userCookie));
+    fetch(`http://localhost:3000/inscription/course`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        userId: userData.id,
+        courseId: selectedCourse.id,
+      }),
+    })
+      .then((response) => response.json())
+      .then((data) => {
+        if (data.success) {
+          alert("Bienvenido a tu nuevo curso");
+        }
+      })
+      .catch((error) => {
+        console.error("Error al inscribir al curso:", error);
+      });
+  };
+
   const getUserPreferences = () => {
     try {
       const userCookie = Cookies.get("user");
@@ -30,10 +56,14 @@ export default function CoursesList() {
 
       if (search.trim() !== "") {
         // Ruta de filtrado
-        url = `http://localhost:3000/filterCourses/${encodeURIComponent(search)}`;
+        url = `http://localhost:3000/filterCourses/${encodeURIComponent(
+          search
+        )}`;
       } else {
         // Ruta por preferencias
-        url = `http://localhost:3000/AllCourses/${encodeURIComponent(preferences)}`;
+        url = `http://localhost:3000/AllCourses/${encodeURIComponent(
+          preferences
+        )}`;
       }
 
       const res = await fetch(url);
@@ -80,26 +110,33 @@ export default function CoursesList() {
       {error && <p className={styles.error}>{error}</p>}
 
       <div className={styles.cardsContainer}>
-        {courses.map((course) => ( console.log(course),
-          <div
-            key={course.id}
-            className={styles.card}
-            onClick={() => setSelectedCourse(course)}
-          >
-            <div className={styles.cardLeft}>
-              <img
-                src={course.imagen}
-                alt={course.nombre}
-                className={styles.cardImage}
-              />
-            </div>
-            <div className={styles.cardRight}>
-              <h3 className={styles.cardTitle}>{course.nombre}</h3>
-              <p className={styles.cardDescription}>{course.descripcion}</p>
-              <p className={styles.cardPrice}>Precio: ${course.precio.toLocaleString('es-ES')} CO</p>
-            </div>
-          </div>
-        ))}
+        {courses.map(
+          (course) => (
+            console.log(course),
+            (
+              <div
+                key={course.id}
+                className={styles.card}
+                onClick={() => setSelectedCourse(course)}
+              >
+                <div className={styles.cardLeft}>
+                  <img
+                    src={course.imagen}
+                    alt={course.nombre}
+                    className={styles.cardImage}
+                  />
+                </div>
+                <div className={styles.cardRight}>
+                  <h3 className={styles.cardTitle}>{course.nombre}</h3>
+                  <p className={styles.cardDescription}>{course.descripcion}</p>
+                  <p className={styles.cardPrice}>
+                    Precio: ${course.precio.toLocaleString("es-ES")} CO
+                  </p>
+                </div>
+              </div>
+            )
+          )
+        )}
       </div>
 
       {selectedCourse && (
@@ -111,9 +148,15 @@ export default function CoursesList() {
             <h2>{selectedCourse.nombre}</h2>
             <p>{selectedCourse.descripcion}</p>
             <p>
-              <strong>Precio:</strong> ${selectedCourse.precio.toLocaleString('es-ES')}
+              <strong>Precio:</strong> $
+              {selectedCourse.precio.toLocaleString("es-ES")}
             </p>
-            <button className={styles.inscriptionBtn}>Inscribirme</button>
+            <button
+              className={styles.inscriptionBtn}
+              onClick={handleInscripcion}
+            >
+              Inscribirme
+            </button>
           </div>
         </div>
       )}

@@ -2,23 +2,10 @@ import React, { useEffect, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import styles from "./ModulesCourse.module.css";
 import CreateModuleModal from "./CreateModuleModal";
-import Cookies from "js-cookie" 
+import Cookies from "js-cookie";
 import StudentsList from "./StudentsList";
-
-const getCurrentUser = async () => {
-  try {
-    const userCookie = await Cookies.get("user");
-    if (!userCookie) return null;
-    const decoded = await decodeURIComponent(userCookie);
-    return JSON.parse(decoded);
-  } catch (error) {
-    console.error("Error al parsear cookie:", error);
-    return null;
-  }
-};
-
-const currentUser = await getCurrentUser();
-const userId = currentUser?.id;
+import { confirmAlert } from 'react-confirm-alert';
+import 'react-confirm-alert/src/react-confirm-alert.css';
 
 export default function ModulesCourse() {
   const location = useLocation();
@@ -28,20 +15,34 @@ export default function ModulesCourse() {
   const [progresoActual, setProgresoActual] = useState(null);
   const [loading, setLoading] = useState(true);
   const [showModal, setShowModal] = useState(false);
+  const [currentUser, setCurrentUser] = useState(null);
 
-  console.log(course)
+  // Leer cookie cada vez que se monte el componente
+  useEffect(() => {
+    const fetchUser = async () => {
+      try {
+        const userCookie = Cookies.get("user");
+        if (userCookie) {
+          setCurrentUser(JSON.parse(decodeURIComponent(userCookie)));
+        }
+      } catch (err) {
+        console.error("Error leyendo user cookie:", err);
+        setCurrentUser(null);
+      }
+    };
+    fetchUser();
+  }, []); // <- ejecuta solo al montar
 
   const fetchModules = async () => {
+    if (!currentUser) return;
     try {
-      const response = await fetch(`http://localhost:3000/courses/${course.id}/modules/${userId}`);
+      const response = await fetch(`http://localhost:3000/courses/${course.id}/modules/${currentUser.id}`);
       const data = await response.json();
-      
-      // Para estudiantes, la API devuelve {result, progresoActual}
+
       if (currentUser.rol === "estudiante") {
         setModules(data.result || []);
         setProgresoActual(data.progresoActual || null);
       } else {
-        // Para profesores, la API devuelve directamente el array
         setModules(data || []);
       }
     } catch (err) {
@@ -53,7 +54,7 @@ export default function ModulesCourse() {
 
   useEffect(() => {
     fetchModules();
-  }, [course]);
+  }, [course, currentUser]);
 
   const handleModuleClick = (module) => {
     // Para estudiantes, verificar si el módulo está desbloqueado
@@ -67,11 +68,73 @@ export default function ModulesCourse() {
         id: module.id,
         nombre: module.title || module.nombre,
         descripcion: module.descripcion || "",
-        profesor: course.profesor || "Profesor no especificado",
         courseName: course.nombre,
         id_curso: course.id,
         tipoCurso: course.tipoCurso,
       },
+    });
+  };
+
+  const handleDeleteCourse = async () => {
+    if (window.confirm("¿Estás seguro de que deseas eliminar este curso?")) {
+      try {
+        const response = await fetch(`http://localhost:3000/del/courses/${course.id}`, {
+          method: "DELETE",
+          headers: {
+            "Content-Type": "application/json",
+            "Authorization": `Bearer ${Cookies.get("token")}`
+          }
+        });
+        if (response.ok) {
+          alert("Curso eliminado con éxito.");
+          navigate("/instructorNav");
+        } else {
+          alert("Error al eliminar el curso.");
+        }
+      } catch (error) {
+        console.error("Error al eliminar el curso:", error);
+      }
+    }
+  };
+
+  const handleDeleteModule = async (moduleId, moduleName, e) => {
+    e.stopPropagation(); // Prevenir que se active el click del módulo
+
+    confirmAlert({
+      title: 'Confirmar eliminación',
+      message: `¿Estás seguro de que deseas eliminar el módulo "${moduleName}"? Esta acción no se puede deshacer.`,
+      buttons: [
+        {
+          label: 'Sí, eliminar',
+          onClick: async () => {
+            try {
+              const token = Cookies.get("token");
+              const response = await fetch(`http://localhost:3000/modules/${moduleId}`, {
+                method: "DELETE",
+                headers: {
+                  "Authorization": `Bearer ${token}`
+                }
+              });
+
+              const result = await response.json();
+
+              if (response.ok) {
+                alert("Módulo eliminado con éxito.");
+                fetchModules(); // Recargar la lista
+              } else {
+                alert(`Error: ${result.error || "No se pudo eliminar el módulo"}`);
+              }
+            } catch (error) {
+              console.error("Error al eliminar módulo:", error);
+              alert("Error al eliminar el módulo");
+            }
+          }
+        },
+        {
+          label: 'Cancelar',
+          onClick: () => {}
+        }
+      ]
     });
   };
 
@@ -80,6 +143,7 @@ export default function ModulesCourse() {
   return (
     <div className={styles.body}>
       <div className={styles.container}>
+        <button onClick={handleDeleteCourse} style={{ backgroundColor: "red", color: "white", padding: "10px 20px", border: "none", borderRadius: "5px", cursor: "pointer" }}>Eliminar Curso</button>
         <div className={styles.header}>
           <h1 className={styles.title}>Módulos de {course.nombre}</h1>
           {currentUser && currentUser.rol === "estudiante" && progresoActual && (
@@ -104,7 +168,20 @@ export default function ModulesCourse() {
               }}
               onClick={() => handleModuleClick(mod)}
             >
-              {mod.title || mod.nombre}
+              <div className={styles.moduleContent}>
+                <span>{mod.title || mod.nombre}</span>
+                
+                {currentUser.rol === "profesor" && (
+                  <button 
+                    className={styles.deleteModuleButton}
+                    onClick={(e) => handleDeleteModule(mod.id, mod.title || mod.nombre, e)}
+                    title="Eliminar módulo"
+                  >
+                    <img src="../../img/basura.png" alt="eliminar" className={styles.deleteIcon}/>
+                  </button>
+                )}
+              </div>
+              
               {currentUser.rol === "estudiante" && !mod.desbloqueado && (
                 <span className={styles.lockIcon}> 🔒</span>
               )}

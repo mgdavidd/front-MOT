@@ -29,7 +29,7 @@ export default function Profile() {
   useEffect(() => {
     const cookieValue = Cookies.get("user");
     if (!cookieValue) {
-      navigate("/");
+      navigate("/instructorNav");
       return;
     }
 
@@ -53,14 +53,14 @@ export default function Profile() {
 
   const handleBack = () => {
     if (!user) {
-      navigate("/");
+      navigate("/instructorNav");
       return;
     }
 
     const userRole = user.rol?.toLowerCase();
-    if (userRole === "PROFESOR") {
+    if (userRole === "profesor") {
       navigate("/instructorNav");
-    } else if (userRole === "ESTUDIANTE") {
+    } else if (userRole === "estudiante") {
       navigate("/studentNav");
     } else {
       navigate("/");
@@ -83,7 +83,7 @@ export default function Profile() {
       </header>
 
       <main className={styles["main-content"]}> 
-        {userRol === "PROFESOR" && (
+        {userRol === "profesor" && (
           <button
             className={styles["main-button"]}
             onClick={() => navigate("/crear-curso")}

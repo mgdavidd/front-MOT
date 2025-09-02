@@ -6,6 +6,7 @@ import "../../assets/styles/auth/auth-base.css";
 import "../../assets/styles/auth/auth-components.css";
 import "../../assets/styles/auth/auth-variables.css";
 import Logo from "../../components/Logo";
+import { applyUserThemeFromCookies } from "../../utils/initUserTheme.js";
 
 const Login = () => {
   const navigate = useNavigate();
@@ -28,6 +29,8 @@ const Login = () => {
 
       Cookies.set("user", JSON.stringify(user), { expires: 7 });
       Cookies.set("token", token, { expires: 7 });
+
+      applyUserThemeFromCookies();
 
       const userRole = user.rol?.toLowerCase();
       if (userRole === "profesor") {

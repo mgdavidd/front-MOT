@@ -1,175 +1,169 @@
 import React, { useEffect, useState } from "react";
+import { useLocation } from "react-router-dom";
 import axios from "axios";
-import "./ForumModule.module.css";
+import ForumForm from "./ForumForm";
+import ForumModal from "./ForumModal";
+import styles from "./ForumModule.module.css";
 
-const ForoPage = ({ idModulo }) => {
+const API_URL = "http://localhost:3000";
+
+const ForumModules = ({ idModulo: propIdModulo, idUsuario: propIdUsuario, modulo: propModulo }) => {
+  const location = useLocation();
+  const idModulo = propIdModulo || location.state?.idModulo;
+  const idUsuario = propIdUsuario || location.state?.idUsuario;
+  const modulo = propModulo || location.state?.modulo;
+
   const [foros, setForos] = useState([]);
-  const [nuevoForo, setNuevoForo] = useState({
-    titulo: "",
-    mensaje: "",
-    tipoReferencia: "general",
-  });
-  const [tabActivo, setTabActivo] = useState("preguntas");
+  const [selectedTab, setSelectedTab] = useState("pregunta");
+  const [selectedForo, setSelectedForo] = useState(null);
+  const [showModal, setShowModal] = useState(false);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    fetchForos();
+    if (idModulo) fetchForos();
   }, [idModulo]);
 
   const fetchForos = async () => {
     try {
-      const res = await axios.get(`/api/modulos/${idModulo}/foros`);
-      setForos(Array.isArray(res.data) ? res.data : []);
-    } catch (err) {
-      console.error("Error cargando foros:", err);
-      setForos([]);
+      setLoading(true);
+      const res = await axios.get(`${API_URL}/modulos/${idModulo}/foros`);
+      setForos(res.data);
+    } catch (error) {
+      console.error("Error cargando foros:", error);
+    } finally {
+      setLoading(false);
     }
   };
 
-  const handlePublicar = async () => {
-    if (!nuevoForo.titulo || !nuevoForo.mensaje) {
-      return alert("Completa todos los campos");
-    }
+  const selectForo = async (foroId) => {
     try {
-      await axios.post("/api/foros", {
-        idModulo,
-        idUsuario: 1, // cambiar por usuario logueado
-        tipoReferencia: nuevoForo.tipoReferencia,
-        titulo: nuevoForo.titulo,
-        mensaje: nuevoForo.mensaje,
-      });
-      setNuevoForo({ titulo: "", mensaje: "", tipoReferencia: "general" });
-      fetchForos();
-    } catch (err) {
-      console.error("Error creando foro:", err);
+      const res = await axios.get(`${API_URL}/foros/${foroId}`);
+      setSelectedForo(res.data);
+      setShowModal(true);
+    } catch (error) {
+      console.error("Error cargando foro:", error);
     }
   };
 
-  const filtrarForos = (tipo) => {
-    if (!Array.isArray(foros)) return [];
-    return foros.filter(
-      (foro) =>
-        foro.tipoReferencia?.toLowerCase().trim() === tipo.toLowerCase()
+  const closeModal = () => {
+    setShowModal(false);
+    setSelectedForo(null);
+  };
+
+  const renderReferenciaInfo = (foro) => {
+    if (!foro.referenciaTitulo) return null;
+    
+    return (
+      <div className={styles.referenciaInfo}>
+        <small>
+          Sobre: {foro.referenciaTitulo}
+          {foro.tipoReferencia === 'grabacion' ? ' (Grabación)' : ' (Contenido)'}
+        </small>
+      </div>
+    );
+  };
+
+  const getTabLabel = (tab) => {
+    const labels = {
+      pregunta: "Preguntas",
+      aporte: "Aportes", 
+      general: "General"
+    };
+    return labels[tab];
+  };
+
+  const getForumsByType = (type) => {
+    return foros.filter((f) => f.tipoForo === type);
+  };
+
+  const renderForumCards = () => {
+    const currentForos = getForumsByType(selectedTab);
+    
+    if (loading) {
+      return <p className={styles.empty}>Cargando...</p>;
+    }
+    
+    if (currentForos.length === 0) {
+      const typeText = selectedTab === "pregunta" ? "preguntas" : 
+                      selectedTab === "aporte" ? "aportes" : "discusiones generales";
+      return <p className={styles.empty}>Aún no hay {typeText}.</p>;
+    }
+
+    return (
+      <div className={styles.cardGrid}>
+        {currentForos.map((foro) => (
+          <div
+            key={foro.id}
+            className={styles.card}
+            onClick={() => selectForo(foro.id)}
+          >
+            <div className={styles.cardHeader}>
+              <h4 className={styles.cardTitle}>{foro.titulo}</h4>
+              <span className={styles.autor}>por {foro.autor}</span>
+            </div>
+            {renderReferenciaInfo(foro)}
+            <p className={styles.cardContent}>{foro.mensaje.substring(0, 120)}...</p>
+            <div className={styles.cardFooter}>
+              <span className={styles.respuestasCount}>
+                {foro.respuestasCount || 0} respuestas
+              </span>
+              <button className={styles.verMasBtn}>Ver más</button>
+            </div>
+          </div>
+        ))}
+      </div>
     );
   };
 
   return (
-    <div className="foro-container">
-      <h1 className="foro-title">Foro del módulo</h1>
-      <h2 className="foro-subtitle">Curso relacionado</h2>
+    <div className={styles.container}>
+      <div className={styles.header}>
+        <h2 className={styles.title}>Foro del Módulo: {modulo?.nombre}</h2>
 
-      {/* Crear foro */}
-      <div className="crear-foro">
-        <h3>Crear nuevo foro</h3>
-        <select
-          value={nuevoForo.tipoReferencia}
-          onChange={(e) =>
-            setNuevoForo({ ...nuevoForo, tipoReferencia: e.target.value })
-          }
-          className="foro-input"
-        >
-          <option value="preguntas">Preguntas</option>
-          <option value="aportes">Aportes</option>
-          <option value="general">General</option>
-        </select>
-        <input
-          type="text"
-          placeholder="Título"
-          className="foro-input"
-          value={nuevoForo.titulo}
-          onChange={(e) =>
-            setNuevoForo({ ...nuevoForo, titulo: e.target.value })
-          }
+        {/* Tabs fijas */}
+        <div className={styles.tabs}>
+          {["pregunta", "aporte", "general"].map((tab) => (
+            <button
+              key={tab}
+              onClick={() => setSelectedTab(tab)}
+              className={`${styles.tab} ${selectedTab === tab ? styles.tabActive : ""}`}
+            >
+              {getTabLabel(tab)}
+            </button>
+          ))}
+        </div>
+      </div>
+
+      {/* Contenido scrolleable */}
+      <div className={styles.scrollableContent}>
+        <div className={styles.cardsSection}>
+          <h3 className={styles.subtitle}>
+            {getTabLabel(selectedTab)}
+          </h3>
+          {renderForumCards()}
+        </div>
+      </div>
+
+      {/* Formulario fijo en el footer */}
+      <div className={styles.fixedFooter}>
+        <ForumForm
+          idModulo={idModulo}
+          idUsuario={idUsuario}
+          tipoForo={selectedTab}
+          refreshForos={fetchForos}
         />
-        <textarea
-          placeholder="Escribe tu mensaje..."
-          className="foro-input"
-          value={nuevoForo.mensaje}
-          onChange={(e) =>
-            setNuevoForo({ ...nuevoForo, mensaje: e.target.value })
-          }
+      </div>
+
+      {showModal && selectedForo && (
+        <ForumModal 
+          foro={selectedForo} 
+          idUsuario={idUsuario} 
+          onClose={closeModal}
+          refreshForo={() => selectForo(selectedForo.id)}
         />
-        <button className="publicar-btn" onClick={handlePublicar}>
-          Publicar
-        </button>
-      </div>
-
-      {/* Tabs */}
-      <div className="tabs">
-        <button
-          className={`tab-btn ${tabActivo === "preguntas" ? "active" : ""}`}
-          onClick={() => setTabActivo("preguntas")}
-        >
-          Preguntas
-        </button>
-        <button
-          className={`tab-btn ${tabActivo === "aportes" ? "active" : ""}`}
-          onClick={() => setTabActivo("aportes")}
-        >
-          Aportes
-        </button>
-        <button
-          className={`tab-btn ${tabActivo === "general" ? "active" : ""}`}
-          onClick={() => setTabActivo("general")}
-        >
-          General
-        </button>
-      </div>
-
-      {/* Contenido de pestañas */}
-      <div className="tab-content">
-        {tabActivo === "preguntas" && (
-          <>
-            <h3>Foros de Preguntas</h3>
-            {filtrarForos("preguntas").length > 0 ? (
-              filtrarForos("preguntas").map((foro) => (
-                <div key={foro.id} className="foro-card">
-                  <h4>{foro.titulo}</h4>
-                  <p>{foro.mensaje}</p>
-                  <span className="autor">Por: {foro.autor}</span>
-                </div>
-              ))
-            ) : (
-              <p className="no-content">No hay preguntas creadas aún.</p>
-            )}
-          </>
-        )}
-
-        {tabActivo === "aportes" && (
-          <>
-            <h3>Foros de Aportes</h3>
-            {filtrarForos("aportes").length > 0 ? (
-              filtrarForos("aportes").map((foro) => (
-                <div key={foro.id} className="foro-card">
-                  <h4>{foro.titulo}</h4>
-                  <p>{foro.mensaje}</p>
-                  <span className="autor">Por: {foro.autor}</span>
-                </div>
-              ))
-            ) : (
-              <p className="no-content">No hay aportes creados aún.</p>
-            )}
-          </>
-        )}
-
-        {tabActivo === "general" && (
-          <>
-            <h3>Foros Generales</h3>
-            {filtrarForos("general").length > 0 ? (
-              filtrarForos("general").map((foro) => (
-                <div key={foro.id} className="foro-card">
-                  <h4>{foro.titulo}</h4>
-                  <p>{foro.mensaje}</p>
-                  <span className="autor">Por: {foro.autor}</span>
-                </div>
-              ))
-            ) : (
-              <p className="no-content">No hay temas generales creados aún.</p>
-            )}
-          </>
-        )}
-      </div>
+      )}
     </div>
   );
 };
 
-export default ForoPage;
+export default ForumModules;
