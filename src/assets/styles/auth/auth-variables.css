@@ -1,11 +1,3 @@
 :root {
-  --primary: #1b4c85;
-  --secondary: #2361a9;
-  --accent: #00c6fb;
-  --dark: #181c24;
-  --light: #f5f6fa;
-  --border-radius: 18px;
-  --box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.37);
-  --glass-bg: rgba(24, 28, 36, 0.85);
   --error-color: #d8000c;
 }

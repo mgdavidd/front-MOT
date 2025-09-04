@@ -1,51 +1,57 @@
-@import './auth-variables.css';
+/* ===============================
+   🌿 AUTH COMPONENTS - ORGANIC
+   =============================== */
 
 .auth-form {
   width: 100%;
   display: flex;
   flex-direction: column;
-  gap: 1rem;
+  gap: 1.2rem;
   margin: 0 auto;
 }
 
 input[type="text"],
 input[type="email"],
 input[type="password"] {
-  width: 100%;
-  padding: 0.8rem;
-  margin-bottom: 0.5rem;
-  border-radius: var(--border-radius);
-  border: 1.5px solid #232323;
-  background: rgba(255,255,255,0.08);
-  color: var(--light);
+  width: 90%;
+  padding: 0.9rem 1.2rem;
+  border-radius: 30px !important;
+  border: 1.5px solid rgba(39, 90, 87, 0.25);
+  background: rgba(255, 255, 255, 0.85);
+  color: #275a57;
   font-size: 1rem;
-  box-sizing: border-box;
-  transition: all 0.3s ease;
-}
-
-input[type="text"]:focus,
-input[type="email"]:focus,
-input[type="password"]:focus {
-  border-color: var(--accent);
-  background: rgba(255,255,255,0.13);
+  box-shadow: 0 4px 12px rgba(39, 90, 87, 0.1);
   outline: none;
+  transition: box-shadow 0.2s ease, transform 0.1s ease, border-color 0.2s ease;
 }
 
+input:focus {
+  border-color: #00acb8 !important;
+  box-shadow: 0 6px 18px rgba(39, 90, 87, 0.2);
+  transform: translateY(-1px);
+}
+
+/* Botones globales */
 button {
   border: none;
+  border-radius: 30px;
+  font-size: 1rem;
+  font-weight: 600;
   cursor: pointer;
   transition: all 0.3s ease;
 }
 
 .extra-link {
-  margin-top: 1rem;
+  margin-top: 1.2rem;
   text-align: center;
-  color: var(--light);
+  font-size: 0.95rem;
+  color: #275a57;
 }
 
 .extra-link a {
-  color: var(--accent);
+  color: #00b894;
   text-decoration: none;
+  font-weight: 600;
 }
 
 .extra-link a:hover {
@@ -53,28 +59,29 @@ button {
 }
 
 .error-message {
-  color: var(--error-color);
+  color: #d8000c;
   font-size: 0.9rem;
   margin-top: -0.5rem;
   margin-bottom: 0.5rem;
 }
 
+/* Responsividad */
 @media (max-width: 480px) {
   input[type="text"],
   input[type="email"],
   input[type="password"] {
-    padding: 1rem; /* Más grande en móviles */
-    font-size: 1.1rem; /* Texto más legible */
-    min-height: 50px; /* Área de toque más grande */
+    padding: 1rem;
+    font-size: 1rem;
+    min-height: 40px;
+    width: 83%;
+
   }
-  
   button {
-    padding: 1rem !important; /* Prioridad sobre otros estilos */
+    padding: 1rem !important;
     font-size: 1.1rem;
-    min-height: 50px;
+    min-height: 40px;
   }
-  
   .auth-form {
-    gap: 1.5rem; /* Más espacio entre elementos */
+    gap: 1.5rem;
   }
 }

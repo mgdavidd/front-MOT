@@ -49,7 +49,7 @@ const Signup = () => {
             state: { userName },
           });
         } else {
-          navigate("/student-info");
+          navigate("/studentNav");
         }
       } else {
         setErrorMessage(data.error || "Ocurrió un error durante el registro.");
