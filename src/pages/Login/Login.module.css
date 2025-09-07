@@ -76,7 +76,7 @@
 .submitButton:hover {
   transform: translateY(-2px);
   box-shadow: 0 10px 25px rgba(0, 184, 148, 0.45);
-  background: #00acb8; /*color fijo para botones hover*/
+  background: #009cb8; /*color fijo para botones hover*/
 }
 
 .googleButton {

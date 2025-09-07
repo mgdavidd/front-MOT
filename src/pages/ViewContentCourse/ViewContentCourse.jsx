@@ -5,12 +5,14 @@ import UploadContentCourse from "../../components/ViewContentCourse/UploadConten
 import ModalCrearPruebaFinal from "../../components/ViewContentCourse/ModalCrearPruebaFinal";
 import ModalEditarPruebaFinal from "../../components/ViewContentCourse/ModalEditarPruebaFinal";
 import ModalResponderPruebaFinal from "../../components/ViewContentCourse/ModalResponderPruebaFinal";
+import ModalEditarContenido from "../../components/ViewContentCourse/ModalEditarContenido";
+import ContentList from "../../components/ViewContentCourse/ContentPreview";
 import Cookies from "js-cookie";
 
 export default function ViewContentCourse() {
   const navigate = useNavigate();
   const { state: modulo } = useLocation();
-  console.log(modulo); // modulo.tipoCurso nuevo campo para boton de agregar grabaciones de forma manual
+  console.log(modulo);
 
   const [contenido, setContenido] = useState([]);
   const [grabaciones, setGrabaciones] = useState([]);
@@ -26,7 +28,7 @@ export default function ViewContentCourse() {
   const [notaMaxima, setNotaMaxima] = useState(null);
   const [contenidoVisto, setContenidoVisto] = useState(false);
   const [actualizandoProgreso, setActualizandoProgreso] = useState(false);
-  const [modulosCurso, setModulosCurso] = useState([]); // Si no lo tienes, agrégalo
+  const [modulosCurso, setModulosCurso] = useState([]);
 
   const getCurrentUser = () => {
     try {
@@ -78,7 +80,6 @@ export default function ViewContentCourse() {
           `http://localhost:3000/modules/${modulo.id}/quizzes`
         );
         const data = await res.json();
-        // Si hay una prueba, toma la primera (solo una por módulo)
         setPruebaFinal(
           Array.isArray(data) && data.length > 0
             ? {
@@ -103,6 +104,28 @@ export default function ViewContentCourse() {
       setLoading(false);
     });
   }, [modulo]);
+
+  const [modalData, setModalData] = useState(null);
+
+  const handleUpdateLocalState = (updatedItem) => {
+    if (updatedItem.deleted) {
+      if (modalData.type === "grabacion") {
+        setGrabaciones((prev) => prev.filter((g) => g.id !== updatedItem.id));
+      } else {
+        setContenido((prev) => prev.filter((c) => c.id !== updatedItem.id));
+      }
+    } else {
+      if (modalData.type === "grabacion") {
+        setGrabaciones((prev) =>
+          prev.map((g) => (g.id === updatedItem.id ? updatedItem : g))
+        );
+      } else {
+        setContenido((prev) =>
+          prev.map((c) => (c.id === updatedItem.id ? updatedItem : c))
+        );
+      }
+    }
+  };
 
   useEffect(() => {
     async function fetchNotaMaxima() {
@@ -153,11 +176,19 @@ export default function ViewContentCourse() {
       payload.append("adminUserName", userName);
       payload.append("courseName", modulo.courseName);
 
-      // Detectar si es pregrabado → usar el nuevo endpoint
-      const endpoint =
-        modulo.tipoCurso === "pregrabado"
-          ? `http://localhost:3000/upload-pre-recording/${modulo.id}`
-          : `http://localhost:3000/upload-module-content/${modulo.id}`;
+      let endpoint;
+      let isRecordingUpload = false;
+
+      if (activeTab === "grabaciones" && modulo.tipoCurso === "pregrabado") {
+        endpoint = `http://localhost:3000/upload-pre-recording/${modulo.id}`;
+        isRecordingUpload = true;
+      } else if (activeTab === "contenido") {
+        endpoint = `http://localhost:3000/upload-module-content/${modulo.id}`;
+        isRecordingUpload = false;
+      } else {
+        console.error("Configuración inválida para subir archivo");
+        return;
+      }
 
       const res = await fetch(endpoint, {
         method: "POST",
@@ -171,25 +202,27 @@ export default function ViewContentCourse() {
         return;
       }
 
-      if (modulo.tipoCurso === "pregrabado") {
-        // Agregar a lista de grabaciones
-        setGrabaciones((prev) => [
-          ...prev,
-          { titulo: formData.title, link: data.fileLink, inicio: null },
-        ]);
+      if (isRecordingUpload) {
+        const newGrabacion = {
+          id: Date.now(),
+          titulo: formData.title,
+          link: data.fileLink,
+          inicio: null,
+        };
+        setGrabaciones((prev) => [...prev, newGrabacion]);
       } else {
-        // Agregar a lista de contenidos
-        setContenido((prev) => [
-          ...prev,
-          { titulo: formData.title, link: data.fileLink },
-        ]);
+        const newContenido = {
+          id: Date.now(),
+          titulo: formData.title,
+          link: data.fileLink,
+        };
+        setContenido((prev) => [...prev, newContenido]);
       }
     } catch (err) {
       console.error("Error al subir:", err);
     }
   };
 
-  // Crear prueba final
   const handleCrearPrueba = async (pruebaData) => {
     try {
       const res = await fetch(
@@ -202,7 +235,6 @@ export default function ViewContentCourse() {
       );
       const data = await res.json();
       if (data.success) {
-        // Recarga la prueba final
         const pruebaRes = await fetch(
           `http://localhost:3000/modules/${modulo.id}/quizzes`
         );
@@ -224,7 +256,6 @@ export default function ViewContentCourse() {
     }
   };
 
-  // Editar prueba final
   const handleEditarPrueba = async (pruebaData) => {
     try {
       const res = await fetch(
@@ -258,7 +289,6 @@ export default function ViewContentCourse() {
     }
   };
 
-  // Responder prueba final
   const handleResponderPrueba = async (respuestas) => {
     try {
       const res = await fetch(
@@ -274,7 +304,6 @@ export default function ViewContentCourse() {
       );
       const data = await res.json();
       if (data.success) {
-        // Si aprobó, actualiza el progreso del curso
         if (data.aprobado) {
           await fetch(
             `http://localhost:3000/courses/${modulo.id_curso}/progress`,
@@ -300,13 +329,11 @@ export default function ViewContentCourse() {
     setActualizandoProgreso(true);
 
     try {
-      // Verificar si hay módulos en el curso
       if (!modulosCurso || modulosCurso.length === 0) {
         alert("No se encontraron módulos para este curso.");
         return;
       }
 
-      // Encontrar el módulo actual en la lista de módulos del curso
       const moduloActual = modulosCurso.find((m) => m.id === modulo.id);
       if (!moduloActual) {
         alert("No se pudo encontrar el módulo actual.");
@@ -363,12 +390,24 @@ export default function ViewContentCourse() {
       <div className={styles.container}>Cargando contenido del módulo...</div>
     );
 
-  const formatFecha = (fecha) => {
-    return new Date(fecha).toLocaleDateString("es-ES", {
-      year: "numeric",
-      month: "long",
-      day: "numeric",
-    });
+  const shouldShowAddButton = () => {
+    if (currentUser?.rol !== "profesor") return false;
+    if (activeTab === "contenido") return true;
+    if (activeTab === "grabaciones" && modulo.tipoCurso === "pregrabado")
+      return true;
+    return false;
+  };
+
+  const shouldShowEditButtons = (itemType) => {
+    if (currentUser?.rol !== "profesor") return false;
+    if (itemType === "contenido" && activeTab === "contenido") return true;
+    if (
+      itemType === "grabacion" &&
+      activeTab === "grabaciones" &&
+      modulo.tipoCurso === "pregrabado"
+    )
+      return true;
+    return false;
   };
 
   return (
@@ -380,7 +419,6 @@ export default function ViewContentCourse() {
         </p>
       )}
 
-      {/* Navegación de pestañas */}
       <div className={styles.tabContainer}>
         <button
           className={`${styles.tabButton} ${
@@ -400,109 +438,35 @@ export default function ViewContentCourse() {
         </button>
       </div>
 
-      {/* Contenido del módulo */}
-      {activeTab === "contenido" && (
-        <div className={styles.section}>
-          <h2 className={styles.subtitle}>Contenido del módulo</h2>
-          {contenido.length === 0 ? (
-            <p className={styles.placeholder}>Aún no hay contenido agregado.</p>
-          ) : (
-            <table className={styles.table}>
-              <thead>
-                <tr>
-                  <th>#</th>
-                  <th>Título</th>
-                  <th>Enlace</th>
-                </tr>
-              </thead>
-              <tbody>
-                {contenido.map((item, index) => (
-                  <tr key={index}>
-                    <td>{index + 1}</td>
-                    <td>{item.titulo}</td>
-                    <td>
-                      <a
-                        href={item.link}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                      >
-                        Ver
-                      </a>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          )}
-          {currentUser && currentUser.rol === "profesor" && (
-            <button
-              className={styles.addButton}
-              onClick={() => setShowUploadModal(true)}
-            >
-              + Agregar contenido
-            </button>
-          )}
-        </div>
-      )}
-
-      {/* Grabaciones del módulo */}
-      {activeTab === "grabaciones" && (
-        <div className={styles.section}>
-          <h2 className={styles.subtitle}>Grabaciones del módulo</h2>
-          {grabaciones.length === 0 ? (
-            <p className={styles.placeholder}>
-              Aún no hay grabaciones disponibles.
-            </p>
-          ) : (
-            <table className={styles.table}>
-              <thead>
-                <tr>
-                  <th>#</th>
-                  <th>Título</th>
-                  <th>Fecha</th>
-                  <th>Enlace</th>
-                </tr>
-              </thead>
-              <tbody>
-                {grabaciones.map((rec, index) => (
-                  <tr key={index}>
-                    <td>{index + 1}</td>
-                    <td>{rec.titulo}</td>
-                    <td>
-                      {rec.inicio ? formatFecha(rec.inicio) : "Sin fecha"}
-                    </td>
-                    <td>
-                      <a
-                        href={rec.link}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                      >
-                        Ver
-                      </a>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          )}
-          {currentUser &&
-            currentUser.rol === "profesor" &&
-            modulo.tipoCurso === "pregrabado" && (
-              <button
-                className={styles.addButton}
-                onClick={() => setShowUploadModal(true)}
-              >
-                + Agregar grabación
-              </button>
-            )}
-        </div>
-      )}
+      <div className={styles.section}>
+        <h2 className={styles.subtitle}>
+          {activeTab === "contenido"
+            ? "Contenido del módulo"
+            : "Grabaciones del módulo"}
+        </h2>
+        <ContentList
+          contenido={contenido}
+          grabaciones={grabaciones}
+          activeTab={activeTab}
+          shouldShowEditButtons={shouldShowEditButtons}
+          onEdit={(item, type) => setModalData({ type, item })}
+        />
+        {shouldShowAddButton() && (
+          <button
+            className={styles.addButton}
+            onClick={() => setShowUploadModal(true)}
+          >
+            {activeTab === "contenido"
+              ? "+ Agregar contenido"
+              : "+ Agregar grabación"}
+          </button>
+        )}
+      </div>
 
       <button className={styles.backButton} onClick={() => navigate(-1)}>
         ← Volver
       </button>
 
-      {/* Botones y modales para prueba final */}
       {currentUser?.rol === "profesor" && !pruebaFinal && (
         <button onClick={() => setShowCrearPrueba(true)}>
           + Crear prueba final
@@ -540,6 +504,15 @@ export default function ViewContentCourse() {
           modulo={modulo}
           currentUser={currentUser}
           modulosCurso={modulosCurso}
+        />
+      )}
+
+      {modalData && (
+        <ModalEditarContenido
+          item={modalData.item}
+          type={modalData.type}
+          onClose={() => setModalData(null)}
+          onSuccess={handleUpdateLocalState}
         />
       )}
 
