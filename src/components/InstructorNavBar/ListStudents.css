@@ -1,115 +1,106 @@
+/* ===============================
+   👥 LIST STUDENTS - ORGANIC MODERN
+   =============================== */
+
+:root {
+  --color-primary: #00b8af;
+  --color-secondary: #009cb8;
+  --color-accent: #275a57;
+  --color-surface: rgba(255, 255, 255, 0.95);
+  --color-text: #275a57;
+  --shadow-soft: 0 8px 25px rgba(0, 184, 148, 0.15);
+  --radius-md: 14px;
+  --radius-lg: 20px;
+}
+
+/* Contenedor principal */
 .container {
   width: 100%;
-  max-width: 850px;
+  max-width: 1250px;
   margin: 2rem auto;
-  font-family: 'Segoe UI', sans-serif;
-  background-color: #a6bbcf; /* gris oscuro */
-  border-radius: 10px;
+  font-family: "Poppins", sans-serif;
   padding: 1rem;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.4);
-  color: #f3f4f6;
 }
 
+/* Curso */
 .course {
   margin-bottom: 1rem;
-  border-bottom: 1px solid #393e46; /* gris más claro */
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-soft);
+  overflow: hidden;
+  width: 100%; /* 🔹 ahora ocupa todo el ancho */
 }
 
+/* Header del curso */
 .course-header {
   cursor: pointer;
-  padding: 0.75rem;
-  font-size: 1.2rem;
-  background-color: #2677fa; /* azul vibrante */
+  padding: 1.2rem 1.5rem;   /* más padding para hacerlo más alto */
+  font-size: 1.4rem;        /* título más grande */
+  font-weight: 700;         /* un poco más grueso */
+  width: 100%;              /* 🔹 ocupa todo el ancho */
   color: white;
+  background: linear-gradient(135deg, var(--color-primary), var(--color-secondary));
   display: flex;
   justify-content: space-between;
   align-items: center;
-  border-radius: 6px;
-  transition: background-color 0.3s;
+  transition: transform 0.2s ease;
+  border-radius: var(--radius-md) var(--radius-md) 0 0; /* más definido */
 }
 
 .course-header:hover {
-  background-color: #2563eb; /* azul más oscuro al pasar el mouse */
+  transform: translateY(-2px);
 }
 
-.arrow {
-  font-size: 1rem;
-}
-
+/* Lista de estudiantes */
 .student-list {
   list-style: none;
-  padding: 0.5rem 1rem;
   margin: 0;
+  padding: 0.5rem 0 1rem; /* 🔹 quitamos padding lateral */
+  background: var(--color-surface);
+  width: 100%;            /* 🔹 expande al ancho completo */
 }
 
+/* Item estudiante */
 .student {
-  background-color: #758196; /* gris medio */
-  border-radius: 6px;
-  padding: 0.5rem 1rem;
-  margin-bottom: 0.5rem;
-  box-shadow: 0 1px 4px rgba(0,0,0,0.2);
-}
-
-.student p {
-  margin: 0.2rem 0;
-  color: #e5e7eb; /* gris claro para el texto */
-}
-
-.student {
-  background-color: #374151;
-  border-radius: 6px;
-  padding: 0.5rem 1rem;
-  margin-bottom: 0.5rem;
-  box-shadow: 0 1px 4px rgba(0,0,0,0.2);
-  display: flex;               /* Cambia a diseño en línea */
-  justify-content: space-between;
+  display: flex;
   align-items: center;
-  gap: 1rem;
-  flex-wrap: wrap;            /* Para evitar desbordamientos */
+  gap: 1.2rem;
+  padding: 1rem 1.2rem;   /* más padding */
+  margin: 0.5rem 0;       /* 🔹 márgenes solo verticales */
+  border-radius: var(--radius-md);
+  background: white;
+  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.05);
+  cursor: pointer;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  width: 100%;            /* 🔹 ocupa todo el ancho */
+}
+
+.student:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(0, 184, 148, 0.2);
 }
 
 .student p {
   margin: 0;
-  color: #e5e7eb;
-  flex: 1;                    /* Para que todos tengan mismo ancho */
-  min-width: 100px;          /* Control mínimo de espacio */
-  text-wrap: balance;
+  color: var(--color-text);
+  flex: 1;
+  font-size: 1.05rem;       /* texto más grande */
 }
 
-img.student-img {
-  width: 40px;                /* Ancho fijo para la imagen */
-  height: 40px;               /* Alto fijo para la imagen */
-  border-radius: 50%;         /* Imagen circular */
-  object-fit: cover;          /* Mantiene la proporción de la imagen */
+/* Imagen de perfil */
+.student-img {
+  width: 42px;
+  height: 42px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 2px solid var(--color-primary);
 }
 
-.promedio.alto {
-  color: #10b981; /* verde */
-  font-weight: bold;
-}
-
-.promedio.bueno {
-  color: #f97316; /* naranja */
-  font-weight: bold;
-}
-
-.promedio.regular {
-  color: #eab308; /* amarillo */
-  font-weight: bold;
-}
-
-.promedio.bajo {
-  color: #ef4444; /* rojo */
-  font-weight: bold;
-}
-
+/* Modal */
 .modal-overlay {
   position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background: rgba(0, 0, 0, 0.6);
+  inset: 0;
+  background: rgba(0, 0, 0, 0.55);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -117,16 +108,46 @@ img.student-img {
 }
 
 .modal-content {
-  background: white;
-  color: black;
+  background: var(--color-surface);
+  color: var(--color-text);
   padding: 2rem;
-  border-radius: 10px;
+  border-radius: var(--radius-lg);
   max-width: 400px;
   text-align: center;
+  box-shadow: var(--shadow-soft);
+  animation: fadeIn 0.3s ease;
+}
+
+.modal-content h2 {
+  margin-bottom: 1rem;
+  color: var(--color-primary);
 }
 
 .modal-content button {
   margin-top: 1rem;
-  padding: 0.5rem 1rem;
+  padding: 0.6rem 1.2rem;
+  border: none;
+  border-radius: var(--radius-md);
   cursor: pointer;
+  background: linear-gradient(135deg, var(--color-primary), var(--color-secondary));
+  color: white;
+  font-weight: 500;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.modal-content button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px rgba(0, 172, 184, 0.3);
+}
+
+/* Animación modal */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: scale(0.9);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
 }

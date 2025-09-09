@@ -32,12 +32,6 @@ function ListStudents() {
     const token = googleTokenData?.access_token;
     const userId = userData?.id;
 
-    if (!token || !userId) {
-      console.error("Falta token o id en cookie 'user'");
-      window.location.href = "/login";
-      return;
-    }
-
     fetch(`http://localhost:3000/teachers/${userId}/courses`, {
       headers: {
         Authorization: `Bearer ${token}`,

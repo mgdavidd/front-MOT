@@ -1,108 +1,140 @@
+/* ===============================
+   📘 COURSE CONTENT - ORGANIC MODERN
+   Adaptado a plantilla-mot.css
+   =============================== */
+
 :root {
-  --azul-pastel: #dbeafe;
-  --azul-medio: #3b82f6;
-  --azul-hover: #2563eb;
-  --gris-claro: #cbd5e1;
-  --gris-texto: #64748b;
-  --texto-oscuro: #1e3a8a;
-  --blanco: #ffffff;
+  --color-primary: #00b8af; /* personalizable */
+  --color-secondary: #009cb8;
+  --color-accent: #275a57;
+  --color-bg: linear-gradient(135deg, var(--color-primary) 0%, var(--color-secondary) 100%);
+  --color-surface: rgba(255, 255, 255, 0.9);
+  --color-text: #275a57;
+  --radius-large: 20px;
+  --shadow-soft: 0 8px 25px rgba(0, 184, 148, 0.2);
 }
 
+/* Contenedor principal */
 .container {
   padding: 2rem 1rem;
-  background-color: var(--azul-pastel);
+  background: var(--color-bg);
   min-height: 100vh;
-}
-
-.title {
-  text-align: center;
-  color: var(--texto-oscuro);
-  font-size: 1.8rem;
-  margin-bottom: 2rem;
-}
-
-.coursesContainer {
   display: flex;
-  flex-direction: column;
-  gap: 1rem;
-  max-width: 600px;
-  margin: 0 auto;
+  justify-content: center;
 }
 
+table {
+  width: 100%;
+  border: solid 2px black;
+  margin: 1.5rem 0;
+}
+
+table th,
+table td {
+  color: black;
+  padding: 1rem;
+  border: 1px solid black;
+  text-align: left;
+}
+
+table th {
+  background: var(--color-primary);
+  color: white;
+}
+
+/* Grid para cursos */
+.coursesContainer {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1.5rem;
+  width: 100%;
+  max-width: 900px;
+}
+
+/* Bloque por curso */
 .courseWrapper {
   display: flex;
   flex-direction: column;
   gap: 0.5rem;
 }
 
+/* Título del curso */
 .courseTitle {
-  font-weight: bold;
-  color: var(--texto-oscuro);
-  font-size: 1.1rem;
+  font-weight: 700;
+  font-size: 1.5rem;
+  color:rgb(228, 228, 228);
   padding-left: 0.5rem;
 }
 
+/* Tarjeta del curso */
 .courseCard {
-  background-color: var(--blanco);
-  border: 1px solid var(--gris-claro);
-  border-radius: 12px;
-  height: 120px;
-  margin: 0 auto;
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
-  transition: transform 0.2s ease;
+  position: relative;
+  background: var(--color-surface);
+  border-radius: var(--radius-large);
+  height: 160px;
+  box-shadow: var(--shadow-soft);
+  background-size: cover;
+  background-position: center;
+  overflow: hidden;
+  cursor: pointer;
+  transition: transform 0.25s ease, box-shadow 0.25s ease;
   display: flex;
   justify-content: flex-end;
   align-items: flex-start;
-  background-size: cover;
-  background-position: center;
-  position: relative;
-  overflow: hidden;
-  cursor: pointer;
-  width: 100%;
 }
 
+/* Overlay sutil */
 .courseCard::before {
   content: "";
   position: absolute;
   inset: 0;
-  background: rgba(0, 0, 0, 0.3);
-  border-radius: 12px;
+  background: rgba(39, 90, 87, 0.35);
+  border-radius: inherit;
+  transition: background 0.3s ease;
 }
 
 .courseCard:hover {
-  transform: translateY(-2px);
+  transform: translateY(-4px) scale(1.02);
+  box-shadow: 0 15px 35px rgba(0, 184, 148, 0.25);
 }
 
+/* Botón de chat grupal */
 .chatBtn {
-  background-color: var(--azul-medio);
-  color: white;
+  background: linear-gradient(135deg, var(--color-primary), var(--color-secondary));
   border: none;
-  padding: 6px 10px;
-  border-radius: 8px;
-  font-size: 1rem;
+  padding: 8px 12px;
+  border-radius: 12px;
   cursor: pointer;
-  transition: background-color 0.2s ease;
+  transition: all 0.3s ease;
+  margin: 0.8rem;
+  position: relative;
+  z-index: 1;
   display: flex;
   align-items: center;
   justify-content: center;
-  margin: 0.5rem;
-  position: relative;
-  z-index: 1;
+  box-shadow: 0 6px 15px rgba(0, 184, 148, 0.25);
 }
 
 .chatBtn:hover {
-  background-color: var(--azul-hover);
+  transform: translateY(-3px) scale(1.05);
+  box-shadow: 0 12px 25px rgba(0, 172, 184, 0.35);
 }
 
 .chatImg {
-  width: 24px;
-  height: 24px;
+  width: 26px;
+  height: 26px;
+  filter: brightness(0) invert(1);
 }
 
-/* Responsive para móviles */
-@media (max-width: 400px) {
-  .title {
-    font-size: 1.4rem;
+/* Responsive */
+@media (max-width: 600px) {
+  .coursesContainer {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+  }
+
+  .courseCard {
+    height: 130px;
   }
 
   .courseTitle {
@@ -110,11 +142,11 @@
   }
 
   .chatImg {
-    max-width: 25px;
+    width: 22px;
+    height: 22px;
   }
 
   .chatBtn {
-    font-size: 0.9rem;
-    padding: 4px 9px !important;
+    padding: 6px 10px;
   }
 }

@@ -55,7 +55,7 @@ export default function CourseContent() {
       <div className={styles.coursesContainer}>
         {courses.map((curso) => (
           <div key={curso.id} className={styles.courseWrapper}>
-            <div className={styles.courseTitle}>{curso.nombre}</div>
+            <div className={styles.courseTitle}><strong>{curso.nombre}</strong></div>
             <div
               className={styles.courseCard}
               style={{

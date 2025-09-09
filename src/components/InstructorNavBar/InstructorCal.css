@@ -1,116 +1,131 @@
+/* ===============================
+   📅 INSTRUCTOR CALENDAR - ORGANIC MODERN
+   =============================== */
+
+:root {
+  --color-primary: #00b8af;
+  --color-secondary: #009cb8;
+  --color-accent: #275a57;
+  --color-surface: #ffffff;
+  --color-text: #275a57;
+  --shadow-soft: 0 6px 20px rgba(0, 184, 148, 0.15);
+  --radius-md: 12px;
+  --radius-lg: 18px;
+}
+
+/* Contenedor principal */
 .instructor-calendar {
-  font-family: "Segoe UI", sans-serif;
+  font-family: "Poppins", sans-serif;
   padding: 2rem;
   max-width: 900px;
   margin: 0 auto;
-  background-color: #fefefe;
-  border-radius: 12px;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+  background: var(--color-bg);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-soft);
   position: relative;
 }
 
+/* Encabezado */
 h2 {
   text-align: center;
   margin-bottom: 1.5rem;
-  color: #2c3e50;
+  color: var(--color-accent);
+  font-size: 1.6rem;
+  font-weight: 700;
 }
 
+/* Selects e inputs */
 select,
 input[type="time"],
 input[type="text"] {
   padding: 0.5rem;
-  border-radius: 6px;
-  border: 1px solid #ccc;
-  color: #333 !important;
+  border-radius: var(--radius-md);
+  border: 1px solid #ddd;
+  color: var(--color-text);
   font-size: 1rem;
-  margin: 0.25rem 0;
+  margin: 0.3rem 0;
   width: 100%;
   box-sizing: border-box;
+  transition: border 0.2s ease, box-shadow 0.2s ease;
 }
 
-.title{
-  color: #000000;
+select:focus,
+input:focus {
+  outline: none;
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 3px rgba(0, 184, 148, 0.2);
 }
 
-select:disabled {
-  background-color: #f0f0f0;
-}
-
+/* Botones */
 button {
   padding: 0.6rem 1rem;
-  background-color: #3498db;
-  color: white;
+  border-radius: var(--radius-md);
   border: none;
-  font-weight: bold;
-  border-radius: 6px;
   cursor: pointer;
-  transition: background-color 0.3s ease;
+  font-weight: 600;
+  color: white;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
   margin-top: 1rem;
 }
 
 button:hover {
-  background-color: #2980b9;
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px rgba(0, 184, 148, 0.3);
 }
 
 .save-btn {
   display: block;
   width: 100%;
   margin-top: 2rem;
-  background-color: #27ae60;
 }
 
-.save-btn:hover {
-  background-color: #1e8449;
-}
-
+/* Tarjetas de sesiones */
 .session-card {
   display: flex;
   flex-direction: column;
   padding: 1rem;
   margin-top: 1rem;
-  border-radius: 8px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-soft);
+  background: #f9fdfc;
+  transition: transform 0.2s ease;
 }
 
-.session-card[data-type="Clase en vivo"] {
-  border-left: 5px solid #3498db;
-  background-color: #e3f2fd;
-}
-
-.session-card[data-type="AAA"] {
-  border-left: 5px solid #ff9800;
-  background-color: #fff3e0;
-}
-
-.session-card p[data-type-badge] {
-  display: inline-block;
-  padding: 0.2rem 0.5rem;
-  border-radius: 12px;
-  font-size: 0.8rem;
-  font-weight: bold;
-  margin-bottom: 0.5rem;
-}
-
-.session-card p[data-type-badge="Clase en vivo"] {
-  background-color: #3498db;
-  color: white;
-}
-
-.session-card p[data-type-badge="AAA"] {
-  background-color: #ff9800;
-  color: white;
+.session-card:hover {
+  transform: translateY(-2px);
 }
 
 .session-card h4 {
   margin-bottom: 0.5rem;
-  color: #2c3e50;
+  color: var(--color-accent);
+  font-weight: 600;
 }
 
 .session-card p {
   margin: 0.3rem 0;
-  color: #34495e;
+  color: var(--color-text);
 }
 
+/* Badges de tipo */
+.session-card p[data-type-badge] {
+  display: inline-block;
+  padding: 0.25rem 0.6rem;
+  border-radius: 12px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  margin-bottom: 0.5rem;
+  color: white;
+}
+
+.session-card p[data-type-badge="Clase en vivo"] {
+  background: var(--color-primary);
+}
+
+.session-card p[data-type-badge="AAA"] {
+  background: #ff9800;
+}
+
+/* Inputs dentro de sesiones */
 .session-inputs {
   display: flex;
   flex-wrap: wrap;
@@ -123,179 +138,70 @@ button:hover {
   min-width: 100px;
 }
 
-/* Error Message */
+/* Mensaje de error */
 .error {
   padding: 0.75rem;
-  border-radius: 6px;
+  border-radius: var(--radius-md);
   margin-bottom: 1rem;
   font-weight: bold;
-  background-color: #f8d7da;
+  background: #f8d7da;
   color: #842029;
 }
 
-/* Modal styles */
+/* Modal */
 .modal-overlay {
   position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background-color: rgba(0, 0, 0, 0.5);
+  inset: 0;
+  background: rgba(0, 0, 0, 0.55);
   display: flex;
-  justify-content: center;
   align-items: center;
+  justify-content: center;
   z-index: 1000;
 }
 
 .modal {
-  background-color: white;
+  background: var(--color-surface);
+  color: var(--color-text);
   padding: 2rem;
-  border-radius: 8px;
+  border-radius: var(--radius-lg);
   max-width: 500px;
   width: 90%;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+  box-shadow: var(--shadow-soft);
   text-align: center;
+  animation: fadeIn 0.3s ease;
 }
 
 .modal h3 {
-  color: #e74c3c;
   margin-top: 0;
   margin-bottom: 1rem;
+  color: var(--color-primary);
 }
 
 .modal p {
-  margin-bottom: 1.5rem;
-  font-size: 1.1rem;
+  margin-bottom: 1.2rem;
+  font-size: 1rem;
 }
 
-.modal button {
-  background-color: #3498db;
-  margin-top: 0;
-  min-width: 100px;
+/* Animación modal */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
 }
 
-/* DayPicker calendar tweaks */
+/* Calendario react-day-picker */
 .rdp {
   --rdp-cell-size: 40px;
   margin-top: 1rem;
 }
 
 .rdp-day_selected {
-  background-color: #3498db;
+  background: var(--color-primary);
   color: white;
   font-weight: bold;
-}
-
-/* Responsive design */
-@media (max-width: 768px) {
-  .instructor-calendar {
-    padding: 1rem;
-  }
-
-  .session-card {
-    font-size: 0.95rem;
-  }
-
-  button,
-  select,
-  input {
-    font-size: 0.95rem;
-  }
-
-  .session-inputs {
-    flex-direction: column;
-  }
-
-  .session-inputs input {
-    flex: 1 1 100%;
-  }
-}
-
-@media (max-width: 480px) {
-  h2 {
-    font-size: 1.4rem;
-  }
-
-  .session-card h4 {
-    font-size: 1.1rem;
-  }
-
-  .save-btn {
-    font-size: 1rem;
-    padding: 0.7rem;
-  }
-
-  .modal {
-    padding: 1.5rem;
-  }
-
-  .rdp-root * {
-    box-sizing: border-box;
-    max-width: 33px;
-    max-height: 402px;
-    font-size: 10px;
-  }
-}
-
-.rdp {
-  max-width: 100%;
-  overflow-x: auto;
-  display: block;
-  box-sizing: border-box;
-}
-
-@media (max-width: 480px) {
-  .rdp {
-    --rdp-cell-size: 32px;
-  }
-
-  .rdp-root * {
-    box-sizing: border-box;
-    max-width: 35px;
-    max-height: 402px;
-    font-size: 10px;
-  }
-
-  rdp-nav {
-    min-width: 20px !important;
-    display: block !important;
-    margin-left: auto !important;
-  }
-
-  .rdp-button_previous {
-    margin-left: 100px;
-    border: solid black 2px;
-    font-size: 12px;
-    padding: 10px !important;
-    min-height: 0px !important;
-  }
-
-  .rdp-button_next {
-    margin-left: 10px;
-    border: solid black 2px;
-    font-size: 12px;
-    padding: 10px !important;
-    min-height: 0px !important;
-  }
-
-  .rdp-chevron {
-    display: inline-block;
-    fill: #000000;
-    width: 20px !important;
-    height: 30px;
-  }
-
-  .rdp-selected .rdp-day_button {
-    border: var(--rdp-selected-border);
-    font-size: 10px;
-    padding: 0px !important;
-    width: 100px;
-    min-height: 40px !important;
-    height: 40px;
-  }
-}
-
-.calendar-wrapper {
-  overflow-x: auto;
-  width: 100%;
 }
