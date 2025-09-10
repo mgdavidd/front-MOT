@@ -1,276 +1,354 @@
-/* InstructorNavBar.css */
-.instructor-dashboard {
-  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-  background-color: #f5f7fa;
-  min-height: 100vh;
-  color: #333;
+/* ===============================
+   🌿 INSTRUCTOR NAVBAR - ORGANIC MODERN
+   Personalizable con --color-primary del usuario
+   =============================== */
+
+:root {
+  --color-primary: #42A5F5; /* Color por defecto - será sobrescrito por JS */
+  --color-secondary: #009cb8; /* Verde azulado fijo */
+  --color-accent: #275a57;
+  --color-surface: rgba(255, 255, 255, 0.95);
+  --color-text: #275a57;
+  --color-bg: linear-gradient(135deg, var(--color-primary) 0%, var(--color-secondary) 25%,var(--color-secondary) 70%, var(--color-primary) 100%);
+  --shadow-soft: 0 8px 25px rgba(0, 184, 148, 0.15);
+  --radius-md: 14px;
+  --radius-lg: 20px;
+  --radius-xl: 40px;
 }
 
+/* Reset y base */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: 'Poppins', -apple-system, BlinkMacSystemFont, sans-serif;
+  background: var(--color-bg);
+  color: var(--color-text);
+  line-height: 1.6;
+  min-height: 100vh;
+}
+
+/* Dashboard principal */
+.instructor-dashboard {
+  min-height: 100vh;
+  background: var(--color-bg);
+  position: relative;
+  overflow-x: hidden;
+}
+
+/* Efecto de fondo animado */
+.instructor-dashboard::before {
+  content: '';
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: 
+    radial-gradient(circle at 30% 60%, rgba(0, 184, 148, 0.08) 0%, transparent 60%),
+    radial-gradient(circle at 70% 30%, rgba(0, 156, 184, 0.08) 0%, transparent 60%),
+    radial-gradient(circle at 20% 20%, rgba(39, 90, 87, 0.06) 0%, transparent 60%);
+  animation: organicFloat 15s ease-in-out infinite;
+  pointer-events: none;
+  z-index: -1;
+}
+
+@keyframes organicFloat {
+  0%, 100% { transform: translateX(0) translateY(0) scale(1); }
+  25% { transform: translateX(15px) translateY(-8px) scale(1.02); }
+  50% { transform: translateX(-10px) translateY(15px) scale(0.98); }
+  75% { transform: translateX(8px) translateY(-5px) scale(1.01); }
+}
+
+/* Header del dashboard */
 .dashboard-header {
-  background: var(--color-primary);
-  color: white;
-  padding: 1rem;
-  text-align: center;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  padding: 2rem 2.5rem;
+  background: var(--color-surface);
+  backdrop-filter: blur(20px);
+  border-radius: 0 0 var(--radius-xl) var(--radius-xl);
+  box-shadow: 0 20px 60px rgba(0, 184, 148, 0.12);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  position: relative;
+  overflow: hidden;
+  margin-bottom: 2rem;
+}
+
+.dashboard-header::before {
+  content: '';
+  position: absolute;
+  top: -50px;
+  left: -50px;
+  width: calc(100% + 100px);
+  height: calc(100% + 100px);
+  background: 
+    radial-gradient(circle at 20% 20%, rgba(0, 184, 148, 0.05) 0%, transparent 50%),
+    radial-gradient(circle at 80% 80%, rgba(0, 156, 184, 0.05) 0%, transparent 50%);
+  animation: organicBg 20s ease-in-out infinite;
+  pointer-events: none;
+}
+
+@keyframes organicBg {
+  0%, 100% { transform: rotate(0deg) scale(1); }
+  50% { transform: rotate(180deg) scale(1.05); }
 }
 
 .dashboard-header h1 {
-  margin: 0;
-  font-size: 1.8rem;
+  font-size: 2.2rem;
+  font-weight: 700;
+  background: var(--color-secondary);
+  background-clip: text;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  position: relative;
+  z-index: 1;
 }
 
 .dashboard-header p {
   margin: 0.5rem 0 0;
-  font-size: 1.1rem;
-  opacity: 0.9;
+  font-size: 1rem;
+  opacity: 0.8;
+  color: var(--color-accent);
 }
 
+/* Botones del header */
+.header-buttons {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  position: relative;
+  z-index: 1;
+}
+
+.profileButton,
+.chatsButton {
+  width: 50px;
+  height: 50px;
+  border: none;
+  border-radius: 50%;
+  background: var(--color-primary);
+  color: white;
+  cursor: pointer;
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  overflow: hidden;
+  box-shadow: 0 6px 20px rgba(0, 184, 148, 0.25);
+  padding: 0;
+}
+
+.profileButton::before,
+.chatsButton::before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 0;
+  height: 0;
+  background: rgba(255, 255, 255, 0.2);
+  border-radius: 50%;
+  transition: all 0.4s ease;
+  transform: translate(-50%, -50%);
+}
+
+.profileButton:hover,
+.chatsButton:hover {
+  transform: translateY(-3px) scale(1.05);
+  box-shadow: 0 12px 30px rgba(0, 184, 148, 0.35);
+}
+
+.profileButton:hover::before,
+.chatsButton:hover::before {
+  width: 200%;
+  height: 200%;
+}
+
+.profileImg,
+.chatsImg {
+  width: 46px;
+  height: 46px;
+  border-radius: 25%;
+  padding: 5px;
+}
+
+/* Contenedor principal */
 .content-container {
-  max-width: 100%;
+  max-width: 1200px;
   margin: 0 auto;
-  padding: 1.5rem;
+  padding: 0 2rem 2rem;
 }
 
+/* Navegación por tabs */
 .nav-tabs {
   display: flex;
-  background-color: white;
-  border-radius: 12px;
-  overflow: hidden;
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  gap: 0.8rem;
+  background: var(--color-surface);
+  backdrop-filter: blur(15px);
+  border-radius: var(--radius-xl);
+  padding: 0.8rem;
+  box-shadow: var(--shadow-soft);
   margin-bottom: 2rem;
+  border: 1px solid rgba(255, 255, 255, 0.3);
 }
 
 .tab-button {
   flex: 1;
-  padding: 1.2rem 0;
+  padding: 1rem 1.5rem;
   border: none;
-  background: none;
-  font-size: 1rem;
+  border-radius: calc(var(--radius-xl) - 8px);
+  background: transparent;
+  color: var(--color-accent);
   font-weight: 600;
-  color: #555;
+  font-size: 1rem;
   cursor: pointer;
-  transition: all 0.3s ease;
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
   position: relative;
+  font-family: 'Poppins', sans-serif;
+  white-space: nowrap;
+  overflow: hidden;
+  min-height: 48px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .tab-button:hover {
-  background-color: #f0f5ff;
-  color: #2575fc;
+  color: var(--color-primary);
+  transform: translateY(-2px);
+  background: rgba(0, 184, 148, 0.05);
 }
 
 .tab-button.active {
-  color: var(--color-primary);
+  background: var(--color-primary);
+  color: white;
+  box-shadow: 
+    0 8px 25px rgba(0, 184, 148, 0.25),
+    0 2px 10px rgba(0, 0, 0, 0.1);
+  transform: translateY(-3px);
 }
 
 .tab-button.active::after {
-  content: '';
-  position: absolute;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  height: 4px;
-  background: var(--color-primary);
-  border-radius: 2px;
+  display: none; /* Removemos la línea inferior */
 }
 
+/* Contenido de las tabs */
 .tab-content {
-  background-color: white;
-  border-radius: 12px;
-  padding: 2rem;
-  box-shadow: 0 2px 15px rgba(0, 0, 0, 0.08);
-  min-height: 400px;
+  background: var(--color-surface);
+  backdrop-filter: blur(20px);
+  border-radius: var(--radius-xl);
+  box-shadow: 
+    0 25px 60px rgba(0, 184, 148, 0.12),
+    inset 0 1px 0 rgba(255, 255, 255, 0.9);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  overflow: hidden;
+  min-height: 500px;
+}
+
+.content-section {
+  padding: 2.5rem;
 }
 
 .content-section h2 {
-  margin-top: 0;
-  color: #2c3e50;
-  border-bottom: 2px solid #f0f5ff;
-  padding-bottom: 0.8rem;
-  margin-bottom: 1.5rem;
+  background: white;
+  background-clip: text;
+  -webkit-background-clip: text;
+  font-size: 1.8rem;
+  margin-bottom: 2rem;
+  text-align: center;
+  font-weight: 700;
+  border: none;
+  padding: 0;
 }
 
 .content-placeholder {
-  padding: 1.2rem;
-  text-align: center;
-  color: #666;
-  background-color: #f9fbfd;
-  border-radius: 8px;
-  border: 1px dashed #ddd;
-}
-
-.profileImg {
-  width: 90%;
-  box-sizing: content-box;
-  margin-top: 3px;
-}
-
-button.profileButton {
-  width: 50px;
-  padding: 0 !important;
-  border-radius: 50%;
-}
-
-.profile-form{
-  text-align: end;
+  background: transparent;
+  border: none;
+  padding: 0;
+  text-align: left;
+  border-radius: 0;
+  margin: 0;
 }
 
 /* Responsive Design */
 @media (max-width: 768px) {
+  .dashboard-header {
+    padding: 1.5rem 1rem;
+    border-radius: 0 0 25px 25px;
+  }
+  
+  .dashboard-header h1 {
+    font-size: 1.8rem;
+  }
+  
   .content-container {
-    padding: 1rem;
+    padding: 0 1rem 1rem;
   }
   
   .nav-tabs {
     flex-direction: column;
+    gap: 0.5rem;
+    padding: 0.8rem;
+    border-radius: 20px;
   }
   
   .tab-button {
-    padding: 1rem;
-    text-align: left;
-    border-bottom: 1px solid #eee;
+    padding: 0.8rem 1rem;
+    text-align: center;
+    border-radius: 15px;
+    min-height: 44px;
   }
   
-  .tab-button.active::after {
-    height: 100%;
-    width: 4px;
-    left: 0;
-    top: 0;
-    bottom: 0;
+  .tab-button.active {
+    transform: translateY(-2px);
   }
   
   .tab-content {
+    border-radius: 20px;
+    min-height: 400px;
+  }
+
+  .content-section {
     padding: 1.5rem;
   }
 
-  .dashboard-header{
-    padding: 0.7rem;
+  .content-section h2 {
+    font-size: 1.5rem;
+  }
+
+  .header-buttons {
+    gap: 0.8rem;
+  }
+
+  .profileButton,
+  .chatsButton {
+    width: 44px;
+    height: 44px;
+  }
+
+  .profileImg,
+  .chatsImg {
+    width: 32px;
+    height: 32px;
   }
 }
 
 @media (min-width: 769px) and (max-width: 1024px) {
   .content-container {
-    padding: 1.5rem;
+    padding: 0 1.5rem 1.5rem;
   }
 
-  .content-placeholder {
-    padding: 0;
-  }
-
-  .dashboard-header{
-    padding: 0.7rem;
-  }
-}
-
-@media (max-width: 400px) {
-  .course-calendar-manager {
-    padding: 10px;
-  }
-
-  .content-placeholder {
-    padding: 0;
+  .dashboard-header {
+    padding: 1.8rem 2rem;
   }
 
   .dashboard-header h1 {
-    font-size: 1.4rem;
-    padding: 0.5rem 0;
-  }
-
-  .dashboard-header p {
-    font-size: 0.9rem;
-  }
-
-  .course-section {
-    padding: 0;
-    margin-bottom: 1rem;
-    border-radius: 8px;
-  }
-
-  .course-buttons {
-    gap: 8px;
-    margin-bottom: 1rem;
-  }
-
-  .course-btn {
-    padding: 8px 12px;
-    font-size: 0.85rem;
-    min-width: 100px;
-  }
-
-  .calendar-container {
-    padding: 0.5rem;
-    margin-bottom: 1rem;
-  }
-
-  .button-container {
-    gap: 8px;
-    margin-bottom: 1rem;
-  }
-
-  .btn {
-    padding: 0.6rem 1rem;
-    font-size: 0.85rem;
-    min-width: 120px;
-  }
-
-  #timeSelectors {
-    gap: 0.8rem;
-  }
-
-  .date-time-selector {
-    padding: 0.8rem;
-  }
-
-  .event-type {
-    font-size: 0.75rem;
-    padding: 0.2rem 0.6rem;
-  }
-
-  .time-group label {
-    font-size: 0.8rem;
-  }
-
-  .time-group input {
-    padding: 0.4rem 0.6rem;
-    font-size: 0.9rem;
-  }
-
-  .video-thumb-trigger img {
-    max-width: 100%;
-    margin-left: 0;
-    margin-top: 5px;
-  }
-
-  .video-link {
-    font-size: 0.8rem;
-    display: block;
-    margin-top: 8px;
-  }
-
-  .btn-save {
-    padding: 0.6rem;
-    font-size: 0.9rem;
-    max-width: 180px;
-  }
-
-  .extra-link a {
-    padding: 0.4rem 1rem;
-    font-size: 0.9rem;
-  }
-
-  /* Ajustes específicos para el popup de video */
-  .video-thumb-popup {
-    position: fixed;
-    left: 2.5%;
-    top: 50px;
-    width: 95%;
-    transform: none;
-    z-index: 1000;
-  }
-
-  /* Mejora para inputs en móviles */
-  input[type="time"] {
-    font-size: 0.9rem;
-    padding: 0.5rem;
+    font-size: 2rem;
   }
 }
 
@@ -279,60 +357,78 @@ button.profileButton {
     padding-top: 0;
   }
 
+  .dashboard-header {
+    padding: 1rem 0.8rem;
+    margin-bottom: 1rem;
+    border-radius: 0 0 20px 20px;
+  }
+
+  .dashboard-header h1 {
+    font-size: 1.5rem;
+  }
+
   .content-container {
-    padding: 0.5rem;
+    padding: 0 0.8rem 0.8rem;
+  }
+
+  .nav-tabs {
+    padding: 0.6rem;
+    border-radius: 16px;
+  }
+
+  .tab-button {
+    padding: 0.7rem;
+    font-size: 0.9rem;
+    min-height: 40px;
+    border-radius: 12px;
   }
 
   .tab-content {
-    padding: 1rem;
-    border-radius: 8px;
+    border-radius: 16px;
+    min-height: 350px;
   }
 
-  /* Asegurar que el calendario no quede oculto por el navbar */
-  .course-calendar-manager {
-    padding-bottom: 20px;
+  .content-section {
+    padding: 1.2rem;
   }
 
-  /* Ajustar el header para móviles */
-  .dashboard-header {
-    padding: 0.5rem;
-    position: sticky;
-    top: 0;
-    z-index: 100;
+  .content-section h2 {
+    font-size: 1.3rem;
+    margin-bottom: 1.5rem;
   }
 
-  /* Espaciado para el primer elemento después del header */
-  .content-container > :first-child {
-    margin-top: 0.5rem;
+  .profileButton,
+  .chatsButton {
+    width: 40px;
+    height: 40px;
+  }
+
+  .profileImg,
+  .chatsImg {
+    width: 30px;
+    height: 30px;
   }
 }
 
-/* ================= MEJORAS DE USABILIDAD PARA TOUCH ================= */
+/* Mejoras de usabilidad para touch */
 @media (max-width: 400px) {
-  /* Aumentar área táctil */
-  .course-btn, .btn, .extra-link a {
-    min-height: 36px;
+  .tab-button {
+    min-height: 44px; /* Área táctil mínima recomendada */
     display: flex;
     align-items: center;
     justify-content: center;
   }
 
-  /* Mejor feedback táctil */
-  button:active {
+  .tab-button:active {
     transform: scale(0.98);
   }
 
-  /* Inputs más grandes para touch */
-  input[type="time"] {
-    min-height: 36px;
+  .profileButton:active,
+  .chatsButton:active {
+    transform: scale(0.95);
   }
 
-  /* Separación entre elementos táctiles */
-  .button-container {
-    margin: 1rem 0;
-  }
-
-  /* Evitar zoom en inputs */
+  /* Evitar zoom en inputs si los hay */
   @media screen and (-webkit-min-device-pixel-ratio:0) {
     select,
     textarea,
@@ -340,31 +436,4 @@ button.profileButton {
       font-size: 16px;
     }
   }
-}
-
-.header-buttons {
-  display: flex;
-  align-items: center;
-  gap: 12px; /* separación entre botones */
-}
-
-.profileButton,
-.chatsButton {
-  background: none;
-  border: none;
-  cursor: pointer;
-  padding: 6px;
-  border-radius: 50%;
-  transition: background 0.2s ease-in-out;
-}
-
-.profileButton:hover,
-.chatsButton:hover {
-  background: rgba(0, 0, 0, 0.1);
-}
-
-.chatsImg {
-  width: 32px;
-  height: 32px;
-  object-fit: cover;
 }

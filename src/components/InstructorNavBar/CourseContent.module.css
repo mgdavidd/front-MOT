@@ -100,7 +100,7 @@ table th {
 
 /* Botón de chat grupal */
 .chatBtn {
-  background: linear-gradient(135deg, var(--color-primary), var(--color-secondary));
+  background: var(--color-secondary);
   border: none;
   padding: 8px 12px;
   border-radius: 12px;
