@@ -19,13 +19,16 @@
 
 .card {
   display: flex;
+  flex-direction: column; /* 📌 Ahora los elementos se apilan en vertical */
   background: #fff;
   border-radius: 8px;
   box-shadow: 0 2px 8px rgba(0,0,0,0.1);
   cursor: pointer;
   overflow: hidden;
-  max-width: 500px;
+  max-width: 400px; /* más estilizado en vertical */
   transition: transform 0.2s ease-in-out;
+  text-align: center; /* centrar textos */
+  max-height: 500px;
 }
 
 .card:hover {
@@ -34,6 +37,7 @@
 
 .cardLeft {
   flex: 0 0 150px;
+  max-height: 500px;
 }
 
 .cardImage {
@@ -41,7 +45,6 @@
   height: 100%;
   object-fit: cover;
   display: block;
-  min-width: 180px;
 }
 
 .cardRight {
@@ -50,10 +53,13 @@
   display: flex;
   flex-direction: column;
   justify-content: space-between;
+  align-items: center; /* centra horizontal */
+  text-align: center;  /* centra los textos */
+
 }
 
 .cardTitle {
-  font-size: 1.1rem;
+  font-size: 1.2rem;
   font-weight: bold;
   margin-bottom: 0.3rem;
 }
@@ -61,8 +67,10 @@
 .cardDescription {
   font-size: 0.9rem;
   color: #555;
-  flex: 1;
+  line-height: 1.4;
+  max-height: 400px;
 }
+
 
 .cardPrice {
   font-weight: bold;
@@ -119,13 +127,16 @@
     max-width: 100%;
   }
 
-  .cardLeft {
-    flex: 0 0 auto;
-    width: 100%;
-    height: 180px;
-  }
+ .cardLeft {
+  width: 100%; /* 📌 Imagen ocupa todo el ancho */
+  height: 200px; /* tamaño fijo */
+  overflow: hidden;
+}
 
   .cardRight {
-    padding: 1rem;
-  }
+  padding: 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
 }

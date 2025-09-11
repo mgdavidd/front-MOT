@@ -3,7 +3,7 @@
 .app-container {
   font-family: Arial, sans-serif;
   text-align: center;
-  background: #f4f6f8;
+  background: var(--color-secondary);
   min-height: 100vh;
 }
 
@@ -38,7 +38,7 @@
 .main-button {
   background-color: #10b981;
   color: white;
-  border: none;
+  border: solid 2px white;
   padding: 1rem 2rem;
   font-size: 1rem;
   border-radius: 0.5rem;

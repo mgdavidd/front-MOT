@@ -5,7 +5,7 @@
 
 :root {
   --color-primary: #42A5F5; /* Color por defecto - será sobrescrito por JS */
-  --color-secondary: #009cb8; /* Verde azulado fijo */
+  --color-secondary: #00b8af;; /* Verde azulado fijo */
   --color-accent: #275a57;
   --color-surface: rgba(255, 255, 255, 0.95);
   --color-text: #275a57;

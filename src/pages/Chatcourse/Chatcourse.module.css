@@ -7,6 +7,7 @@
   flex-direction: column;
   background-color: #f9fafb;
   box-sizing: border-box;
+  border-radius: 18px;
 }
 
 /* Botón volver */
