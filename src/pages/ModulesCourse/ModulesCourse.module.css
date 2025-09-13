@@ -1,145 +1,556 @@
-.body {
-  min-height: 100vh;
-  padding: 3rem 1rem;
+ html {
+  min-height: 100%;
+}
+.page {
+  box-sizing: content-box;
   display: flex;
   justify-content: center;
   align-items: flex-start;
-  background-color: #e0f2fe; /* Fondo suave */
-}
-
-/* Contenedor del curso y módulos */
-.container {
-  position: relative;
-  background-color: #DBEAFE;
-  padding: 2rem;
-  border-radius: 12px;
-  max-width: 600px;
-  width: 100%;
-  box-shadow: 0 4px 10px rgba(100, 116, 139, 0.2);
-}
-
-/* Encabezado con título */
-.header {
-  margin-bottom: 1.5rem;
-}
-
-/* Título del curso */
-.title {
-  color: #1E3A8A;
-  font-size: 1.8rem;
-  font-weight: bold;
-}
-
-/* Lista de módulos */
-.list {
-  list-style: none;
-  padding: 0;
-  margin: 0;
-}
-
-/* Cada módulo individual */
-.moduleItem {
-  background-color: #FFFFFF;
-  border: 1px solid #CBD5E1;
   padding: 1rem;
-  border-radius: 8px;
-  margin-bottom: 0.8rem;
-  color: #000000;
-  font-weight: 500;
-  transition: transform 0.2s ease;
-  font-size: 15px;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
 }
 
-.moduleItem:hover {
-  transform: translateY(-2px);
-}
-
-/* Contenedor del contenido del módulo */
-.moduleContent {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
+/* Contenedor principal */
+.container {
+  background: white;
+  padding: 2rem;
+  border-radius: 20px;
+  max-width: 900px;
   width: 100%;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
+  position: relative;
 }
 
-/* Botón de eliminar módulo */
-.deleteModuleButton {
-  background: none;
-  border: none;
-  cursor: pointer;
-  font-size: 1.2rem;
-  padding: 5px;
-  border-radius: 4px;
-  transition: background-color 0.2s ease;
-}
-
-.deleteModuleButton:hover {
-  background-color: rgba(255, 0, 0, 0.1);
-}
-
-/* Botón + para agregar módulo */
-.addButton {
-  position: absolute;
-  top: 1.2rem;
-  right: 1.2rem;
-  background-color: #3B82F6;
-  color: white;
-  border: none;
-  width: 36px;
-  height: 36px;
-  border-radius: 50%;
-  font-size: 1.5rem;
-  font-weight: bold;
-  cursor: pointer;
-  transition: background-color 0.3s ease, transform 0.2s ease;
+/* Header del curso */
+.courseHeader {
   display: flex;
-  justify-content: center;
-  align-items: center;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 2rem;
+  padding-bottom: 1rem;
+  border-bottom: 2px solid #f1f5f9;
 }
 
-.addButton:hover {
-  background-color: #2563EB;
-  transform: scale(1.1);
+.courseInfo {
+  flex: 1;
 }
 
-/* Cargando */
-.loading {
-  text-align: center;
-  font-size: 1.2rem;
-  color: #64748B;
+.title {
+  color: #1e293b;
+  font-size: 2rem;
+  font-weight: 700;
+  margin: 0 0 1rem 0;
+  background: var(--color-primary);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
 }
 
-.backButton {
-  margin-top: 30px;
-  padding: 10px 15px;
-  background-color: var(--color-primary);
-  border: none;
-  border-radius: 6px;
-  cursor: pointer;
-  color: #fff;
-  font-size: 1rem;
+/* Barra de progreso */
+.progressContainer {
+  margin-top: 1rem;
 }
 
-.lockedModule {
-  cursor: not-allowed !important;
-  opacity: 0.6 !important;
+.progressBar {
+  width: 100%;
+  height: 8px;
+  background-color: #e2e8f0;
+  border-radius: 10px;
+  overflow: hidden;
+  margin-bottom: 0.5rem;
 }
 
-.lockIcon {
-  margin-left: 8px;
+.progressFill {
+  height: 100%;
+  background: linear-gradient(90deg, #4ade80, #22c55e);
+  border-radius: 10px;
+  transition: width 0.5s ease;
 }
 
 .progressInfo {
-  font-size: 14px;
-  color: #666;
-  margin-top: 5px;
+  font-size: 0.9rem;
+  color: #64748b;
+  margin: 0;
+  font-weight: 500;
+}
+
+/* Botones de acción */
+.actionButtons {
+  display: flex;
+  gap: 0.75rem;
+  align-items: flex-start;
+}
+
+.addButton {
+  background: linear-gradient(135deg, #10b981, #059669);
+  color: white;
+  border: none;
+  width: 48px;
+  height: 48px;
+  border-radius: 12px;
+  font-size: 1.5rem;
+  font-weight: bold;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  box-shadow: 0 4px 15px rgba(16, 185, 129, 0.3);
+}
+
+.addButton:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(16, 185, 129, 0.4);
+}
+
+.addIcon {
+  display: block;
+  line-height: 1;
+}
+
+.deleteButton {
+  background: linear-gradient(135deg, #ef4444, #dc2626);
+  color: white;
+  border: none;
+  width: 48px;
+  height: 48px;
+  border-radius: 12px;
+  font-size: 1.2rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  box-shadow: 0 4px 15px rgba(239, 68, 68, 0.3);
+}
+
+.deleteButton:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(239, 68, 68, 0.4);
 }
 
 .deleteIcon {
-  filter: invert(100%);
-  width: 20px;
-  height: auto;
+  display: block;
+}
+
+/* Grid de módulos */
+.modulesGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 1.5rem;
+  margin-bottom: 2rem;
+}
+
+/* Tarjetas de módulos */
+.moduleCard {
+  background: white;
+  border: 2px solid #e2e8f0;
+  border-radius: 16px;
+  padding: 1.5rem;
+  transition: all 0.3s ease;
+  position: relative;
+  overflow: hidden;
+}
+
+.moduleCard::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 4px;
+}
+
+.moduleCard:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+  border-color: #cbd5e1;
+}
+
+.moduleNumber {
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+  color: black;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: bold;
+  font-size: 0.9rem;
+  border: solid 2px black;
+}
+
+.moduleContent {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  padding-right: 3rem;
+}
+
+.moduleName {
+  color: #1e293b;
+  font-size: 1.1rem;
+  font-weight: 600;
+  margin-left: 20px;
+}
+
+/* Módulos bloqueados */
+.lockedModule {
+  cursor: not-allowed !important;
+}
+
+.lockedModule:hover {
+  transform: none !important;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1) !important;
+}
+
+.lockBadge {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  background: #fef3c7;
+  color: #92400e;
+  padding: 0.5rem 0.75rem;
+  border-radius: 8px;
+  font-size: 0.8rem;
+  font-weight: 500;
+  width: fit-content;
+}
+
+.lockIcon {
+  font-size: 0.9rem;
+}
+
+/* Botón eliminar módulo */
+.deleteModuleButton {
+  position: absolute;
+  top: 0.3rem;
+  left: 0.5rem;
+  background: rgba(239, 68, 68, 0.1);
+  border: none;
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 1rem;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0.7;
+}
+
+.deleteModuleButton:hover {
+  background: rgba(239, 68, 68, 0.2);
+  opacity: 1;
+  transform: scale(1.1);
+}
+
+/* Estado vacío */
+.emptyState {
+  text-align: center;
+  padding: 3rem 1rem;
+  color: #64748b;
+}
+
+.emptyIcon {
+  font-size: 4rem;
+  margin-bottom: 1rem;
+}
+
+.emptyState h3 {
+  color: #374151;
+  font-size: 1.5rem;
+  margin: 0 0 0.5rem 0;
+}
+
+.emptyState p {
+  margin: 0;
+  font-size: 1rem;
+}
+
+/* Botón volver */
+.backButton {
+  color: white;
+  border: none;
+  padding: 0.75rem 1.5rem;
+  border-radius: 12px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  box-shadow: 0 4px 15px rgba(99, 102, 241, 0.3);
+}
+
+.backButton:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(99, 102, 241, 0.4);
+}
+
+/* Loading */
+.loading {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 200px;
+  color: #64748b;
+}
+
+.loadingSpinner {
+  width: 40px;
+  height: 40px;
+  border: 4px solid #e2e8f0;
+  border-top: 4px solid #667eea;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  margin-bottom: 1rem;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+/* Estilos para alertas personalizadas */
+.customAlert {
+  background: white;
+  border-radius: 16px;
+  box-shadow: 0 25px 50px rgba(0, 0, 0, 0.25);
+  max-width: 400px;
+  width: 90vw;
+  overflow: hidden;
+}
+
+.alertHeader {
+  padding: 1.5rem 1.5rem 0;
+  text-align: center;
+}
+
+.alertTitle {
+  margin: 0;
+  font-size: 1.25rem;
+  font-weight: 600;
+}
+
+.successTitle {
+  color: #059669;
+}
+
+.errorTitle {
+  color: #dc2626;
+}
+
+.dangerTitle {
+  color: #ea580c;
+}
+
+.alertBody {
+  padding: 1rem 1.5rem;
+  text-align: center;
+}
+
+.alertMessage {
+  margin: 0;
+  color: #374151;
+  font-size: 0.95rem;
+  line-height: 1.5;
+}
+
+.alertFooter {
+  padding: 0 1.5rem 1.5rem;
+  display: flex;
+  gap: 0.75rem;
+  justify-content: center;
+}
+
+.alertButton {
+  padding: 0.75rem 1.5rem;
+  border: none;
+  border-radius: 8px;
+  font-weight: 600;
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  min-width: 80px;
+}
+
+.successButton {
+  background: linear-gradient(135deg, #10b981, #059669);
+  color: white;
+}
+
+.successButton:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
+}
+
+.errorButton {
+  background: linear-gradient(135deg, #ef4444, #dc2626);
+  color: white;
+}
+
+.errorButton:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(239, 68, 68, 0.3);
+}
+
+.dangerButton {
+  background: linear-gradient(135deg, #ea580c, #dc2626);
+  color: white;
+}
+
+.dangerButton:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(234, 88, 12, 0.3);
+}
+
+.cancelButton {
+  background: #f1f5f9;
+  color: #475569;
+  border: 1px solid #e2e8f0;
+}
+
+.cancelButton:hover {
+  background: #e2e8f0;
+  transform: translateY(-1px);
+}
+
+.infoButton {
+  background: linear-gradient(135deg, #3b82f6, #2563eb);
+  color: white;
+}
+
+.infoButton:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .body {
+    padding: 1rem;
+  }
+
+  .container {
+    padding: 1.5rem;
+    border-radius: 16px;
+  }
+
+  .courseHeader {
+    flex-direction: column;
+    gap: 1rem;
+    align-items: flex-start;
+  }
+
+  .actionButtons {
+    width: 100%;
+    justify-content: flex-end;
+  }
+
+  .title {
+    font-size: 1.5rem;
+  }
+
+  .modulesGrid {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+  }
+
+  .moduleCard {
+    padding: 1.25rem;
+  }
+
+  .moduleContent {
+    padding-right: 2.5rem;
+  }
+
+  .moduleNumber {
+    width: 28px;
+    height: 28px;
+    font-size: 0.8rem;
+  }
+
+  .deleteModuleButton {
+    right: 2.75rem;
+    width: 28px;
+    height: 28px;
+    font-size: 0.9rem;
+  }
+
+  .addButton, .deleteButton {
+    width: 44px;
+    height: 44px;
+  }
+}
+
+@media (max-width: 480px) {
+  .container {
+    padding: 1rem;
+  }
+
+  .title {
+    font-size: 1.25rem;
+  }
+
+  .moduleCard {
+    padding: 1rem;
+  }
+
+  .moduleName {
+    font-size: 1rem;
+  }
+
+  .moduleNumber {
+    width: 24px;
+    height: 24px;
+    font-size: 0.75rem;
+    top: 0.75rem;
+    right: 0.75rem;
+  }
+
+  .deleteModuleButton {
+    left: 0.3rem;
+    width: 24px;
+    height: 24px;
+    font-size: 0.8rem;
+    top: -0.4rem;
+  }
+
+  .addButton, .deleteButton {
+    width: 40px;
+    height: 40px;
+    font-size: 1rem;
+  }
+
+  .customAlert {
+    margin: 1rem;
+  }
+
+  .alertFooter {
+    flex-direction: column;
+  }
+
+  .alertButton {
+    width: 100%;
+  }
+}
+
+/* Override para react-confirm-alert */
+:global(.react-confirm-alert-overlay) {
+  background: rgba(0, 0, 0, 0.5) !important;
+  backdrop-filter: blur(4px);
+}
+
+:global(.react-confirm-alert) {
+  font-family: inherit !important;
+}
+
+:global(.react-confirm-alert-body) {
+  font-family: inherit !important;
 }

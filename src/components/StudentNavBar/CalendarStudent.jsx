@@ -8,7 +8,7 @@ const CalendarStudent = () => {
     try {
       const cookie = Cookies.get("user");
       if (!cookie) return null;
-      return JSON.parse(decodeURIComponent(cookie));
+      return JSON.parse(cookie);
     } catch {
       return null;
     }
@@ -39,9 +39,13 @@ const CalendarStudent = () => {
   const loadCourses = useCallback(async () => {
     if (!userId) return;
     try {
-      const data = await authFetch(`http://localhost:3000/courses/student/${userId}`);
-      
-      const filteredCourses = data.filter((course) => course.tipoCurso !== "pregrabado");
+      const data = await authFetch(
+        `http://localhost:3000/courses/student/${userId}`
+      );
+
+      const filteredCourses = data.filter(
+        (course) => course.tipoCurso !== "pregrabado"
+      );
       setCourses(filteredCourses);
       setSelectedCourseId(filteredCourses[0]?.id || null);
     } catch (err) {
@@ -62,8 +66,12 @@ const CalendarStudent = () => {
 
       const newDateData = {};
       data.forEach((s) => {
-        const inicioLocal = DateTime.fromISO(s.inicio, { zone: "utc" }).setZone("local");
-        const finalLocal = DateTime.fromISO(s.final, { zone: "utc" }).setZone("local");
+        const inicioLocal = DateTime.fromISO(s.inicio, { zone: "utc" }).setZone(
+          "local"
+        );
+        const finalLocal = DateTime.fromISO(s.final, { zone: "utc" }).setZone(
+          "local"
+        );
         const dateKey = inicioLocal.toISODate();
 
         newDateData[dateKey] = {
@@ -114,9 +122,13 @@ const CalendarStudent = () => {
             const dateObj = DateTime.fromISO(date);
             return (
               <div key={date} className="session-card" data-type={data.type}>
-                <h4>{dateObj.setLocale("es").toLocaleString(DateTime.DATE_FULL)}</h4>
+                <h4>
+                  {dateObj.setLocale("es").toLocaleString(DateTime.DATE_FULL)}
+                </h4>
                 <p>Tipo: {data.type}</p>
-                <p>Hora: {data.start} - {data.end} (hora local)</p>
+                <p>
+                  Hora: {data.start} - {data.end} (hora local)
+                </p>
                 <p>Título: {data.title || "Clase"}</p>
                 {data.link && (
                   <p>

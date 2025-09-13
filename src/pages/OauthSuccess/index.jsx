@@ -9,13 +9,20 @@ const OAuthSuccess = () => {
   useEffect(() => {
     const query = new URLSearchParams(location.search);
     const userEncoded = query.get("user");
+    const token = query.get("token"); // 👈 asegúrate que tu backend también te mande el token en la URL
 
     if (userEncoded) {
       try {
+        // ✅ Decodificar el string de la URL
         const user = JSON.parse(decodeURIComponent(userEncoded));
+
+        // ✅ Guardar en cookies de la misma forma que en Login.jsx
         Cookies.set("user", JSON.stringify(user), { expires: 7 });
-        
-        // Redirigir según el rol (sin usar /redirect-by-role)
+        if (token) {
+          Cookies.set("token", token, { expires: 7 });
+        }
+
+        // ✅ Redirigir según el rol
         const userRole = user.rol?.toLowerCase();
         if (userRole === "profesor") {
           navigate("/instructorNav");

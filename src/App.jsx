@@ -2,7 +2,6 @@ import { Routes, Route, Link } from 'react-router-dom';
 import Login from './pages/Login';
 import Signup from './pages/Signup';
 import './App.css';
-import Profile from './pages/Profile';
 import Instructions from './pages/Instructions';
 import InstructorNavBar from './pages/InstructorNavBar';
 import ChecksKnowledge from './pages/ChecksKnowledge';
@@ -25,7 +24,6 @@ function App() {
       <Routes>
         <Route path="/" element={<Login />} />
         <Route path="/signup" element={<Signup />} />
-        <Route path="/profile" element={<Profile />} />
         <Route path="/instructions" element={<Instructions />} />
         <Route path="/instructorNav" element={<InstructorNavBar />} />
         <Route path="/checksKnowledge" element={<ChecksKnowledge />} />

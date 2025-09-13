@@ -4,8 +4,8 @@ import styles from "./ModulesCourse.module.css";
 import CreateModuleModal from "./CreateModuleModal";
 import Cookies from "js-cookie";
 import StudentsList from "./StudentsList";
-import { confirmAlert } from 'react-confirm-alert';
-import 'react-confirm-alert/src/react-confirm-alert.css';
+import { confirmAlert } from "react-confirm-alert";
+import "react-confirm-alert/src/react-confirm-alert.css";
 
 export default function ModulesCourse() {
   const location = useLocation();
@@ -23,7 +23,7 @@ export default function ModulesCourse() {
       try {
         const userCookie = Cookies.get("user");
         if (userCookie) {
-          setCurrentUser(JSON.parse(decodeURIComponent(userCookie)));
+          setCurrentUser(JSON.parse(userCookie));
         }
       } catch (err) {
         console.error("Error leyendo user cookie:", err);
@@ -31,12 +31,14 @@ export default function ModulesCourse() {
       }
     };
     fetchUser();
-  }, []); // <- ejecuta solo al montar
+  }, []);
 
   const fetchModules = async () => {
     if (!currentUser) return;
     try {
-      const response = await fetch(`http://localhost:3000/courses/${course.id}/modules/${currentUser.id}`);
+      const response = await fetch(
+        `http://localhost:3000/courses/${course.id}/modules/${currentUser.id}`
+      );
       const data = await response.json();
 
       if (currentUser.rol === "estudiante") {
@@ -57,12 +59,45 @@ export default function ModulesCourse() {
   }, [course, currentUser]);
 
   const handleModuleClick = (module) => {
-    // Para estudiantes, verificar si el módulo está desbloqueado
     if (currentUser.rol === "estudiante" && !module.desbloqueado) {
-      alert("Este módulo está bloqueado. Debes completar los módulos anteriores primero.");
+      confirmAlert({
+        title: "Módulo Bloqueado 🔒",
+        message: "Este módulo está bloqueado. Debes completar los módulos anteriores primero.",
+        buttons: [
+          {
+            label: "Entendido",
+            onClick: () => {},
+            className: styles.confirmButton
+          }
+        ],
+        customUI: ({ onClose, title, message, buttons }) => (
+          <div className={styles.customAlert}>
+            <div className={styles.alertHeader}>
+              <h2 className={styles.alertTitle}>{title}</h2>
+            </div>
+            <div className={styles.alertBody}>
+              <p className={styles.alertMessage}>{message}</p>
+            </div>
+            <div className={styles.alertFooter}>
+              {buttons.map((button, index) => (
+                <button
+                  key={index}
+                  className={`${styles.alertButton} ${styles.infoButton}`}
+                  onClick={() => {
+                    button.onClick();
+                    onClose();
+                  }}
+                >
+                  {button.label}
+                </button>
+              ))}
+            </div>
+          </div>
+        )
+      });
       return;
     }
-    
+
     navigate("/viewContent", {
       state: {
         id: module.id,
@@ -76,134 +111,483 @@ export default function ModulesCourse() {
   };
 
   const handleDeleteCourse = async () => {
-    if (window.confirm("¿Estás seguro de que deseas eliminar este curso?")) {
-      try {
-        const response = await fetch(`http://localhost:3000/del/courses/${course.id}`, {
-          method: "DELETE",
-          headers: {
-            "Content-Type": "application/json",
-            "Authorization": `Bearer ${Cookies.get("token")}`
-          }
-        });
-        if (response.ok) {
-          alert("Curso eliminado con éxito.");
-          navigate("/instructorNav");
-        } else {
-          alert("Error al eliminar el curso.");
-        }
-      } catch (error) {
-        console.error("Error al eliminar el curso:", error);
-      }
-    }
+    confirmAlert({
+      title: "Eliminar Curso",
+      message: `¿Estás seguro de que deseas eliminar el curso "${course.nombre}"? Esta acción eliminará todos los módulos y no se puede deshacer.`,
+      buttons: [
+        {
+          label: "Sí, eliminar",
+          onClick: async () => {
+            try {
+              const response = await fetch(
+                `http://localhost:3000/del/courses/${course.id}`,
+                {
+                  method: "DELETE",
+                  headers: {
+                    "Content-Type": "application/json",
+                    Authorization: `Bearer ${Cookies.get("token")}`,
+                  },
+                }
+              );
+              if (response.ok) {
+                confirmAlert({
+                  title: "¡Éxito!",
+                  message: "Curso eliminado correctamente.",
+                  buttons: [
+                    {
+                      label: "Aceptar",
+                      onClick: () => navigate("/instructorNav")
+                    }
+                  ],
+                  customUI: ({ onClose, title, message, buttons }) => (
+                    <div className={styles.customAlert}>
+                      <div className={styles.alertHeader}>
+                        <h2 className={`${styles.alertTitle} ${styles.successTitle}`}>✅ {title}</h2>
+                      </div>
+                      <div className={styles.alertBody}>
+                        <p className={styles.alertMessage}>{message}</p>
+                      </div>
+                      <div className={styles.alertFooter}>
+                        {buttons.map((button, index) => (
+                          <button
+                            key={index}
+                            className={`${styles.alertButton} ${styles.successButton}`}
+                            onClick={() => {
+                              button.onClick();
+                              onClose();
+                            }}
+                          >
+                            {button.label}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                  )
+                });
+              } else {
+                confirmAlert({
+                  title: "Error",
+                  message: "Ocurrió un error al eliminar el curso. Por favor, intenta nuevamente.",
+                  buttons: [
+                    {
+                      label: "Aceptar",
+                      onClick: () => {}
+                    }
+                  ],
+                  customUI: ({ onClose, title, message, buttons }) => (
+                    <div className={styles.customAlert}>
+                      <div className={styles.alertHeader}>
+                        <h2 className={`${styles.alertTitle} ${styles.errorTitle}`}>❌ {title}</h2>
+                      </div>
+                      <div className={styles.alertBody}>
+                        <p className={styles.alertMessage}>{message}</p>
+                      </div>
+                      <div className={styles.alertFooter}>
+                        {buttons.map((button, index) => (
+                          <button
+                            key={index}
+                            className={`${styles.alertButton} ${styles.errorButton}`}
+                            onClick={() => {
+                              button.onClick();
+                              onClose();
+                            }}
+                          >
+                            {button.label}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                  )
+                });
+              }
+            } catch (error) {
+              console.error("Error al eliminar el curso:", error);
+              confirmAlert({
+                title: "Error de Conexión",
+                message: "No se pudo conectar con el servidor. Verifica tu conexión a internet.",
+                buttons: [
+                  {
+                    label: "Aceptar",
+                    onClick: () => {}
+                  }
+                ],
+                customUI: ({ onClose, title, message, buttons }) => (
+                  <div className={styles.customAlert}>
+                    <div className={styles.alertHeader}>
+                      <h2 className={`${styles.alertTitle} ${styles.errorTitle}`}>❌ {title}</h2>
+                    </div>
+                    <div className={styles.alertBody}>
+                      <p className={styles.alertMessage}>{message}</p>
+                    </div>
+                    <div className={styles.alertFooter}>
+                      {buttons.map((button, index) => (
+                        <button
+                          key={index}
+                          className={`${styles.alertButton} ${styles.errorButton}`}
+                          onClick={() => {
+                            button.onClick();
+                            onClose();
+                          }}
+                        >
+                          {button.label}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                )
+              });
+            }
+          },
+        },
+        {
+          label: "Cancelar",
+          onClick: () => {},
+        },
+      ],
+      customUI: ({ onClose, title, message, buttons }) => (
+        <div className={styles.customAlert}>
+          <div className={styles.alertHeader}>
+            <h2 className={`${styles.alertTitle} ${styles.dangerTitle}`}>⚠️ {title}</h2>
+          </div>
+          <div className={styles.alertBody}>
+            <p className={styles.alertMessage}>{message}</p>
+          </div>
+          <div className={styles.alertFooter}>
+            {buttons.map((button, index) => (
+              <button
+                key={index}
+                className={`${styles.alertButton} ${
+                  index === 0 ? styles.dangerButton : styles.cancelButton
+                }`}
+                onClick={() => {
+                  button.onClick();
+                  onClose();
+                }}
+              >
+                {button.label}
+              </button>
+            ))}
+          </div>
+        </div>
+      )
+    });
   };
 
   const handleDeleteModule = async (moduleId, moduleName, e) => {
-    e.stopPropagation(); // Prevenir que se active el click del módulo
+    e.stopPropagation();
 
     confirmAlert({
-      title: 'Confirmar eliminación',
+      title: "Eliminar Módulo",
       message: `¿Estás seguro de que deseas eliminar el módulo "${moduleName}"? Esta acción no se puede deshacer.`,
       buttons: [
         {
-          label: 'Sí, eliminar',
+          label: "Sí, eliminar",
           onClick: async () => {
             try {
               const token = Cookies.get("token");
-              const response = await fetch(`http://localhost:3000/modules/${moduleId}`, {
-                method: "DELETE",
-                headers: {
-                  "Authorization": `Bearer ${token}`
+              const response = await fetch(
+                `http://localhost:3000/modules/${moduleId}`,
+                {
+                  method: "DELETE",
+                  headers: {
+                    Authorization: `Bearer ${token}`,
+                  },
                 }
-              });
+              );
 
               const result = await response.json();
 
               if (response.ok) {
-                alert("Módulo eliminado con éxito.");
-                fetchModules(); // Recargar la lista
+                confirmAlert({
+                  title: "¡Éxito!",
+                  message: "Módulo eliminado correctamente.",
+                  buttons: [
+                    {
+                      label: "Aceptar",
+                      onClick: () => fetchModules()
+                    }
+                  ],
+                  customUI: ({ onClose, title, message, buttons }) => (
+                    <div className={styles.customAlert}>
+                      <div className={styles.alertHeader}>
+                        <h2 className={`${styles.alertTitle} ${styles.successTitle}`}>✅ {title}</h2>
+                      </div>
+                      <div className={styles.alertBody}>
+                        <p className={styles.alertMessage}>{message}</p>
+                      </div>
+                      <div className={styles.alertFooter}>
+                        {buttons.map((button, index) => (
+                          <button
+                            key={index}
+                            className={`${styles.alertButton} ${styles.successButton}`}
+                            onClick={() => {
+                              button.onClick();
+                              onClose();
+                            }}
+                          >
+                            {button.label}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                  )
+                });
               } else {
-                alert(`Error: ${result.error || "No se pudo eliminar el módulo"}`);
+                confirmAlert({
+                  title: "Error",
+                  message: `Error: ${result.error || "No se pudo eliminar el módulo"}`,
+                  buttons: [
+                    {
+                      label: "Aceptar",
+                      onClick: () => {}
+                    }
+                  ],
+                  customUI: ({ onClose, title, message, buttons }) => (
+                    <div className={styles.customAlert}>
+                      <div className={styles.alertHeader}>
+                        <h2 className={`${styles.alertTitle} ${styles.errorTitle}`}>❌ {title}</h2>
+                      </div>
+                      <div className={styles.alertBody}>
+                        <p className={styles.alertMessage}>{message}</p>
+                      </div>
+                      <div className={styles.alertFooter}>
+                        {buttons.map((button, index) => (
+                          <button
+                            key={index}
+                            className={`${styles.alertButton} ${styles.errorButton}`}
+                            onClick={() => {
+                              button.onClick();
+                              onClose();
+                            }}
+                          >
+                            {button.label}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                  )
+                });
               }
             } catch (error) {
               console.error("Error al eliminar módulo:", error);
-              alert("Error al eliminar el módulo");
+              confirmAlert({
+                title: "Error de Conexión",
+                message: "No se pudo eliminar el módulo. Verifica tu conexión a internet.",
+                buttons: [
+                  {
+                    label: "Aceptar",
+                    onClick: () => {}
+                  }
+                ],
+                customUI: ({ onClose, title, message, buttons }) => (
+                  <div className={styles.customAlert}>
+                    <div className={styles.alertHeader}>
+                      <h2 className={`${styles.alertTitle} ${styles.errorTitle}`}>❌ {title}</h2>
+                    </div>
+                    <div className={styles.alertBody}>
+                      <p className={styles.alertMessage}>{message}</p>
+                    </div>
+                    <div className={styles.alertFooter}>
+                      {buttons.map((button, index) => (
+                        <button
+                          key={index}
+                          className={`${styles.alertButton} ${styles.errorButton}`}
+                          onClick={() => {
+                            button.onClick();
+                            onClose();
+                          }}
+                        >
+                          {button.label}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                )
+              });
             }
-          }
+          },
         },
         {
-          label: 'Cancelar',
-          onClick: () => {}
-        }
-      ]
+          label: "Cancelar",
+          onClick: () => {},
+        },
+      ],
+      customUI: ({ onClose, title, message, buttons }) => (
+        <div className={styles.customAlert}>
+          <div className={styles.alertHeader}>
+            <h2 className={`${styles.alertTitle} ${styles.dangerTitle}`}>⚠️ {title}</h2>
+          </div>
+          <div className={styles.alertBody}>
+            <p className={styles.alertMessage}>{message}</p>
+          </div>
+          <div className={styles.alertFooter}>
+            {buttons.map((button, index) => (
+              <button
+                key={index}
+                className={`${styles.alertButton} ${
+                  index === 0 ? styles.dangerButton : styles.cancelButton
+                }`}
+                onClick={() => {
+                  button.onClick();
+                  onClose();
+                }}
+              >
+                {button.label}
+              </button>
+            ))}
+          </div>
+        </div>
+      )
     });
   };
 
-  if (loading) return <div className={styles.loading}>Cargando módulos...</div>;
+  if (loading) return <div className={styles.loading}>
+    <div className={styles.loadingSpinner}></div>
+    <p>Cargando módulos...</p>
+  </div>;
 
   return (
-    <div className={styles.body}>
+    <div className={styles.page}>
       <div className={styles.container}>
-        <button onClick={handleDeleteCourse} style={{ backgroundColor: "red", color: "white", padding: "10px 20px", border: "none", borderRadius: "5px", cursor: "pointer" }}>Eliminar Curso</button>
-        <div className={styles.header}>
-          <h1 className={styles.title}>Módulos de {course.nombre}</h1>
-          {currentUser && currentUser.rol === "estudiante" && progresoActual && (
-            <p className={styles.progressInfo}>
-              Tu progreso actual: Módulo {progresoActual.id_modulo_actual ? modules.findIndex(m => m.id === progresoActual.id_modulo_actual) + 1 : 1} de {modules.length}
-            </p>
-          )}
-        </div>
-        {currentUser && currentUser.rol === "profesor" && (
-          <button className={styles.addButton} onClick={() => setShowModal(true)}>+</button>
-        )}
+        {/* Header con información del curso */}
+        <div className={styles.courseHeader}>
+          <div className={styles.courseInfo}>
+            <h1 className={styles.title}>{course.nombre}</h1>
+            {currentUser &&
+              currentUser.rol === "estudiante" &&
+              progresoActual && (
+                <div className={styles.progressContainer}>
+                  <div className={styles.progressBar}>
+                    <div 
+                      className={styles.progressFill}
+                      style={{
+                        width: `${((modules.findIndex(m => m.id === progresoActual.id_modulo_actual) + 1) / modules.length) * 100}%`
+                      }}
+                    ></div>
+                  </div>
+                  <p className={styles.progressInfo}>
+                    Progreso: Módulo{" "}
+                    {progresoActual.id_modulo_actual
+                      ? modules.findIndex(
+                          (m) => m.id === progresoActual.id_modulo_actual
+                        ) + 1
+                      : 1}{" "}
+                    de {modules.length}
+                  </p>
+                </div>
+              )}
+          </div>
 
-        <ul className={styles.list}>
-          {modules.map((mod) => (
-            <li
+          {/* Botones de acción */}
+          <div className={styles.actionButtons}>
+            {currentUser && currentUser.rol === "profesor" && (
+              <>
+                <button
+                  className={styles.addButton}
+                  onClick={() => setShowModal(true)}
+                  title="Agregar nuevo módulo"
+                >
+                  <span className={styles.addIcon}>+</span>
+                </button>
+                <button
+                  className={styles.deleteButton}
+                  onClick={handleDeleteCourse}
+                  title="Eliminar curso"
+                >
+                  <span className={styles.deleteIcon}>🗑️</span>
+                </button>
+              </>
+            )}
+          </div>
+        </div>
+
+        {/* Lista de módulos */}
+        <div className={styles.modulesGrid}>
+          {modules.map((mod, index) => (
+            <div
               key={mod.id}
-              className={`${styles.moduleItem} ${currentUser.rol === "estudiante" && !mod.desbloqueado ? styles.lockedModule : ""}`}
-              style={{ 
-                backgroundColor: mod.color || "#FFFFFF", 
-                cursor: currentUser.rol === "estudiante" && !mod.desbloqueado ? "not-allowed" : "pointer",
-                opacity: currentUser.rol === "estudiante" && !mod.desbloqueado ? 0.6 : 1
+              className={`${styles.moduleCard} ${
+                currentUser.rol === "estudiante" && !mod.desbloqueado
+                  ? styles.lockedModule
+                  : ""
+              }`}
+              style={{
+                backgroundColor: mod.color || "#FFFFFF",
+                cursor:
+                  currentUser.rol === "estudiante" && !mod.desbloqueado
+                    ? "not-allowed"
+                    : "pointer",
+                opacity:
+                  currentUser.rol === "estudiante" && !mod.desbloqueado
+                    ? 0.7
+                    : 1,
               }}
               onClick={() => handleModuleClick(mod)}
             >
+              <div className={styles.moduleNumber}>{index + 1}</div>
+              
               <div className={styles.moduleContent}>
-                <span>{mod.title || mod.nombre}</span>
+                <h3 className={styles.moduleName}>{mod.title || mod.nombre}</h3>
                 
+                {currentUser.rol === "estudiante" && !mod.desbloqueado && (
+                  <div className={styles.lockBadge}>
+                    <span className={styles.lockIcon}>🔒</span>
+                    <span>Bloqueado</span>
+                  </div>
+                )}
+
                 {currentUser.rol === "profesor" && (
-                  <button 
+                  <button
                     className={styles.deleteModuleButton}
-                    onClick={(e) => handleDeleteModule(mod.id, mod.title || mod.nombre, e)}
+                    onClick={(e) =>
+                      handleDeleteModule(mod.id, mod.title || mod.nombre, e)
+                    }
                     title="Eliminar módulo"
                   >
-                    <img src="../../img/basura.png" alt="eliminar" className={styles.deleteIcon}/>
+                    🗑️
                   </button>
                 )}
               </div>
-              
-              {currentUser.rol === "estudiante" && !mod.desbloqueado && (
-                <span className={styles.lockIcon}> 🔒</span>
-              )}
-            </li>
+            </div>
           ))}
-        </ul>
+        </div>
 
-        {currentUser && currentUser.rol === "estudiante" && (
-          <StudentsList courseId={course.id} docente={{
-            id: course.admin || "",
-            nombre: "Docente",
-            fotoPerfil: course.fotoPerfil || "",
-            color_perfil: "#e0e7ef"
-          }} />
+        {modules.length === 0 && !loading && (
+          <div className={styles.emptyState}>
+            <div className={styles.emptyIcon}>📚</div>
+            <h3>No hay módulos aún</h3>
+            <p>
+              {currentUser?.rol === "profesor" 
+                ? "Comienza agregando tu primer módulo"
+                : "El profesor aún no ha agregado módulos a este curso"
+              }
+            </p>
+          </div>
         )}
 
-        {/* Botón de retroceso */}
-        <button className={styles.backButton} onClick={() => navigate("/instructorNav")}>
-          ← Volver
+        {/* Lista de estudiantes para estudiantes */}
+        {currentUser && currentUser.rol === "estudiante" && (
+          <StudentsList
+            courseId={course.id}
+            docente={{
+              id: course.admin || "",
+              nombre: "Docente",
+              fotoPerfil: course.fotoPerfil || "",
+              color_perfil: "#e0e7ef",
+            }}
+          />
+        )}
+
+        {/* Botón volver */}
+        <button
+          className={styles.backButton}
+          onClick={() => navigate("/instructorNav")}
+        >
+          ← Volver al inicio
         </button>
       </div>
 
+      {/* Modal para crear módulo */}
       {showModal && (
         <CreateModuleModal
           courseId={course.id}

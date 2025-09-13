@@ -10,7 +10,7 @@ const InstructorCal = () => {
     try {
       const cookie = Cookies.get("user");
       if (!cookie) return null;
-      return JSON.parse(decodeURIComponent(cookie));
+      return JSON.parse(cookie);
     } catch {
       return null;
     }
@@ -75,7 +75,7 @@ const InstructorCal = () => {
         const inicioLocal = inicioUTC.setZone("local");
         const finalLocal = finalUTC.setZone("local");
 
-        const localDateKey = inicioLocal.toISODate(); // ✅ clave basada en la fecha LOCAL
+        const localDateKey = inicioLocal.toISODate();
 
         newDateData[localDateKey] = {
           start: inicioLocal.toFormat("HH:mm"),
@@ -88,7 +88,7 @@ const InstructorCal = () => {
           recording_url: s.recording_url,
         };
 
-        newSelectedDates.push(inicioLocal.toJSDate()); // ✅ también basado en fecha local
+        newSelectedDates.push(inicioLocal.toJSDate());
       });
 
       setSelectedDates(newSelectedDates);
@@ -153,8 +153,7 @@ const InstructorCal = () => {
 
       if (newData[isoDate].start && newData[isoDate].end) {
         const dateStr = isoDate;
-
-        // ⚠️ Aquí definimos bien la hora local y la convertimos una vez a UTC
+ 
         const startLocal = DateTime.fromISO(
           `${dateStr}T${newData[isoDate].start}`,
           { zone: "local" }
@@ -188,11 +187,11 @@ const InstructorCal = () => {
         });
 
         return {
-          inicio: localStart.toUTC().toISO(), // Fecha completa UTC
-          final: localEnd.toUTC().toISO(), // Fecha completa UTC
+          inicio: localStart.toUTC().toISO(),
+          final: localEnd.toUTC().toISO(),
           titulo: d.title || "Clase",
           type: d.type,
-          timezone: DateTime.local().zoneName, // Enviar zona horaria del usuario
+          timezone: DateTime.local().zoneName,
         };
       });
 

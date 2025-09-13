@@ -117,10 +117,13 @@ const ForumModules = ({ idModulo: propIdModulo, idUsuario: propIdUsuario, modulo
 
   return (
     <div className={styles.container}>
+      {/* Header con título y tabs */}
+      <button className={styles.backButton} onClick={() => window.history.back()}>
+        ←
+      </button>
       <div className={styles.header}>
         <h2 className={styles.title}>Foro del Módulo: {modulo?.nombre}</h2>
 
-        {/* Tabs fijas */}
         <div className={styles.tabs}>
           {["pregunta", "aporte", "general"].map((tab) => (
             <button

@@ -1,4 +1,3 @@
-// index.jsx - EditarPerfil
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import Cookies from "js-cookie";
@@ -6,8 +5,12 @@ import styles from "./style.module.css";
 import Logo from "../../components/Logo";
 
 const coloresPastel = [
-  "#42A5F5", "#FF6B81", "#FF9F45",
-  "#40df94ff", "#32E0C4", "#A259FF"
+  "#42A5F5",
+  "#FF6B81",
+  "#FF9F45",
+  "#40df94ff",
+  "#32E0C4",
+  "#A259FF",
 ];
 
 export default function EditarPerfil() {
@@ -20,11 +23,13 @@ export default function EditarPerfil() {
     color_perfil: "#42A5F5",
     id: null,
     area: "",
+    fotoPerfil: "", // solo en memoria, no en cookie
   });
   const [isLoading, setIsLoading] = useState(false);
+  const [selectedImage, setSelectedImage] = useState(null);
 
   useEffect(() => {
-    const loadUserData = () => {
+    const loadUserData = async () => {
       const cookieValue = Cookies.get("user");
       if (!cookieValue) {
         navigate("/");
@@ -33,32 +38,36 @@ export default function EditarPerfil() {
 
       try {
         const user = JSON.parse(cookieValue);
-        const normalizedUser = user.rows ? {
-          id: user.rows[0][0],
-          nombre: user.rows[0][1],
-          nombre_usuario: user.rows[0][2],
-          email: user.rows[0][3],
-          area: user.rows[0][5], // ✅ CAMBIO AQUÍ
-          rol: user.rows[0][6],
-          color_perfil: user.rows[0][10]
-        } : user;
 
-        setFormData({
-          nombre: normalizedUser.nombre || "",
-          nombre_usuario: normalizedUser.nombre_usuario || normalizedUser.nombre || "",
-          email: normalizedUser.email || "",
-          rol: normalizedUser.rol || "",
-          color_perfil: normalizedUser.color_perfil || "#42A5F5",
-          id: normalizedUser.id || null,
-          area: normalizedUser.area || "",
-        });
+        setFormData((prev) => ({
+          ...prev,
+          nombre: user.nombre || "",
+          nombre_usuario: user.nombre_usuario || user.nombre || "",
+          email: user.email || "",
+          rol: user.rol || "",
+          color_perfil: user.color_perfil || "#42A5F5",
+          id: user.id || null,
+          area: user.area || "",
+        }));
 
+        // aplicar tema
         document.documentElement.style.setProperty(
-          '--color-primary',
-          normalizedUser.color_perfil || "#42A5F5"
+          "--color-primary",
+          user.color_perfil || "#42A5F5"
         );
+
+        // 🚀 Cargar foto desde servidor
+        const fotoRes = await fetch(
+          `http://localhost:3000/users/${user.id}/foto`
+        );
+        if (fotoRes.ok) {
+          const data = await fotoRes.json();
+          if (data.fotoPerfil) {
+            setFormData((prev) => ({ ...prev, fotoPerfil: data.fotoPerfil }));
+          }
+        }
       } catch (error) {
-        console.error(error)
+        console.error(error);
         Cookies.remove("user");
         navigate("/");
       }
@@ -69,12 +78,48 @@ export default function EditarPerfil() {
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setFormData(prev => ({ ...prev, [name]: value }));
+    setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
   const handleColorSelect = (color) => {
-    setFormData(prev => ({ ...prev, color_perfil: color }));
-    document.documentElement.style.setProperty('--color-primary', color);
+    setFormData((prev) => ({ ...prev, color_perfil: color }));
+    document.documentElement.style.setProperty("--color-primary", color);
+  };
+
+  const handleImageChange = (e) => {
+    const archivo = e.target.files[0];
+    if (archivo) {
+      // Validar tamaño del archivo (max 5MB)
+      if (archivo.size > 5 * 1024 * 1024) {
+        alert(
+          "La imagen es demasiado grande. Por favor, selecciona una imagen menor a 5MB."
+        );
+        return;
+      }
+
+      // Validar tipo de archivo
+      if (!archivo.type.startsWith("image/")) {
+        alert("Por favor, selecciona un archivo de imagen válido.");
+        return;
+      }
+
+      const lector = new FileReader();
+      lector.onloadend = () => setSelectedImage(lector.result);
+      lector.readAsDataURL(archivo);
+    }
+  };
+
+  const removeImage = (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setSelectedImage(null);
+    setFormData((prev) => ({ ...prev, fotoPerfil: "" }));
+
+    // Limpiar el input file
+    const fileInput = document.getElementById("profilePhoto");
+    if (fileInput) {
+      fileInput.value = "";
+    }
   };
 
   const handleSubmit = async (e) => {
@@ -83,40 +128,70 @@ export default function EditarPerfil() {
     setIsLoading(true);
 
     try {
-      const res = await fetch(`http://localhost:3000/edit-profile/${formData.id}`, {
-        method: "PUT",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          nombre_usuario: formData.nombre_usuario,
-          color_perfil: formData.color_perfil,
-          area: formData.area,
-        }),
-      });
+      const res = await fetch(
+        `http://localhost:3000/edit-profile/${formData.id}`,
+        {
+          method: "PUT",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            nombre_usuario: formData.nombre_usuario,
+            color_perfil: formData.color_perfil,
+            area: formData.area,
+            fotoPerfil: selectedImage || formData.fotoPerfil, // aún la envías si se cambió
+          }),
+        }
+      );
 
       if (!res.ok) throw new Error(await res.text());
 
-      const userRes = await fetch(`http://localhost:3000/user/${formData.id}`);
+      // obtener datos actualizados (sin foto)
+      const userRes = await fetch(`http://localhost:3000/users/${formData.id}`);
       if (!userRes.ok) throw new Error("Error al obtener datos actualizados");
 
       const userData = await userRes.json();
-      const normalizedUser = userData.rows ? {
-        id: userData.rows[0][0],
-        nombre: userData.rows[0][1],
-        nombre_usuario: userData.rows[0][2],
-        email: userData.rows[0][3],
-        area: userData.rows[0][5], // ✅ CAMBIO AQUÍ TAMBIÉN
-        rol: userData.rows[0][6],
-        color_perfil: userData.rows[0][10]
-      } : userData;
+      console.log("Datos actualizados:", userData);
 
-      Cookies.set("user", JSON.stringify(normalizedUser), {
-        expires: 7,
-      });
+      // 🚫 Guardar cookie sin fotoPerfil
+      const updatedUserForCookie = {
+        id: userData.id,
+        nombre: userData.nombre,
+        nombre_usuario: userData.nombre_usuario,
+        email: userData.email,
+        area: userData.area,
+        rol: userData.rol,
+        color_perfil: userData.color_perfil,
+      };
+
+      Cookies.set("user", JSON.stringify(updatedUserForCookie), { expires: 7 });
+
+      alert("Perfil actualizado correctamente");
+      navigate("/instructorNav");
     } catch (err) {
+      console.error("Error completo:", err);
       alert(err.message || "Error en la conexión");
     } finally {
       setIsLoading(false);
     }
+  };
+
+  const getProfileImageUrl = () => {
+    if (selectedImage) return selectedImage;
+    if (formData.fotoPerfil) return formData.fotoPerfil;
+    return null;
+  };
+
+  const getInitials = () => {
+    if (!formData.nombre) return "??";
+    return formData.nombre
+      .split(" ")
+      .map((word) => word.charAt(0))
+      .join("")
+      .toUpperCase()
+      .slice(0, 2);
+  };
+
+  const hasProfileImage = () => {
+    return selectedImage || formData.fotoPerfil;
   };
 
   return (
@@ -128,11 +203,13 @@ export default function EditarPerfil() {
           </span>
           Editar Perfil
         </h1>
-        <strong><h2>{formData.nombre}</h2></strong>
+        <strong>
+          <h2>{formData.nombre}</h2>
+        </strong>
 
         <div className={styles.headerButtons}>
           <button
-            onClick={() => navigate("/profile")}
+            onClick={() => navigate("/instructorNav")}
             className={styles.backBtn}
             disabled={isLoading}
           >
@@ -152,10 +229,66 @@ export default function EditarPerfil() {
       </header>
 
       <form className={styles.cardSmall} onSubmit={handleSubmit}>
+        {/* Foto de perfil mejorada */}
+        <div className={styles.group}>
+          <label className={styles.label}>Foto de perfil</label>
+          <div className={styles.profilePhotoSection}>
+            <div className={styles.profilePhotoWrapper}>
+              {hasProfileImage() && (
+                <button
+                  type="button"
+                  className={styles.removeImageBtn}
+                  onClick={removeImage}
+                  title="Eliminar foto"
+                  aria-label="Eliminar foto de perfil"
+                >
+                  ✕
+                </button>
+              )}
+              <div
+                className={styles.profilePhotoContainer}
+                onClick={() => document.getElementById("profilePhoto").click()}
+              >
+                {hasProfileImage() ? (
+                  <img
+                    src={getProfileImageUrl()}
+                    alt="Foto de perfil"
+                    className={styles.profilePhoto}
+                  />
+                ) : (
+                  <div
+                    className={styles.profilePhotoPlaceholder}
+                    style={{ backgroundColor: formData.color_perfil }}
+                  >
+                    {getInitials()}
+                  </div>
+                )}
+              </div>
+            </div>
+
+            <input
+              type="file"
+              accept="image/*"
+              onChange={handleImageChange}
+              className={styles.fileInput}
+              id="profilePhoto"
+              disabled={isLoading}
+            />
+
+            <label htmlFor="profilePhoto" className={styles.fileInputLabel}>
+              {hasProfileImage() ? "Cambiar foto" : "Subir foto"}
+            </label>
+          </div>
+        </div>
+
         <div className={styles.group}>
           <center>
-            <p><strong>{formData.email}</strong></p>
-            <p><strong>{formData.rol}</strong></p>
+            <p>
+              <strong>{formData.email}</strong>
+            </p>
+            <p>
+              <strong>{formData.rol}</strong>
+            </p>
           </center>
         </div>
 
@@ -189,7 +322,7 @@ export default function EditarPerfil() {
 
         <div className={styles.group}>
           <label className={styles.label}>Banco</label>
-          <select className={styles.input}>
+          <select className={styles.input} disabled={isLoading}>
             <option value="">Selecciona un banco</option>
             <option value="Bancolombia">Bancolombia</option>
             <option value="Davivienda">Davivienda</option>
@@ -208,6 +341,7 @@ export default function EditarPerfil() {
             type="number"
             placeholder="Ej: 1234567890"
             className={styles.input}
+            disabled={isLoading}
           />
         </div>
 
@@ -221,7 +355,10 @@ export default function EditarPerfil() {
                 className={styles.colorCircle}
                 style={{
                   backgroundColor: color,
-                  outline: formData.color_perfil === color ? "3px solid black" : "none",
+                  outline:
+                    formData.color_perfil === color
+                      ? "3px solid black"
+                      : "none",
                 }}
                 onClick={() => handleColorSelect(color)}
                 aria-label={`Seleccionar color ${color}`}
@@ -231,11 +368,7 @@ export default function EditarPerfil() {
           </div>
         </div>
 
-        <button
-          type="submit"
-          className={styles.saveBtn}
-          disabled={isLoading}
-        >
+        <button type="submit" className={styles.saveBtn} disabled={isLoading}>
           {isLoading ? "Guardando..." : "Guardar Cambios"}
         </button>
       </form>

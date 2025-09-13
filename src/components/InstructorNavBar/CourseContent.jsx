@@ -21,17 +21,13 @@ export default function CourseContent() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const currentUser = getCurrentUser();
-    const userId = currentUser?.id;
-
-    if (!userId) {
-      console.error("No user ID found.");
-      return;
-    }
-
+    const user = getCurrentUser();
+    
     const fetchCourses = async () => {
       try {
-        const response = await fetch(`http://localhost:3000/teachers/${userId}/courses`);
+        const response = await fetch(
+          `http://localhost:3000/teachers/${user?.id}/courses`
+        );
         const data = await response.json();
         setCourses(data);
       } catch (error) {
@@ -53,13 +49,23 @@ export default function CourseContent() {
   return (
     <div className={styles.container}>
       <div className={styles.coursesContainer}>
+        <button
+          className={styles["main-button"]}
+          onClick={() => navigate("/crear-curso")}
+        >
+          Crear curso
+        </button>
         {courses.map((curso) => (
           <div key={curso.id} className={styles.courseWrapper}>
-            <div className={styles.courseTitle}><strong>{curso.nombre}</strong></div>
+            <div className={styles.courseTitle}>
+              <strong>{curso.nombre}</strong>
+            </div>
             <div
               className={styles.courseCard}
               style={{
-                backgroundImage: curso.portada ? `url(${curso.portada})` : "none",
+                backgroundImage: curso.portada
+                  ? `url(${curso.portada})`
+                  : "none",
               }}
               onClick={() => navigate("/curso", { state: curso })}
             >

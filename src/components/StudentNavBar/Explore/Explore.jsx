@@ -13,7 +13,7 @@ export default function CoursesList() {
     if (!selectedCourse) return;
     const userCookie = Cookies.get("user");
     if (!userCookie) return "";
-    const userData = JSON.parse(decodeURIComponent(userCookie));
+    const userData = JSON.parse(userCookie);
     fetch(`http://localhost:3000/inscription/course`, {
       method: "POST",
       headers: {
@@ -39,7 +39,7 @@ export default function CoursesList() {
     try {
       const userCookie = Cookies.get("user");
       if (!userCookie) return "";
-      const userData = JSON.parse(decodeURIComponent(userCookie));
+      const userData = JSON.parse(userCookie);
       return userData.area || "";
     } catch (err) {
       console.error("Error leyendo cookie:", err);
@@ -55,12 +55,10 @@ export default function CoursesList() {
       let url = "";
 
       if (search.trim() !== "") {
-        // Ruta de filtrado
         url = `http://localhost:3000/filterCourses/${encodeURIComponent(
           search
         )}`;
       } else {
-        // Ruta por preferencias
         url = `http://localhost:3000/AllCourses/${encodeURIComponent(
           preferences
         )}`;

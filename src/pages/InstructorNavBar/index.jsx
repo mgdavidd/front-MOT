@@ -12,7 +12,7 @@ function InstructorNavBar() {
 
   const handleProfile = (e) => {
     e.preventDefault();
-    navigate("/profile");
+    navigate("/editar-perfil");
   };
 
   const handleChats = (e) => {

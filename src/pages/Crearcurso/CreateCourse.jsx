@@ -20,8 +20,7 @@ export default function CreateCourse() {
     try {
       const userCookie = Cookies.get("user");
       if (!userCookie) return null;
-      const decoded = decodeURIComponent(userCookie);
-      return JSON.parse(decoded);
+      return JSON.parse(userCookie);
     } catch (error) {
       console.error("Error al parsear cookie:", error);
       return null;
@@ -112,10 +111,17 @@ export default function CreateCourse() {
         {/* Foto de portada */}
         <div className={styles.section}>
           <label className={styles.label}>Foto de portada</label>
-          <div className={styles.cover} onClick={() => fileInputRef.current.click()}>
+          <div
+            className={styles.cover}
+            onClick={() => fileInputRef.current.click()}
+          >
             {imagen ? (
               <>
-                <img src={imagen} alt="Vista previa" className={styles.coverPreview} />
+                <img
+                  src={imagen}
+                  alt="Vista previa"
+                  className={styles.coverPreview}
+                />
                 <button
                   type="button"
                   className={styles.removeBtn}
@@ -128,7 +134,9 @@ export default function CreateCourse() {
                 </button>
               </>
             ) : (
-              <span className={styles.coverPlaceholder}>Haz clic para subir</span>
+              <span className={styles.coverPlaceholder}>
+                Haz clic para subir
+              </span>
             )}
             <input
               type="file"
@@ -142,13 +150,22 @@ export default function CreateCourse() {
 
         <div className={styles.section}>
           <label className={styles.label}>Área del curso</label>
-          <select value={area} onChange={handleAreaChange} className={styles.select} required>
+          <select
+            value={area}
+            onChange={handleAreaChange}
+            className={styles.select}
+            required
+          >
             <option value="">-- Selecciona un área --</option>
-            <option value="Tecnología y Programación">Tecnología y Programación</option>
+            <option value="Tecnología y Programación">
+              Tecnología y Programación
+            </option>
             <option value="Negocios y Marketing">Negocios y Marketing</option>
             <option value="Diseño y Creatividad">Diseño y Creatividad</option>
             <option value="Idiomas">Idiomas</option>
-            <option value="Ciencias y Matemáticas">Ciencias y Matemáticas</option>
+            <option value="Ciencias y Matemáticas">
+              Ciencias y Matemáticas
+            </option>
             <option value="Educación y Pedagogía">Educación y Pedagogía</option>
           </select>
         </div>
@@ -187,14 +204,22 @@ export default function CreateCourse() {
             onChange={(e) => setCosto(e.target.value)}
             className={styles.slider}
           />
-          <p className={styles.costText}>{parseInt(costo).toLocaleString()}$</p>
+          <p className={styles.costText}>
+            {parseInt(costo).toLocaleString()}$
+          </p>
         </div>
 
         <div className={styles.buttons}>
-          <button className={`${styles.btn} ${styles.cancel}`} onClick={() => navigate("/profile")}>
+          <button
+            className={`${styles.btn} ${styles.cancel}`}
+            onClick={() => navigate("/instructorNav")}
+          >
             Cancelar
           </button>
-          <button className={`${styles.btn} ${styles.accept}`} onClick={manejarAceptar}>
+          <button
+            className={`${styles.btn} ${styles.accept}`}
+            onClick={manejarAceptar}
+          >
             Aceptar
           </button>
         </div>
@@ -206,7 +231,8 @@ export default function CreateCourse() {
               bottom: "50%",
               left: "50%",
               transform: "translateX(-50%)",
-              backgroundColor: modal.tipo === "success" ? "#4BB543" : "#d6323bff",
+              backgroundColor:
+                modal.tipo === "success" ? "#4BB543" : "#d6323bff",
               color: "#fff",
               padding: "1rem 2rem",
               borderRadius: "8px",
@@ -214,7 +240,7 @@ export default function CreateCourse() {
               fontWeight: "bold",
               boxShadow: "0 4px 8px rgba(0,0,0,0.2)",
               width: "85%",
-              fontSize: "1rem"
+              fontSize: "1rem",
             }}
           >
             {modal.mensaje}
