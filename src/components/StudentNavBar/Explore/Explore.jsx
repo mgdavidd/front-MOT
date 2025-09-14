@@ -28,6 +28,7 @@ export default function CoursesList() {
       .then((data) => {
         if (data.success) {
           alert("Bienvenido a tu nuevo curso");
+          setSelectedCourse(null); // cerrar modal
         }
       })
       .catch((error) => {
@@ -94,6 +95,23 @@ export default function CoursesList() {
     fetchCourses(getUserPreferences(), value);
   };
 
+  const handleSelectCourse = async (course) => {
+    try {
+      const res = await fetch(
+        `http://localhost:3000/courses/${course.id}/video/introduction`
+      );
+      if (res.ok) {
+        const data = await res.json();
+        setSelectedCourse({ ...course, videoUrl: data.link });
+      } else {
+        setSelectedCourse({ ...course, videoUrl: null });
+      }
+    } catch (error) {
+      console.error("Error obteniendo video:", error);
+      setSelectedCourse({ ...course, videoUrl: null });
+    }
+  };
+
   return (
     <div className={styles.container}>
       <input
@@ -112,7 +130,7 @@ export default function CoursesList() {
           <div
             key={course.id}
             className={styles.card}
-            onClick={() => setSelectedCourse(course)}
+            onClick={() => handleSelectCourse(course)}
           >
             <div className={styles.cardLeft}>
               <img
@@ -138,18 +156,93 @@ export default function CoursesList() {
           onClick={() => setSelectedCourse(null)}
         >
           <div className={styles.modal} onClick={(e) => e.stopPropagation()}>
-            <h2>{selectedCourse.nombre}</h2>
-            <p>{selectedCourse.descripcion}</p>
-            <p>
-              <strong>Precio:</strong> $
-              {selectedCourse.precio.toLocaleString("es-ES")}
-            </p>
-            <button
-              className={styles.inscriptionBtn}
-              onClick={handleInscripcion}
-            >
-              Inscribirme
-            </button>
+            {/* Header del Modal */}
+            <div className={styles.modalHeader}>
+              <h2 className={styles.modalTitle}>{selectedCourse.nombre}</h2>
+              <button
+                className={styles.modalCloseBtn}
+                onClick={() => setSelectedCourse(null)}
+              >
+                ×
+              </button>
+            </div>
+
+            {/* Contenido del Modal */}
+            <div className={styles.modalContent}>
+              {/* Contenedor para el video */}
+              <div
+                className={`${styles.videoContainer} ${
+                  !selectedCourse.videoUrl ? styles.fullscreen : ""
+                }`}
+              >
+                {selectedCourse.videoUrl ? (
+                  <iframe
+                    src={selectedCourse.videoUrl.replace("/view", "/preview")}
+                    className={styles.videoFrame}
+                    allow="autoplay; encrypted-media"
+                    allowFullScreen
+                    title={`Video de introducción - ${selectedCourse.nombre}`}
+                  />
+                ) : (
+                  <div className={styles.videoPlaceholder}>
+                    <span className={styles.playIcon}>🎥</span>
+                    <p>No hay video de introducción disponible</p>
+                  </div>
+                )}
+              </div>
+
+              {/* Información del curso */}
+              <div className={styles.courseInfo}>
+                <p className={styles.modalDescription}>
+                  {selectedCourse.descripcion}
+                </p>
+
+                <div className={styles.courseDetails}>
+                  <div className={styles.detailRow}>
+                    <span className={styles.detailLabel}>Duración:</span>
+                    <span className={styles.detailValue}>
+                      {selectedCourse.duracion || "Por definir"}
+                    </span>
+                  </div>
+                  <div className={styles.detailRow}>
+                    <span className={styles.detailLabel}>Nivel:</span>
+                    <span className={styles.detailValue}>
+                      {selectedCourse.nivel || "Todos los niveles"}
+                    </span>
+                  </div>
+                  <div className={styles.detailRow}>
+                    <span className={styles.detailLabel}>Área:</span>
+                    <span className={styles.detailValue}>
+                      {selectedCourse.area || "General"}
+                    </span>
+                  </div>
+                  <div className={styles.detailRow}>
+                    <span className={styles.detailLabel}>Precio:</span>
+                    <span
+                      className={`${styles.detailValue} ${styles.modalPrice}`}
+                    >
+                      ${selectedCourse.precio.toLocaleString("es-ES")} CO
+                    </span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Footer del Modal */}
+            <div className={styles.modalFooter}>
+              <button
+                className={styles.cancelBtn}
+                onClick={() => setSelectedCourse(null)}
+              >
+                Cancelar
+              </button>
+              <button
+                className={styles.inscriptionBtn}
+                onClick={handleInscripcion}
+              >
+                Inscribirme al curso
+              </button>
+            </div>
           </div>
         </div>
       )}

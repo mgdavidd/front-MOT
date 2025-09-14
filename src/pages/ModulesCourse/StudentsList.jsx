@@ -2,9 +2,15 @@ import React, { useEffect, useState } from "react";
 import styles from "./StudentsList.module.css";
 import Cookies from "js-cookie";
 
-export default function StudentsList({ courseId, docente }) {
+export default function StudentsList({ courseId }) {
   const [students, setStudents] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [docente, setDocente] = useState({
+    id: "",
+    nombre: "Docente",
+    fotoPerfil: "",
+    color_perfil: "#e0e7ef",
+  });
 
   // Parsea la cookie "user" como JSON
   const userCookie = Cookies.get("user");
@@ -17,7 +23,21 @@ export default function StudentsList({ courseId, docente }) {
       .then(data => setStudents(data))
       .catch(() => setStudents([]))
       .finally(() => setLoading(false));
-  }, [courseId]);
+
+    //fetch para el docente del curso
+    fetch(`http://localhost:3000/users/${courseId}/docente`)
+      .then(res => res.json())
+      .then(data => {
+        setDocente({
+          id: data.id,
+          nombre: data.nombre,
+          fotoPerfil: data.fotoPerfil,
+          color_perfil: data.color_perfil,
+        });
+      })
+      .catch(() => setDocente({}));
+
+  }, [courseId, docente]);
 
   const handleChat = (otherUserId) => {
     window.location.href = `/private-chat/${otherUserId}`;

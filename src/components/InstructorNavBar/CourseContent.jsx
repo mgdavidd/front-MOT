@@ -53,7 +53,7 @@ export default function CourseContent() {
           className={styles["main-button"]}
           onClick={() => navigate("/crear-curso")}
         >
-          Crear curso
+          +
         </button>
         {courses.map((curso) => (
           <div key={curso.id} className={styles.courseWrapper}>

@@ -7,15 +7,20 @@ import styles from "./Create.module.css";
 export default function CreateCourse() {
   const navigate = useNavigate();
   const fileInputRef = useRef(null);
+  const videoInputRef = useRef(null);
 
   const [tipoCurso, setTipoCurso] = useState("pregrabado");
   const [costo, setCosto] = useState(20000);
   const [imagen, setImagen] = useState(null);
-  const [area, setArea] = useState("");
   const [nombre, setNombre] = useState("");
   const [descripcion, setDescripcion] = useState("");
-  const [modal, setModal] = useState({ visible: false, mensaje: "", tipo: "" });
+  const [area, setArea] = useState("");
+  const [videoFile, setVideoFile] = useState(null);
 
+  const [modal, setModal] = useState({ visible: false, mensaje: "", tipo: "" });
+  const [loading, setLoading] = useState(false);
+
+  // ================== UTILS ==================
   const getCurrentUser = () => {
     try {
       const userCookie = Cookies.get("user");
@@ -29,9 +34,10 @@ export default function CreateCourse() {
 
   const mostrarModal = (mensaje, tipo = "error") => {
     setModal({ visible: true, mensaje, tipo });
-    setTimeout(() => setModal({ visible: false, mensaje: "", tipo: "" }), 3000);
+    setTimeout(() => setModal({ visible: false, mensaje: "", tipo: "" }), 3500);
   };
 
+  // ================== PORTADA ==================
   const manejarImagen = (e) => {
     const archivo = e.target.files[0];
     if (archivo) {
@@ -40,63 +46,100 @@ export default function CreateCourse() {
       lector.readAsDataURL(archivo);
     }
   };
-
   const quitarImagen = () => setImagen(null);
 
-  const manejarAceptar = async () => {
+  // ================== VIDEO ==================
+  const manejarVideo = (e) => {
+    const archivo = e.target.files[0];
+    if (archivo) setVideoFile(archivo);
+  };
+
+  // ================== SUBMIT TODO EN 1 ==================
+  const manejarCrearConVideo = async () => {
     const usuario = getCurrentUser();
     if (!usuario?.id) {
       mostrarModal("No se pudo identificar al usuario.");
       return;
     }
 
-    if (!nombre || !tipoCurso || !area || !imagen) {
-      mostrarModal("Por favor completa todos los campos obligatorios.");
+    if (!nombre || !tipoCurso || !area || !imagen || !videoFile) {
+      mostrarModal("Completa todos los campos y selecciona un video.");
       return;
     }
 
-    const datos = {
-      descripcion,
-      costo,
-      imagen,
-      tipoCurso,
-      area,
-      admin: usuario.id,
-      nombre,
-    };
+    setLoading(true);
 
     try {
-      const respuesta = await fetch("http://localhost:3000/create-course", {
+      // 1️⃣ Crear curso
+      const datos = {
+        descripcion,
+        costo,
+        imagen, // base64
+        tipoCurso,
+        area,
+        admin: usuario.id,
+        nombre,
+      };
+
+      const resCurso = await fetch("http://localhost:3000/create-course", {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify(datos),
       });
 
-      const resultado = await respuesta.json();
+      const resultadoCurso = await resCurso.json();
 
-      if (!respuesta.ok || resultado.error) {
-        mostrarModal(resultado.error || "Error al crear el curso.");
+      if (!resCurso.ok || resultadoCurso.error) {
+        mostrarModal(resultadoCurso.error || "Error al crear el curso.");
+        setLoading(false);
         return;
       }
 
-      mostrarModal("Curso creado exitosamente.", "success");
-      setTimeout(() => navigate("/instructorNav"), 1000);
+      const nuevoId = resultadoCurso.id;
+
+      // 2️⃣ Subir video
+      const formData = new FormData();
+      formData.append("video", videoFile);
+
+      const resVideo = await fetch(
+        `http://localhost:3000/courses/${nuevoId}/video/introduction`,
+        {
+          method: "POST",
+          body: formData,
+        }
+      );
+
+      const resultadoVideo = await resVideo.json();
+
+      if (!resVideo.ok || resultadoVideo.error) {
+        // rollback
+        await fetch(`http://localhost:3000/courses/${nuevoId}`, {
+          method: "DELETE",
+        });
+        mostrarModal(resultadoVideo.error || "Error al subir el video.");
+        setLoading(false);
+        return;
+      }
+
+      // ✅ Éxito total
+      mostrarModal("Curso y video creados exitosamente 🎉", "success");
+      setTimeout(() => navigate("/instructorNav"), 2000);
     } catch (error) {
-      console.error("Error al enviar:", error);
-      mostrarModal("Ocurrió un error al enviar el curso.");
+      console.error("Error:", error);
+      mostrarModal("Ocurrió un error al crear el curso.");
+    } finally {
+      setLoading(false);
     }
   };
 
-  const handleAreaChange = (e) => setArea(e.target.value);
-
+  // ================== RENDER ==================
   return (
     <div className={styles.page}>
       <div className={styles.formContainer}>
         <Logo />
         <h1 className={styles.title}>Crear nuevo curso</h1>
 
+        {/* Título */}
         <div className={styles.section}>
           <label className={styles.label}>Título del curso</label>
           <input
@@ -108,7 +151,7 @@ export default function CreateCourse() {
           />
         </div>
 
-        {/* Foto de portada */}
+        {/* Portada */}
         <div className={styles.section}>
           <label className={styles.label}>Foto de portada</label>
           <div
@@ -148,30 +191,28 @@ export default function CreateCourse() {
           </div>
         </div>
 
+        {/* Área */}
         <div className={styles.section}>
           <label className={styles.label}>Área del curso</label>
           <select
             value={area}
-            onChange={handleAreaChange}
+            onChange={(e) => setArea(e.target.value)}
             className={styles.select}
             required
           >
             <option value="">-- Selecciona un área --</option>
-            <option value="Tecnología y Programación">
-              Tecnología y Programación
-            </option>
+            <option value="Tecnología y Programación">Tecnología y Programación</option>
             <option value="Negocios y Marketing">Negocios y Marketing</option>
             <option value="Diseño y Creatividad">Diseño y Creatividad</option>
             <option value="Idiomas">Idiomas</option>
-            <option value="Ciencias y Matemáticas">
-              Ciencias y Matemáticas
-            </option>
+            <option value="Ciencias y Matemáticas">Ciencias y Matemáticas</option>
             <option value="Educación y Pedagogía">Educación y Pedagogía</option>
           </select>
         </div>
 
+        {/* Descripción */}
         <div className={styles.section}>
-          <label className={styles.label}>Descripción del curso</label>
+          <label className={styles.label}>Descripción</label>
           <textarea
             rows={4}
             placeholder="Escribe aquí..."
@@ -181,6 +222,7 @@ export default function CreateCourse() {
           />
         </div>
 
+        {/* Tipo */}
         <div className={styles.section}>
           <label className={styles.label}>Tipo de curso</label>
           <select
@@ -193,6 +235,7 @@ export default function CreateCourse() {
           </select>
         </div>
 
+        {/* Costo */}
         <div className={styles.section}>
           <label className={styles.label}>Costo por inscripción</label>
           <input
@@ -205,43 +248,51 @@ export default function CreateCourse() {
             className={styles.slider}
           />
           <p className={styles.costText}>
-            {parseInt(costo).toLocaleString()}$
+            {parseInt(costo) === 0 ? (
+              <span className={styles.free}>Gratis</span>
+            ) : (
+              `${parseInt(costo).toLocaleString()}$`
+            )}
           </p>
         </div>
 
+        {/* Video */}
+        <div className={styles.videoSection}>
+          <label className={styles.label}>Video de introducción</label>
+          <input
+            type="file"
+            accept="video/*"
+            onChange={manejarVideo}
+            ref={videoInputRef}
+            className={styles.videoInput}
+          />
+          {videoFile && <p>Archivo seleccionado: {videoFile.name}</p>}
+        </div>
+
+        {/* Botones */}
         <div className={styles.buttons}>
           <button
             className={`${styles.btn} ${styles.cancel}`}
             onClick={() => navigate("/instructorNav")}
+            disabled={loading}
           >
             Cancelar
           </button>
           <button
             className={`${styles.btn} ${styles.accept}`}
-            onClick={manejarAceptar}
+            onClick={manejarCrearConVideo}
+            disabled={loading}
           >
-            Aceptar
+            {loading ? "Creando..." : "Crear curso"}
           </button>
         </div>
 
+        {/* Modal */}
         {modal.visible && (
           <div
-            style={{
-              position: "fixed",
-              bottom: "50%",
-              left: "50%",
-              transform: "translateX(-50%)",
-              backgroundColor:
-                modal.tipo === "success" ? "#4BB543" : "#d6323bff",
-              color: "#fff",
-              padding: "1rem 2rem",
-              borderRadius: "8px",
-              zIndex: 1000,
-              fontWeight: "bold",
-              boxShadow: "0 4px 8px rgba(0,0,0,0.2)",
-              width: "85%",
-              fontSize: "1rem",
-            }}
+            className={`${styles.modal} ${
+              modal.tipo === "success" ? styles.success : ""
+            }`}
           >
             {modal.mensaje}
           </div>

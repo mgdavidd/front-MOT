@@ -569,12 +569,6 @@ export default function ModulesCourse() {
         {currentUser && currentUser.rol === "estudiante" && (
           <StudentsList
             courseId={course.id}
-            docente={{
-              id: course.admin || "",
-              nombre: "Docente",
-              fotoPerfil: course.fotoPerfil || "",
-              color_perfil: "#e0e7ef",
-            }}
           />
         )}
 

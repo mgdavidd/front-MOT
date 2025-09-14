@@ -16,7 +16,7 @@
 
 /* Contenedor principal */
 .container {
-  padding: 2rem 1rem;
+  padding: 1rem 1rem;
   background: var(--color-bg);
   min-height: 100vh;
   display: flex;
@@ -101,20 +101,29 @@ table th {
 .main-button {
   background: var(--color-primary);
   color: white;
-  border: none;
-  padding: 10px 16px;
-  border-radius: 8px;
+  border: 1px solid white;
+  padding: 5px;
+  border-radius: 50%;
   cursor: pointer;
-  font-size: 1rem;
+  font-size: 2.5rem;
   font-weight: 600;
   box-shadow: var(--shadow-soft);
   transition: background 0.3s ease, transform 0.2s ease;
+  width: fit-content;
+  min-width: 60px;
+  height: 60px;
 }
+
+.main-button:hover {
+  background: var(--color-secondary);
+  transform: translateY(-2px);
+}
+
 
 /* Botón de chat grupal */
 .chatBtn {
   background: var(--color-secondary);
-  border: none;
+  border: solid black 1px;
   padding: 8px 12px;
   border-radius: 12px;
   cursor: pointer;
