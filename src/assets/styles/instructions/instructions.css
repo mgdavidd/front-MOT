@@ -10,13 +10,15 @@ body {
 
 .instrucciones-admin-container {
   background: #fff;
-  border-radius: 16px;
-  box-shadow: 0 4px 24px rgba(27,76,133,0.10);
-  padding: 2.5rem 2rem;
-  max-width: 420px;
+  border-radius: 20px;
+  box-shadow: 0 6px 28px rgba(27,76,133,0.12);
+  padding: 3rem 2.5rem;
+  max-width: 800px;   /* 🔹 Más ancho (antes 420px) */
   width: 100%;
   text-align: center;
+  margin: 0 auto;     /* 🔹 Asegura centrado */
 }
+
 
 .instrucciones-admin-container h1 {
   color: #1b4c85;
@@ -26,11 +28,13 @@ body {
 
 .instrucciones-admin-container ul {
   text-align: left;
-  margin: 1.2rem 0 2rem 0;
-  color: #444;
-  font-size: 1.05rem;
-  padding-left: 1.2em;
+  margin: 1.5rem 0 2.5rem 0;
+  color: #333;
+  font-size: 1.1rem;   /* 🔹 Un poco más grande */
+  line-height: 1.6;    /* 🔹 Más aireado */
+  padding-left: 1.5em;
 }
+
 
 .instrucciones-admin-container button {
   padding: 0.7rem 1.2rem;

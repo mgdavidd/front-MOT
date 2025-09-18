@@ -27,12 +27,16 @@ const Instructions = () => {
             Al iniciar una sesión, seleccione la vista a grabar; esta no podrá
             cambiarse hasta finalizar la grabación.
           </li>
-          <li>Recuerde habilitar el audio antes de iniciar cada grabación.</li>
           <li>
-            Verifique que su cuenta de Google Drive esté correctamente conectada
-            y cuente con espacio suficiente.
+            Verifique que su cuenta de Google Drive de uso academico cuente con el espacio necesario para la subida de contenido
           </li>
-          <li>No comparta su cuenta de administrador con terceros.</li>
+          <li>No comparta su cuenta de administrador o archivos relacionados con su curso con terceros.</li>
+          <li>
+            no subir contenido explicito o que viole las políticas de uso de la plataforma.
+          </li>
+          <li>
+            cuide sus datos personales en cada sesion y no comparta información sensible.
+          </li>
         </ul>
 
         <div className="checkbox-container">
