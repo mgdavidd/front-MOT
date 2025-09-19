@@ -94,7 +94,7 @@
   flex: 1;
 }
 
-/* Sección de cards - ocupa más espacio */
+/* Sección de cards */
 .cardsSection {
   flex: 2;
   overflow-y: auto;
@@ -144,8 +144,15 @@
   margin: 0 0 0.5rem 0;
   color: #2d3748;
   line-height: 1.4;
+
+  /* 🔑 Manejo de texto largo */
+  word-break: break-word;
+  overflow-wrap: break-word;
+  hyphens: auto;
+
   display: -webkit-box;
   -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2; /* máximo 2 líneas */
   overflow: hidden;
 }
 
@@ -160,9 +167,17 @@
   line-height: 1.5;
   margin-bottom: 1rem;
   flex-grow: 1;
+
+  /* 🔑 Manejo de texto largo */
+  word-break: break-word;
+  overflow-wrap: break-word;
+  hyphens: auto;
+
   display: -webkit-box;
   -webkit-box-orient: vertical;
+  -webkit-line-clamp: 3; /* máximo 3 líneas */
   overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .cardFooter {
@@ -396,6 +411,11 @@
   margin: 0 0 0.5rem 0;
   color: #2d3748;
   padding-right: 2rem;
+
+  /* 🔑 Manejo de texto largo */
+  word-break: break-word;
+  overflow-wrap: break-word;
+  hyphens: auto;
 }
 
 .modalHeader {
@@ -416,6 +436,11 @@
   line-height: 1.6;
   white-space: pre-wrap;
   margin: 0;
+
+  /* 🔑 Manejo de texto largo */
+  word-break: break-word;
+  overflow-wrap: break-word;
+  hyphens: auto;
 }
 
 .repliesContainer {
@@ -452,6 +477,11 @@
   color: #4a5568;
   line-height: 1.5;
   white-space: pre-wrap;
+
+  /* 🔑 Manejo de texto largo */
+  word-break: break-word;
+  overflow-wrap: break-word;
+  hyphens: auto;
 }
 
 .responseForm {
@@ -519,7 +549,7 @@
   
   .card {
     height: 250px;
-    width: 130vh;
+    width: 100%;
   }
   
   .tabs {
@@ -600,7 +630,7 @@
   .card {
     height: 270px;
     padding: 1rem;
-    width: 52vh;
+    width: 100%;
   }
   
   .cardTitle {

@@ -10,7 +10,7 @@ import ContentList from "../../components/ViewContentCourse/ContentPreview";
 import Cookies from "js-cookie";
 
 // 🎨 Iconos
-import { FaPlus, FaArrowLeft, FaPen, FaCheck, FaComments } from "react-icons/fa";
+import { FaPlus, FaArrowLeft, FaPen, FaCheck, FaComments, FaFileAlt } from "react-icons/fa";
 
 export default function ViewContentCourse() {
   const navigate = useNavigate();
@@ -430,7 +430,7 @@ export default function ViewContentCourse() {
 
       {currentUser?.rol === "profesor" && !pruebaFinal && (
         <button onClick={() => setShowCrearPrueba(true)} className={styles.iconButton}>
-          <FaPlus />
+          <FaFileAlt />
         </button>
       )}
       {currentUser?.rol === "profesor" && pruebaFinal && (

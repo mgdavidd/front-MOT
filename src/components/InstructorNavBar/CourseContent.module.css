@@ -102,16 +102,17 @@ table th {
   background: var(--color-primary);
   color: white;
   border: 1px solid white;
-  padding: 5px;
   border-radius: 50%;
   cursor: pointer;
-  font-size: 2.5rem;
+  font-size: 2.2rem; /* un poco más pequeño para móviles */
   font-weight: 600;
   box-shadow: var(--shadow-soft);
   transition: background 0.3s ease, transform 0.2s ease;
-  width: fit-content;
-  min-width: 60px;
+    width: 60px;
   height: 60px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .main-button:hover {
@@ -170,5 +171,11 @@ table th {
 
   .chatBtn {
     padding: 6px 10px;
+  }
+
+  .main-button {
+    width: 50px;
+    height: 50px;
+    font-size: 1.8rem;
   }
 }
