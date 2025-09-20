@@ -13,8 +13,10 @@ const GoogleChooseUsername = () => {
 
   const [error, setError] = useState("");
   const [area, setArea] = useState("");
+  const [rol, setRol] = useState("");
 
   const handleAreaChange = (e) => setArea(e.target.value);
+  const handleRolChange = (e) => setRol(e.target.value);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -28,6 +30,11 @@ const GoogleChooseUsername = () => {
       return;
     }
 
+    if (!rol) {
+      setError("Por favor selecciona si eres estudiante o profesor.");
+      return;
+    }
+
     try {
       const res = await fetch("http://localhost:3000/choose-username", {
         method: "POST",
@@ -37,7 +44,8 @@ const GoogleChooseUsername = () => {
           password,
           email,
           google_token,
-          areaInteres: area, // <-- nuevo dato que enviamos
+          areaInteres: area,
+          rol,
         }),
       });
 
@@ -45,7 +53,7 @@ const GoogleChooseUsername = () => {
 
       if (res.ok && data.success) {
         Cookies.set("user", JSON.stringify(data.user), { expires: 7 });
-        navigate("/studentNav");
+        navigate("/studentNav"); // aquí puedes condicionar según el rol
       } else {
         setError(data.error || "Error al crear la cuenta.");
       }
@@ -85,7 +93,7 @@ const GoogleChooseUsername = () => {
             className={styles.input}
           />
 
-          {/* Nuevo select de áreas */}
+          {/* Select de áreas */}
           <div className={styles.selectWrapper}>
             <label htmlFor="areaSelect" className={styles.label}>
               Área de interés:
@@ -98,13 +106,53 @@ const GoogleChooseUsername = () => {
               className={styles.input}
             >
               <option value="">-- Selecciona un área --</option>
-              <option value="Tecnología y Programación">Tecnología y Programación</option>
+              <option value="Tecnología y Programación">
+                Tecnología y Programación
+              </option>
               <option value="Negocios y Marketing">Negocios y Marketing</option>
               <option value="Diseño y Creatividad">Diseño y Creatividad</option>
               <option value="Idiomas">Idiomas</option>
-              <option value="Ciencias y Matemáticas">Ciencias y Matemáticas</option>
-              <option value="Educación y Pedagogía">Educación y Pedagogía</option>
+              <option value="Ciencias y Matemáticas">
+                Ciencias y Matemáticas
+              </option>
+              <option value="Educación y Pedagogía">
+                Educación y Pedagogía
+              </option>
             </select>
+          </div>
+
+          {/* Selección de rol */}
+          <div className={styles.selectWrapper}>
+            <label className={styles.label}>Selecciona tu rol:</label>
+            <div className={styles.roleContainer}>
+              <label
+                className={`${styles.roleOption} ${
+                  rol === "estudiante" ? styles.selected : ""
+                }`}
+              >
+                <input
+                  type="radio"
+                  value="estudiante"
+                  checked={rol === "estudiante"}
+                  onChange={handleRolChange}
+                />
+                🎓 Estudiante
+              </label>
+
+              <label
+                className={`${styles.roleOption} ${
+                  rol === "profesor" ? styles.selected : ""
+                }`}
+              >
+                <input
+                  type="radio"
+                  value="profesor"
+                  checked={rol === "profesor"}
+                  onChange={handleRolChange}
+                />
+                👨‍🏫 Profesor
+              </label>
+            </div>
           </div>
 
           <button type="submit" className={styles.submitButton}>

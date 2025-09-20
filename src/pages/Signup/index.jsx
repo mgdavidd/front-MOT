@@ -114,8 +114,7 @@ const Signup = () => {
         </div>
 
         <button onClick={handleGoogleSignup} className={styles.googleButton}>
-          Regístrate con Google <br />
-          <small>(si no eres docente)</small>
+          Regístrate con tu cuenta de Google <br />
         </button>
       </div>
     </div>

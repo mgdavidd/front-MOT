@@ -116,6 +116,45 @@
   box-shadow: 0 10px 25px rgba(219, 68, 55, 0.45);
 }
 
+/* =========================
+   🎓 Estilos selección de rol
+   ========================= */
+.roleContainer {
+  display: flex;
+  justify-content: center;
+  gap: 1rem;
+  margin: 1.5rem 0;
+}
+
+.roleOption {
+  flex: 1;
+  padding: 1rem 1.2rem;
+  border-radius: 20px;
+  border: 2px solid transparent;
+  background: rgba(255, 255, 255, 0.6);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  font-size: 1rem;
+  font-weight: 600;
+  color: #275a57;
+  text-align: center;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  user-select: none;
+}
+.roleOption:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.12);
+}
+.roleOption input[type="radio"] {
+  display: none;
+}
+.roleOption.selected {
+  border-color: #00b8af;
+  background: rgba(0, 184, 148, 0.15);
+  box-shadow: 0 8px 22px rgba(0, 184, 148, 0.25);
+  color: #00b8af;
+}
+
 /* Animación de entrada */
 @keyframes fadeIn {
   from { opacity: 0; transform: translateY(10px); }
