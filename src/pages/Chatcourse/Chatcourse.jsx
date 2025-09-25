@@ -3,7 +3,7 @@ import { useParams, useNavigate } from "react-router-dom";
 import Cookies from "js-cookie";
 import io from "socket.io-client";
 import { DateTime } from "luxon";
-import styles from "./ChatCourse.module.css";
+import styles from "./Chatcourse.module.css";
 
 export default function ChatCourse() {
   const { courseId } = useParams();

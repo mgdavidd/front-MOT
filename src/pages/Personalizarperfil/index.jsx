@@ -50,13 +50,11 @@ export default function EditarPerfil() {
           area: user.area || "",
         }));
 
-        // aplicar tema
         document.documentElement.style.setProperty(
           "--color-primary",
           user.color_perfil || "#42A5F5"
         );
 
-        // 🚀 Cargar foto desde servidor
         const fotoRes = await fetch(
           `http://localhost:3000/users/${user.id}/foto`
         );
@@ -89,15 +87,11 @@ export default function EditarPerfil() {
   const handleImageChange = (e) => {
     const archivo = e.target.files[0];
     if (archivo) {
-      // Validar tamaño del archivo (max 5MB)
       if (archivo.size > 5 * 1024 * 1024) {
-        alert(
-          "La imagen es demasiado grande. Por favor, selecciona una imagen menor a 5MB."
-        );
+        alert("La imagen es demasiado grande. Menor a 5MB.");
         return;
       }
 
-      // Validar tipo de archivo
       if (!archivo.type.startsWith("image/")) {
         alert("Por favor, selecciona un archivo de imagen válido.");
         return;
@@ -114,8 +108,6 @@ export default function EditarPerfil() {
     e.stopPropagation();
     setSelectedImage(null);
     setFormData((prev) => ({ ...prev, fotoPerfil: "" }));
-
-    // Limpiar el input file
     const fileInput = document.getElementById("profilePhoto");
     if (fileInput) {
       fileInput.value = "";
@@ -137,21 +129,18 @@ export default function EditarPerfil() {
             nombre_usuario: formData.nombre_usuario,
             color_perfil: formData.color_perfil,
             area: formData.area,
-            fotoPerfil: selectedImage || formData.fotoPerfil, // aún la envías si se cambió
+            fotoPerfil: selectedImage || formData.fotoPerfil,
           }),
         }
       );
 
       if (!res.ok) throw new Error(await res.text());
 
-      // obtener datos actualizados (sin foto)
       const userRes = await fetch(`http://localhost:3000/users/${formData.id}`);
       if (!userRes.ok) throw new Error("Error al obtener datos actualizados");
 
       const userData = await userRes.json();
-      console.log("Datos actualizados:", userData);
 
-      // 🚫 Guardar cookie sin fotoPerfil
       const updatedUserForCookie = {
         id: userData.id,
         nombre: userData.nombre,
@@ -229,7 +218,7 @@ export default function EditarPerfil() {
       </header>
 
       <form className={styles.cardSmall} onSubmit={handleSubmit}>
-        {/* Foto de perfil mejorada */}
+        {/* Foto de perfil */}
         <div className={styles.group}>
           <label className={styles.label}>Foto de perfil</label>
           <div className={styles.profilePhotoSection}>
@@ -307,17 +296,29 @@ export default function EditarPerfil() {
           />
         </div>
 
+        {/* Área con select fijo */}
         <div className={styles.group}>
           <label className={styles.label}>Área</label>
-          <input
-            type="text"
+          <select
             name="area"
             value={formData.area}
             onChange={handleChange}
             className={styles.input}
-            placeholder="Ej: Matemáticas, Ciencias, Tecnología"
             disabled={isLoading}
-          />
+            required
+          >
+            <option value="">-- Selecciona un área --</option>
+            <option value="Tecnología y Programación">
+              Tecnología y Programación
+            </option>
+            <option value="Negocios y Marketing">Negocios y Marketing</option>
+            <option value="Diseño y Creatividad">Diseño y Creatividad</option>
+            <option value="Idiomas">Idiomas</option>
+            <option value="Ciencias y Matemáticas">
+              Ciencias y Matemáticas
+            </option>
+            <option value="Educación y Pedagogía">Educación y Pedagogía</option>
+          </select>
         </div>
 
         <div className={styles.group}>
