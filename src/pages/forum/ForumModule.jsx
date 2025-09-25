@@ -5,7 +5,7 @@ import ForumForm from "./ForumForm";
 import ForumModal from "./ForumModal";
 import styles from "./ForumModule.module.css";
 
-const API_URL = "http://localhost:3000";
+const API_URL = "https://server-mot.onrender.com";
 
 const ForumModules = ({ idModulo: propIdModulo, idUsuario: propIdUsuario, modulo: propModulo }) => {
   const location = useLocation();

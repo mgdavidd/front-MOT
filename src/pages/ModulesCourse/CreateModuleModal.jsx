@@ -20,7 +20,7 @@ export default function CreateModuleModal({ courseId, onClose, onModuleCreated }
     setError("");
 
     try {
-      const response = await fetch(`http://localhost:3000/modules/course/${courseId}`, {
+      const response = await fetch(`https://server-mot.onrender.com/modules/course/${courseId}`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ title, color }),

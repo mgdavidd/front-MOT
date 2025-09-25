@@ -19,7 +19,7 @@ const ChecksKnowledge = () => {
 
   const handleVerify = async () => {
     if (file && area) {
-      fetch("http://localhost:3000/updateArea", {
+      fetch("https://server-mot.onrender.com/updateArea", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({

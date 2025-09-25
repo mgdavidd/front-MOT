@@ -11,8 +11,8 @@ export default function ModalEditarContenido({ item, type, onClose, onSuccess })
     try {
       const endpoint =
         type === "grabacion"
-          ? "http://localhost:3000/update-recording"
-          : `http://localhost:3000/content/${item.id}`;
+          ? "https://server-mot.onrender.com/update-recording"
+          : `https://server-mot.onrender.com/content/${item.id}`;
 
       const method = type === "grabacion" ? "POST" : "PUT";
 
@@ -49,8 +49,8 @@ export default function ModalEditarContenido({ item, type, onClose, onSuccess })
     try {
       const endpoint =
         type === "grabacion"
-          ? `http://localhost:3000/recordings/${item.id}`
-          : `http://localhost:3000/content/${item.id}`;
+          ? `https://server-mot.onrender.com/recordings/${item.id}`
+          : `https://server-mot.onrender.com/content/${item.id}`;
 
       const res = await fetch(endpoint, {
         method: "DELETE",

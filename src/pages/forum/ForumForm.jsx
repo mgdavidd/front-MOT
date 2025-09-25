@@ -2,7 +2,7 @@ import React, { useState, useEffect, useCallback } from "react";
 import axios from "axios";
 import styles from "./ForumModule.module.css";
 
-const API_URL = "http://localhost:3000";
+const API_URL = "https://server-mot.onrender.com";
 
 const ForumForm = ({ idModulo, idUsuario, tipoForo, refreshForos }) => {
   const [formData, setFormData] = useState({ titulo: "", mensaje: "" });

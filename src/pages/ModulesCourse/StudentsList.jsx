@@ -18,14 +18,14 @@ export default function StudentsList({ courseId }) {
   // console.log(user.id); // Puedes quitar esto si no lo necesitas
 
   useEffect(() => {
-    fetch(`http://localhost:3000/my-students/${courseId}`)
+    fetch(`https://server-mot.onrender.com/my-students/${courseId}`)
       .then(res => res.json())
       .then(data => setStudents(data))
       .catch(() => setStudents([]))
       .finally(() => setLoading(false));
 
     //fetch para el docente del curso
-    fetch(`http://localhost:3000/users/${courseId}/docente`)
+    fetch(`https://server-mot.onrender.com/users/${courseId}/docente`)
       .then(res => res.json())
       .then(data => {
         setDocente({

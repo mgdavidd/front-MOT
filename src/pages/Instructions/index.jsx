@@ -9,7 +9,7 @@ const Instructions = () => {
   };
 
   const handleContinue = () => {
-    window.location.href = 'http://localhost:3000/auth/google';
+    window.location.href = 'https://server-mot.onrender.com/auth/google';
   };
 
   return (

@@ -37,7 +37,7 @@ export default function ModulesCourse() {
     if (!currentUser) return;
     try {
       const response = await fetch(
-        `http://localhost:3000/courses/${course.id}/modules/${currentUser.id}`
+        `https://server-mot.onrender.com/courses/${course.id}/modules/${currentUser.id}`
       );
       const data = await response.json();
 
@@ -120,7 +120,7 @@ export default function ModulesCourse() {
           onClick: async () => {
             try {
               const response = await fetch(
-                `http://localhost:3000/del/courses/${course.id}`,
+                `https://server-mot.onrender.com/del/courses/${course.id}`,
                 {
                   method: "DELETE",
                   headers: {
@@ -286,7 +286,7 @@ export default function ModulesCourse() {
             try {
               const token = Cookies.get("token");
               const response = await fetch(
-                `http://localhost:3000/modules/${moduleId}`,
+                `https://server-mot.onrender.com/modules/${moduleId}`,
                 {
                   method: "DELETE",
                   headers: {

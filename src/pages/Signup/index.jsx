@@ -23,7 +23,7 @@ const Signup = () => {
     const isAdmin = e.target.elements.isAdmin.checked;
 
     try {
-      const res = await fetch("http://localhost:3000/signup", {
+      const res = await fetch("https://server-mot.onrender.com/signup", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -61,7 +61,7 @@ const Signup = () => {
   };
 
   const handleGoogleSignup = () => {
-    window.location.href = "http://localhost:3000/auth/google";
+    window.location.href = "https://server-mot.onrender.com/auth/google";
   };
 
   return (

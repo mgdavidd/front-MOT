@@ -41,7 +41,7 @@ export default function PrivateChat() {
     const fetchOtherUser = async () => {
       try {
         const response = await fetch(
-          `http://localhost:3000/users/${otherUserId}`
+          `https://server-mot.onrender.com/users/${otherUserId}`
         );
         if (!response.ok) throw new Error(`Error HTTP: ${response.status}`);
         setOtherUser(await response.json());
@@ -58,7 +58,7 @@ export default function PrivateChat() {
     const userData = getUserData();
     if (!userData || !otherUser || error) return;
 
-    socketRef.current = io("http://localhost:3000", {
+    socketRef.current = io("https://server-mot.onrender.com", {
       withCredentials: true,
       transports: ["websocket"],
       reconnection: true,

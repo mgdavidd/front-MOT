@@ -81,7 +81,7 @@ export default function CreateCourse() {
         nombre,
       };
 
-      const resCurso = await fetch("http://localhost:3000/create-course", {
+      const resCurso = await fetch("https://server-mot.onrender.com/create-course", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(datos),
@@ -102,7 +102,7 @@ export default function CreateCourse() {
       formData.append("video", videoFile);
 
       const resVideo = await fetch(
-        `http://localhost:3000/courses/${nuevoId}/video/introduction`,
+        `https://server-mot.onrender.com/courses/${nuevoId}/video/introduction`,
         {
           method: "POST",
           body: formData,
@@ -113,7 +113,7 @@ export default function CreateCourse() {
 
       if (!resVideo.ok || resultadoVideo.error) {
         // rollback
-        await fetch(`http://localhost:3000/courses/${nuevoId}`, {
+        await fetch(`https://server-mot.onrender.com/courses/${nuevoId}`, {
           method: "DELETE",
         });
         mostrarModal(resultadoVideo.error || "Error al subir el video.");

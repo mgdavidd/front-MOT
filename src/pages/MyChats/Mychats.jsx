@@ -20,7 +20,7 @@ export default function MyChats() {
           return;
         }
 
-        const response = await fetch("http://localhost:3000/myChats", {
+        const response = await fetch("https://server-mot.onrender.com/myChats", {
           headers: {
             Authorization: `Bearer ${token}`,
           },

@@ -45,7 +45,7 @@ const InstructorCal = () => {
     if (!userId) return;
     try {
       const data = await authFetch(
-        `http://localhost:3000/teachers/${userId}/courses`
+        `https://server-mot.onrender.com/teachers/${userId}/courses`
       );
       const filteredCourses = data.filter((course) => course.tipoCurso !== "pregrabado");
       setCourses(filteredCourses);
@@ -63,7 +63,7 @@ const InstructorCal = () => {
     if (!selectedCourseId) return;
     try {
       const data = await authFetch(
-        `http://localhost:3000/courses/${selectedCourseId}/dates`
+        `https://server-mot.onrender.com/courses/${selectedCourseId}/dates`
       );
       const newDateData = {};
       const newSelectedDates = [];
@@ -196,7 +196,7 @@ const InstructorCal = () => {
       });
 
       await authFetch(
-        `http://localhost:3000/courses/${selectedCourseId}/dates`,
+        `https://server-mot.onrender.com/courses/${selectedCourseId}/dates`,
         {
           method: "POST",
           body: JSON.stringify({ sessions }),

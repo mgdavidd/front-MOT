@@ -14,7 +14,7 @@ export default function CoursesList() {
     const userCookie = Cookies.get("user");
     if (!userCookie) return "";
     const userData = JSON.parse(userCookie);
-    fetch(`http://localhost:3000/inscription/course`, {
+    fetch(`https://server-mot.onrender.com/inscription/course`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -56,11 +56,11 @@ export default function CoursesList() {
       let url = "";
 
       if (search.trim() !== "") {
-        url = `http://localhost:3000/filterCourses/${encodeURIComponent(
+        url = `https://server-mot.onrender.com/filterCourses/${encodeURIComponent(
           search
         )}`;
       } else {
-        url = `http://localhost:3000/AllCourses/${encodeURIComponent(
+        url = `https://server-mot.onrender.com/AllCourses/${encodeURIComponent(
           preferences
         )}`;
       }
@@ -98,7 +98,7 @@ export default function CoursesList() {
   const handleSelectCourse = async (course) => {
     try {
       const res = await fetch(
-        `http://localhost:3000/courses/${course.id}/video/introduction`
+        `https://server-mot.onrender.com/courses/${course.id}/video/introduction`
       );
       if (res.ok) {
         const data = await res.json();

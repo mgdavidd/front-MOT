@@ -18,7 +18,7 @@ export default function MisCursos() {
 
     const user = JSON.parse(userCookie);
 
-    fetch(`http://localhost:3000/courses/student/${user.id}`)
+    fetch(`https://server-mot.onrender.com/courses/student/${user.id}`)
       .then((res) => res.json())
       .then((data) => {
         if (!Array.isArray(data)) throw new Error("Formato inesperado");

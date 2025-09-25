@@ -40,7 +40,7 @@ const CalendarStudent = () => {
     if (!userId) return;
     try {
       const data = await authFetch(
-        `http://localhost:3000/courses/student/${userId}`
+        `https://server-mot.onrender.com/courses/student/${userId}`
       );
 
       const filteredCourses = data.filter(
@@ -61,7 +61,7 @@ const CalendarStudent = () => {
     if (!selectedCourseId) return;
     try {
       const data = await authFetch(
-        `http://localhost:3000/courses/${selectedCourseId}/dates`
+        `https://server-mot.onrender.com/courses/${selectedCourseId}/dates`
       );
 
       const newDateData = {};

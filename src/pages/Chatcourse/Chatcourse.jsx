@@ -53,8 +53,8 @@ export default function ChatCourse() {
     const fetchCourseData = async () => {
       try {
         const [courseRes, messagesRes] = await Promise.all([
-          fetch(`http://localhost:3000/courses/${courseId}`),
-          fetch(`http://localhost:3000/courses/${courseId}/messages`),
+          fetch(`https://server-mot.onrender.com/courses/${courseId}`),
+          fetch(`https://server-mot.onrender.com/courses/${courseId}/messages`),
         ]);
 
         if (!courseRes.ok) throw new Error(`Error HTTP: ${courseRes.status}`);
@@ -88,7 +88,7 @@ export default function ChatCourse() {
     const userData = getUserData();
     if (!userData) return;
 
-    socketRef.current = io("http://localhost:3000", {
+    socketRef.current = io("https://server-mot.onrender.com", {
       withCredentials: true,
       transports: ["websocket"],
     });

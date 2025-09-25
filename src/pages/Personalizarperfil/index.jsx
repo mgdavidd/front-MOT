@@ -56,7 +56,7 @@ export default function EditarPerfil() {
         );
 
         const fotoRes = await fetch(
-          `http://localhost:3000/users/${user.id}/foto`
+          `https://server-mot.onrender.com/users/${user.id}/foto`
         );
         if (fotoRes.ok) {
           const data = await fotoRes.json();
@@ -121,7 +121,7 @@ export default function EditarPerfil() {
 
     try {
       const res = await fetch(
-        `http://localhost:3000/edit-profile/${formData.id}`,
+        `https://server-mot.onrender.com/edit-profile/${formData.id}`,
         {
           method: "PUT",
           headers: { "Content-Type": "application/json" },
@@ -136,7 +136,7 @@ export default function EditarPerfil() {
 
       if (!res.ok) throw new Error(await res.text());
 
-      const userRes = await fetch(`http://localhost:3000/users/${formData.id}`);
+      const userRes = await fetch(`https://server-mot.onrender.com/users/${formData.id}`);
       if (!userRes.ok) throw new Error("Error al obtener datos actualizados");
 
       const userData = await userRes.json();

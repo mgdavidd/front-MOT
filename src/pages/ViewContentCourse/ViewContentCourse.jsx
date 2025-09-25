@@ -55,7 +55,7 @@ export default function ViewContentCourse() {
     const fetchContenido = async () => {
       try {
         const res = await fetch(
-          `http://localhost:3000/modules/content/${modulo.id}`,
+          `https://server-mot.onrender.com/modules/content/${modulo.id}`,
           { headers: { ...authHeaders } }
         );
         setContenido(await res.json());
@@ -67,7 +67,7 @@ export default function ViewContentCourse() {
     const fetchGrabaciones = async () => {
       try {
         const res = await fetch(
-          `http://localhost:3000/modules/recordings/${modulo.id}`,
+          `https://server-mot.onrender.com/modules/recordings/${modulo.id}`,
           { headers: { ...authHeaders } }
         );
         setGrabaciones(await res.json());
@@ -79,7 +79,7 @@ export default function ViewContentCourse() {
     const fetchPruebaFinal = async () => {
       try {
         const res = await fetch(
-          `http://localhost:3000/modules/${modulo.id}/quizzes`,
+          `https://server-mot.onrender.com/modules/${modulo.id}/quizzes`,
           { headers: { ...authHeaders } }
         );
         const data = await res.json();
@@ -131,7 +131,7 @@ export default function ViewContentCourse() {
       if (!currentUser || !modulo?.id_curso) return;
       try {
         const res = await fetch(
-          `http://localhost:3000/courses/${modulo.id_curso}/progress/${currentUser.id}`,
+          `https://server-mot.onrender.com/courses/${modulo.id_curso}/progress/${currentUser.id}`,
           { headers: { ...authHeaders } }
         );
         const data = await res.json();
@@ -151,7 +151,7 @@ export default function ViewContentCourse() {
       if (!modulo?.id_curso) return;
       try {
         const res = await fetch(
-          `http://localhost:3000/modules/course/${modulo.id_curso}`,
+          `https://server-mot.onrender.com/modules/course/${modulo.id_curso}`,
           { headers: { ...authHeaders } }
         );
         setModulosCurso(await res.json());
@@ -177,10 +177,10 @@ export default function ViewContentCourse() {
       let isRecordingUpload = false;
 
       if (activeTab === "grabaciones" && modulo.tipoCurso === "pregrabado") {
-        endpoint = `http://localhost:3000/upload-pre-recording/${modulo.id}`;
+        endpoint = `https://server-mot.onrender.com/upload-pre-recording/${modulo.id}`;
         isRecordingUpload = true;
       } else if (activeTab === "contenido") {
-        endpoint = `http://localhost:3000/upload-module-content/${modulo.id}`;
+        endpoint = `https://server-mot.onrender.com/upload-module-content/${modulo.id}`;
       } else {
         console.error("Configuración inválida para subir archivo");
         return;
@@ -218,7 +218,7 @@ export default function ViewContentCourse() {
   const handleCrearPrueba = async (pruebaData) => {
     try {
       const res = await fetch(
-        `http://localhost:3000/modules/${modulo.id}/quizzes`,
+        `https://server-mot.onrender.com/modules/${modulo.id}/quizzes`,
         {
           method: "POST",
           headers: { "Content-Type": "application/json", ...authHeaders },
@@ -228,7 +228,7 @@ export default function ViewContentCourse() {
       const data = await res.json();
       if (data.success) {
         const pruebaRes = await fetch(
-          `http://localhost:3000/modules/${modulo.id}/quizzes`,
+          `https://server-mot.onrender.com/modules/${modulo.id}/quizzes`,
           { headers: { ...authHeaders } }
         );
         const pruebaArr = await pruebaRes.json();
@@ -252,7 +252,7 @@ export default function ViewContentCourse() {
   const handleEditarPrueba = async (pruebaData) => {
     try {
       const res = await fetch(
-        `http://localhost:3000/modules/${modulo.id}/quizzes/${pruebaFinal.id}`,
+        `https://server-mot.onrender.com/modules/${modulo.id}/quizzes/${pruebaFinal.id}`,
         {
           method: "PUT",
           headers: { "Content-Type": "application/json", ...authHeaders },
@@ -262,7 +262,7 @@ export default function ViewContentCourse() {
       const data = await res.json();
       if (data.success) {
         const pruebaRes = await fetch(
-          `http://localhost:3000/modules/${modulo.id}/quizzes`,
+          `https://server-mot.onrender.com/modules/${modulo.id}/quizzes`,
           { headers: { ...authHeaders } }
         );
         const pruebaArr = await pruebaRes.json();
@@ -286,7 +286,7 @@ export default function ViewContentCourse() {
   const handleResponderPrueba = async (respuestas) => {
     try {
       const res = await fetch(
-        `http://localhost:3000/modules/${modulo.id}/quizzes/${pruebaFinal.id}/attempts`,
+        `https://server-mot.onrender.com/modules/${modulo.id}/quizzes/${pruebaFinal.id}/attempts`,
         {
           method: "POST",
           headers: { "Content-Type": "application/json", ...authHeaders },
@@ -296,7 +296,7 @@ export default function ViewContentCourse() {
       const data = await res.json();
       if (data.success && data.aprobado) {
         await fetch(
-          `http://localhost:3000/courses/${modulo.id_curso}/progress`,
+          `https://server-mot.onrender.com/courses/${modulo.id_curso}/progress`,
           {
             method: "POST",
             headers: { "Content-Type": "application/json", ...authHeaders },
@@ -335,7 +335,7 @@ export default function ViewContentCourse() {
 
       if (siguienteModulo) {
         await fetch(
-          `http://localhost:3000/courses/${modulo.id_curso}/progress`,
+          `https://server-mot.onrender.com/courses/${modulo.id_curso}/progress`,
           {
             method: "POST",
             headers: { "Content-Type": "application/json", ...authHeaders },

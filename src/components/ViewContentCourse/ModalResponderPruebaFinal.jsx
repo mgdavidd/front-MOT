@@ -22,7 +22,7 @@ export default function ModalResponderPruebaFinal({ prueba, onClose, modulo, cur
     console.log(modulo)
     try {
       const res = await fetch(
-        `http://localhost:3000/modules/${modulo.id}/quizzes/${prueba.id}/attempts`,
+        `https://server-mot.onrender.com/modules/${modulo.id}/quizzes/${prueba.id}/attempts`,
         {
           method: "POST",
           headers: { "Content-Type": "application/json" },
@@ -40,7 +40,7 @@ export default function ModalResponderPruebaFinal({ prueba, onClose, modulo, cur
           const idxActual = modulosCurso.findIndex(m => m.id === modulo.id);
           const siguienteModulo = idxActual !== -1 ? modulosCurso[idxActual + 1] : undefined;
           if (siguienteModulo) {
-            await fetch(`http://localhost:3000/courses/${modulo.id_curso}/progress`, {
+            await fetch(`https://server-mot.onrender.com/courses/${modulo.id_curso}/progress`, {
               method: "POST",
               headers: { "Content-Type": "application/json" },
               body: JSON.stringify({

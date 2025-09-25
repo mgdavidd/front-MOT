@@ -32,7 +32,7 @@ function ListStudents() {
     const token = googleTokenData?.access_token;
     const userId = userData?.id;
 
-    fetch(`http://localhost:3000/teachers/${userId}/courses`, {
+    fetch(`https://server-mot.onrender.com/teachers/${userId}/courses`, {
       headers: {
         Authorization: `Bearer ${token}`,
       },
@@ -56,7 +56,7 @@ function ListStudents() {
         const token = userData?.google_token?.access_token;
 
         const res = await fetch(
-          `http://localhost:3000/my-students/${courseId}`,
+          `https://server-mot.onrender.com/my-students/${courseId}`,
           {
             headers: {
               Authorization: `Bearer ${token}`,

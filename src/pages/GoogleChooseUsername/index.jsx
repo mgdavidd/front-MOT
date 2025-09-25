@@ -36,7 +36,7 @@ const GoogleChooseUsername = () => {
     }
 
     try {
-      const res = await fetch("http://localhost:3000/choose-username", {
+      const res = await fetch("https://server-mot.onrender.com/choose-username", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({

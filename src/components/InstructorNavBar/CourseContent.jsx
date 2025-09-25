@@ -26,7 +26,7 @@ export default function CourseContent() {
     const fetchCourses = async () => {
       try {
         const response = await fetch(
-          `http://localhost:3000/teachers/${user?.id}/courses`
+          `https://server-mot.onrender.com/teachers/${user?.id}/courses`
         );
         const data = await response.json();
         setCourses(data);

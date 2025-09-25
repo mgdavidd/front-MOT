@@ -16,7 +16,7 @@ const Login = () => {
     const userName = e.target.elements.userName.value;
     const password = e.target.elements.password.value;
 
-    const res = await fetch("http://localhost:3000/login", {
+    const res = await fetch("https://server-mot.onrender.com/login", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ userName, password }),
@@ -46,7 +46,7 @@ const Login = () => {
   };
 
   const handleGoogleLogin = () => {
-    window.location.href = "http://localhost:3000/auth/google";
+    window.location.href = "https://server-mot.onrender.com/auth/google";
   };
 
   return (
