@@ -336,7 +336,7 @@ const InstructorCal = () => {
                       <p>
                         Enlace:{" "}
                         <a
-                          href={`http://localhost:3001${data.link}`}
+                          href={`https://videochat-webrtc.onrender.com${data.link}`}
                           target="_blank"
                           rel="noopener noreferrer"
                         >
