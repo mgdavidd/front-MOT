@@ -219,28 +219,14 @@ const InstructorCal = () => {
   };
 
   // Función para manejar el acceso seguro a las videollamadas
-  const handleJoinClass = async (joinLink, e) => {
+  const handleJoinClass = (joinLink, e) => {
     e.preventDefault();
     const token = Cookies.get("token");
     if (!token) return;
 
-    try {
-      const response = await fetch(
-        `https://server-mot.onrender.com${joinLink}`,
-        {
-          method: "GET",
-          headers: { Authorization: `Bearer ${token}` },
-          credentials: "include", // permite setear la cookie mot_user_token
-          redirect: "follow",
-        }
-      );
-
-      if (response.redirected) {
-        window.open(response.url, "_blank");
-      }
-    } catch (err) {
-      console.error("Error al unirse a clase:", err);
-    }
+    // Navegación directa → el proxy se encarga de validar y redirigir
+    const url = `https://server-mot.onrender.com${joinLink}?auth=${token}`;
+    window.open(url, "_blank");
   };
 
   return (
