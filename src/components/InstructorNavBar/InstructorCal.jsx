@@ -84,7 +84,7 @@ const InstructorCal = () => {
           utcEnd: finalUTC.toFormat("HH:mm"),
           title: s.titulo,
           type: s.tipo,
-          link: s.join_link,
+          join_link: s.join_link, // Ahora es el enlace del proxy
           recording_url: s.recording_url,
         };
 
@@ -214,6 +214,55 @@ const InstructorCal = () => {
     }
   };
 
+  // Función para manejar el acceso seguro a las videollamadas
+  const handleJoinClass = async (joinLink, e) => {
+    e.preventDefault();
+    
+    const token = Cookies.get("token");
+    if (!token) {
+      setModal({
+        isOpen: true,
+        title: "Error",
+        message: "Debes iniciar sesión para acceder a la clase"
+      });
+      return;
+    }
+
+    try {
+      // Hacer la petición al proxy con el token en el header
+      const response = await fetch(`https://server-mot.onrender.com${joinLink}`, {
+        method: 'GET',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+        },
+        redirect: 'manual' // Para manejar la redirección manualmente
+      });
+
+      if (response.type === 'opaqueredirect' || response.status === 0) {
+        // La redirección fue exitosa, abrir en nueva ventana
+        window.open(`https://server-mot.onrender.com${joinLink}`, '_blank');
+      } else if (response.status >= 200 && response.status < 300) {
+        // Si no hay redirección automática, obtener la URL de respuesta
+        const redirectUrl = response.url;
+        window.open(redirectUrl, '_blank');
+      } else {
+        const errorData = await response.json().catch(() => ({}));
+        setModal({
+          isOpen: true,
+          title: "Error",
+          message: errorData.error || "No se pudo acceder a la clase"
+        });
+      }
+    } catch (err) {
+      console.error('Error al acceder a la clase:', err);
+      setModal({
+        isOpen: true,
+        title: "Error",
+        message: "Error de conexión. Intenta nuevamente."
+      });
+    }
+  };
+
   return (
     <div className="instructor-calendar">
       <h2>Calendario de Clases</h2>
@@ -332,13 +381,17 @@ const InstructorCal = () => {
                       Hora: {data.start} - {data.end} (tu hora local)
                     </p>
                     <p>Título: {data.title || "Clase"}</p>
-                    {data.link && (
+                    {data.join_link && (
                       <p>
                         Enlace:{" "}
                         <a
-                          href={`https://videochat-webrtc.onrender.com${data.link}`}
-                          target="_blank"
-                          rel="noopener noreferrer"
+                          href="#"
+                          onClick={(e) => handleJoinClass(data.join_link, e)}
+                          style={{ 
+                            color: '#007bff',
+                            textDecoration: 'underline',
+                            cursor: 'pointer'
+                          }}
                         >
                           Unirse a la clase
                         </a>
