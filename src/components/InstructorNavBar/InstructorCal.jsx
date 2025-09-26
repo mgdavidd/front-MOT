@@ -27,13 +27,15 @@ const InstructorCal = () => {
   const [eventType, setEventType] = useState("Clase en vivo");
   const [modal, setModal] = useState({ isOpen: false, title: "", message: "" });
   const sessionsContainerRef = useRef(null);
+  console.log(Cookies.get("token"))
 
   const authFetch = useCallback(async (url, options = {}) => {
     const headers = {
       "Content-Type": "application/json",
       Authorization: `Bearer ${Cookies.get("token")}`,
     };
-    const res = await fetch(url, { ...options, headers });
+    console.log("Headers:", headers);
+    const res = await fetch(url, { ...options, headers:headers });
     if (!res.ok) {
       const err = await res.json().catch(() => ({}));
       throw new Error(err.message || "Error en la solicitud");
