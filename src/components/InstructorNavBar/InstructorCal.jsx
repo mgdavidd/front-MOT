@@ -27,7 +27,7 @@ const InstructorCal = () => {
   const [eventType, setEventType] = useState("Clase en vivo");
   const [modal, setModal] = useState({ isOpen: false, title: "", message: "" });
   const sessionsContainerRef = useRef(null);
-  console.log(Cookies.get("token"))
+  console.log(Cookies.get("token"));
 
   const authFetch = useCallback(async (url, options = {}) => {
     const headers = {
@@ -35,7 +35,7 @@ const InstructorCal = () => {
       Authorization: `Bearer ${Cookies.get("token")}`,
     };
     console.log("Headers:", headers);
-    const res = await fetch(url, { ...options, headers:headers });
+    const res = await fetch(url, { ...options, headers: headers });
     if (!res.ok) {
       const err = await res.json().catch(() => ({}));
       throw new Error(err.message || "Error en la solicitud");
@@ -49,7 +49,9 @@ const InstructorCal = () => {
       const data = await authFetch(
         `https://server-mot.onrender.com/teachers/${userId}/courses`
       );
-      const filteredCourses = data.filter((course) => course.tipoCurso !== "pregrabado");
+      const filteredCourses = data.filter(
+        (course) => course.tipoCurso !== "pregrabado"
+      );
       setCourses(filteredCourses);
       setSelectedCourseId(filteredCourses[0]?.id || null);
     } catch (err) {
@@ -155,7 +157,7 @@ const InstructorCal = () => {
 
       if (newData[isoDate].start && newData[isoDate].end) {
         const dateStr = isoDate;
- 
+
         const startLocal = DateTime.fromISO(
           `${dateStr}T${newData[isoDate].start}`,
           { zone: "local" }
@@ -219,49 +221,25 @@ const InstructorCal = () => {
   // Función para manejar el acceso seguro a las videollamadas
   const handleJoinClass = async (joinLink, e) => {
     e.preventDefault();
-    
     const token = Cookies.get("token");
-    if (!token) {
-      setModal({
-        isOpen: true,
-        title: "Error",
-        message: "Debes iniciar sesión para acceder a la clase"
-      });
-      return;
-    }
+    if (!token) return;
 
     try {
-      // Hacer la petición al proxy con el token en el header
-      const response = await fetch(`https://server-mot.onrender.com${joinLink}`, {
-        method: 'GET',
-        headers: {
-          'Authorization': `Bearer ${token}`,
-        },
-        redirect: 'manual' // Para manejar la redirección manualmente
-      });
+      const response = await fetch(
+        `https://server-mot.onrender.com${joinLink}`,
+        {
+          method: "GET",
+          headers: { Authorization: `Bearer ${token}` },
+          credentials: "include", // permite setear la cookie mot_user_token
+          redirect: "follow",
+        }
+      );
 
-      if (response.type === 'opaqueredirect' || response.status === 0) {
-        // La redirección fue exitosa, abrir en nueva ventana
-        window.open(`https://server-mot.onrender.com${joinLink}`, '_blank');
-      } else if (response.status >= 200 && response.status < 300) {
-        // Si no hay redirección automática, obtener la URL de respuesta
-        const redirectUrl = response.url;
-        window.open(redirectUrl, '_blank');
-      } else {
-        const errorData = await response.json().catch(() => ({}));
-        setModal({
-          isOpen: true,
-          title: "Error",
-          message: errorData.error || "No se pudo acceder a la clase"
-        });
+      if (response.redirected) {
+        window.open(response.url, "_blank");
       }
     } catch (err) {
-      console.error('Error al acceder a la clase:', err);
-      setModal({
-        isOpen: true,
-        title: "Error",
-        message: "Error de conexión. Intenta nuevamente."
-      });
+      console.error("Error al unirse a clase:", err);
     }
   };
 
@@ -389,10 +367,10 @@ const InstructorCal = () => {
                         <a
                           href="#"
                           onClick={(e) => handleJoinClass(data.join_link, e)}
-                          style={{ 
-                            color: '#007bff',
-                            textDecoration: 'underline',
-                            cursor: 'pointer'
+                          style={{
+                            color: "#007bff",
+                            textDecoration: "underline",
+                            cursor: "pointer",
                           }}
                         >
                           Unirse a la clase
