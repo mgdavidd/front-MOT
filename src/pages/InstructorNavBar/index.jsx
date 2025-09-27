@@ -43,7 +43,6 @@ function InstructorNavBar() {
         userColor = user.rows[0][10];
       }
 
-      console.log("🎨 Color del usuario detectado:", userColor); // Para debug
       setUserPrimaryColor(userColor);
 
       // 🔥 APLICAR EL COLOR INMEDIATAMENTE AL DOM
@@ -64,7 +63,6 @@ function InstructorNavBar() {
   // 🔥 EFECTO ADICIONAL para asegurar que el color se aplique
   useEffect(() => {
     document.documentElement.style.setProperty('--color-primary', userPrimaryColor);
-    console.log("🎨 Color aplicado al DOM:", userPrimaryColor);
   }, [userPrimaryColor]);
 
   const tabs = [

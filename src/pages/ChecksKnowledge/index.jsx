@@ -27,7 +27,6 @@ const ChecksKnowledge = () => {
           userName,
         }),
       });
-      console.log("Área seleccionada:", area);
       navigate("/instructions");
     }
   };

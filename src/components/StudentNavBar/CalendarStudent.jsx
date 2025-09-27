@@ -79,7 +79,7 @@ const CalendarStudent = () => {
           end: finalLocal.toFormat("HH:mm"),
           title: s.titulo,
           type: s.tipo,
-          link: s.join_link,
+          join_link: s.join_link,
           recording_url: s.recording_url,
         };
       });
@@ -93,6 +93,17 @@ const CalendarStudent = () => {
   useEffect(() => {
     loadDates();
   }, [loadDates]);
+
+  // Función para manejar el acceso seguro a las videollamadas
+  const handleJoinClass = (joinLink, e) => {
+    e.preventDefault();
+    const token = Cookies.get("token");
+    if (!token) return;
+
+    // Proxy en el backend se encarga de validar y redirigir
+    const url = `https://server-mot.onrender.com${joinLink}?auth=${token}`;
+    window.open(url, "_blank");
+  };
 
   return (
     <div className="instructor-calendar">
@@ -130,13 +141,17 @@ const CalendarStudent = () => {
                   Hora: {data.start} - {data.end} (hora local)
                 </p>
                 <p>Título: {data.title || "Clase"}</p>
-                {data.link && (
+                {data.join_link && (
                   <p>
                     Enlace:{" "}
                     <a
-                      href={`https://videochat-webrtc.onrender.com${data.link}`}
-                      target="_blank"
-                      rel="noopener noreferrer"
+                      href="#"
+                      onClick={(e) => handleJoinClass(data.join_link, e)}
+                      style={{
+                        color: "#007bff",
+                        textDecoration: "underline",
+                        cursor: "pointer",
+                      }}
                     >
                       Unirse a la clase
                     </a>

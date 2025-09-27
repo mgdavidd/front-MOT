@@ -8,7 +8,6 @@ const coloresPastel = [
 ];
 
 export default function CreateModuleModal({ courseId, onClose, onModuleCreated }) {
-    console.log(courseId)
   const [title, setTitle] = useState("");
   const [color, setColor] = useState(coloresPastel[0]);
   const [loading, setLoading] = useState(false);

@@ -19,7 +19,6 @@ export default function ModalResponderPruebaFinal({ prueba, onClose, modulo, cur
       return;
     }
     setEnviando(true);
-    console.log(modulo)
     try {
       const res = await fetch(
         `https://server-mot.onrender.com/modules/${modulo.id}/quizzes/${prueba.id}/attempts`,
@@ -35,7 +34,6 @@ export default function ModalResponderPruebaFinal({ prueba, onClose, modulo, cur
       const data = await res.json();
       if (data.success) {
         alert(`Prueba enviada. Nota: ${data.nota}. ${data.aprobado ? "¡Aprobado!" : "No aprobado."}`);
-        console.log(data)
         if (data.aprobado) {
           const idxActual = modulosCurso.findIndex(m => m.id === modulo.id);
           const siguienteModulo = idxActual !== -1 ? modulosCurso[idxActual + 1] : undefined;

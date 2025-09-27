@@ -15,7 +15,6 @@ export default function StudentsList({ courseId }) {
   // Parsea la cookie "user" como JSON
   const userCookie = Cookies.get("user");
   const user = userCookie ? JSON.parse(userCookie) : {};
-  // console.log(user.id); // Puedes quitar esto si no lo necesitas
 
   useEffect(() => {
     fetch(`https://server-mot.onrender.com/my-students/${courseId}`)
