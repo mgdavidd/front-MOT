@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import Cookies from "js-cookie";
-import styles from "../Signup/Signup.module.css";
+import styles from "./ChooseUsername.module.css";
 import Logo from "../../components/Logo";
 import { applyUserThemeFromCookies } from "../../utils/initUserTheme.js";
 
@@ -58,11 +58,9 @@ const GoogleChooseUsername = () => {
         
         applyUserThemeFromCookies();
 
-        // 🔥 CORRECCIÓN: Redirigir según el rol como en el signup normal
         if (rol === "profesor") {
-          navigate("/checksKnowledge", {
-            state: { userName },
-          });
+          navigate("/instructorNav");
+
         } else {
           navigate("/studentNav");
         }
