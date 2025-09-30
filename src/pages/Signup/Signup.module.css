@@ -160,3 +160,142 @@
   from { opacity: 0; transform: translateY(10px); }
   to { opacity: 1; transform: translateY(0); }
 }
+
+/* ========================= */
+/* 🎯 CORRECCIONES ESPECÍFICAS PARA GoogleChooseUsername */
+/* ========================= */
+
+.selectWrapper {
+  margin-bottom: 1.5rem;
+  text-align: left;
+}
+
+.label {
+  display: block;
+  margin-bottom: 0.8rem;
+  color: #275a57;
+  font-weight: 600;
+  font-size: 0.95rem;
+}
+
+/* Contenedor de roles mejorado para móvil */
+.roleContainer {
+  display: flex;
+  gap: 0.8rem;
+  margin: 1rem 0;
+  flex-wrap: wrap;
+}
+
+.roleOption {
+  flex: 1;
+  min-width: 120px;
+  padding: 1rem 0.8rem;
+  border-radius: 16px;
+  border: 2px solid #e0e0e0;
+  background: rgba(255, 255, 255, 0.8);
+  text-align: center;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: #275a57;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.roleOption:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.12);
+  border-color: #00b8af;
+}
+
+.roleOption input[type="radio"] {
+  display: none;
+}
+
+.roleOption.selected {
+  border-color: #00b8af;
+  background: rgba(0, 184, 148, 0.15);
+  box-shadow: 0 6px 18px rgba(0, 184, 148, 0.2);
+  color: #00b8af;
+}
+
+/* ========================= */
+/* 📱 RESPONSIVE MEJORADO */
+/* ========================= */
+
+@media (max-width: 768px) {
+  .authPage {
+    padding: 1rem;
+  }
+  
+  .authContainer {
+    padding: 2rem 1.5rem;
+    max-width: 350px;
+  }
+  
+  .roleContainer {
+    gap: 0.6rem;
+    margin: 0.8rem 0;
+  }
+  
+  .roleOption {
+    min-width: 110px;
+    padding: 0.8rem 0.6rem;
+    font-size: 0.85rem;
+    border-radius: 14px;
+  }
+  
+  .selectWrapper {
+    margin-bottom: 1.2rem;
+  }
+  
+  .label {
+    font-size: 0.9rem;
+    margin-bottom: 0.6rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .authContainer {
+    padding: 1.5rem 1.2rem;
+    max-width: 300px;
+  }
+  
+  .roleContainer {
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+  
+  .roleOption {
+    min-width: auto;
+    width: 100%;
+    padding: 0.9rem 0.8rem;
+    flex-direction: row;
+    justify-content: center;
+    gap: 0.8rem;
+    font-size: 0.9rem;
+  }
+  
+  .input {
+    width: 100%;
+  }
+}
+
+@media (max-width: 360px) {
+  .authContainer {
+    padding: 1.2rem 1rem;
+    max-width: 280px;
+  }
+  
+  .roleOption {
+    padding: 0.8rem 0.6rem;
+    font-size: 0.85rem;
+  }
+  
+  .title {
+    font-size: 1.3rem;
+  }
+}
