@@ -8,7 +8,6 @@ import "../../assets/styles/auth/auth-variables.css";
 import Logo from "../../components/Logo";
 import { applyUserThemeFromCookies } from "../../utils/initUserTheme.js";
 
-
 const Signup = () => {
   const navigate = useNavigate();
   const [errorMessage, setErrorMessage] = useState("");
@@ -99,10 +98,13 @@ const Signup = () => {
             className={styles.input}
           />
 
-          <label className={styles.adminCheckbox}>
+          <div className={styles.adminCheckbox}>
             <input type="checkbox" name="isAdmin" id="isAdmin" />
-            Eres Docente (necesitarás conectar Google Drive)
-          </label>
+            <label htmlFor="isAdmin">
+              Eres Docente <br />
+              <small>(necesitarás conectar Google Drive)</small>
+            </label>
+          </div>
 
           <button type="submit" className={styles.submitButton}>
             Registrarse

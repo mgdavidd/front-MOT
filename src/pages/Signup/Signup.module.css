@@ -299,3 +299,28 @@
     font-size: 1.3rem;
   }
 }
+
+.adminCheckbox {
+  display: flex;
+  align-items: flex-start; /* alinear checkbox arriba */
+  gap: 0.6rem;
+  margin: 0.5rem 0;
+  font-size: 0.9rem;
+  color: #275a57;
+  cursor: pointer;
+  line-height: 1.4;
+}
+
+.adminCheckbox input[type="checkbox"] {
+  accent-color: #00b8af;
+  transform: scale(1.2);
+  margin-top: 0.2rem;
+}
+
+.adminCheckbox label {
+  cursor: pointer;
+}
+.adminCheckbox small {
+  font-size: 0.8rem;
+  color: #555;
+}
