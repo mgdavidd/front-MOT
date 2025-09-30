@@ -3,6 +3,7 @@ import { useNavigate, useLocation } from "react-router-dom";
 import Cookies from "js-cookie";
 import styles from "../Signup/Signup.module.css";
 import Logo from "../../components/Logo";
+import { applyUserThemeFromCookies } from "../../utils/initUserTheme.js";
 
 const GoogleChooseUsername = () => {
   const navigate = useNavigate();
@@ -43,9 +44,9 @@ const GoogleChooseUsername = () => {
           userName,
           password,
           email,
-          google_token,
+          google_token: JSON.parse(google_token), // 🔥 CORRECCIÓN: Parsear el token
           areaInteres: area,
-          rol,
+          rol, // 🔥 CORRECCIÓN: Enviar el rol seleccionado
         }),
       });
 
@@ -53,7 +54,18 @@ const GoogleChooseUsername = () => {
 
       if (res.ok && data.success) {
         Cookies.set("user", JSON.stringify(data.user), { expires: 7 });
-        navigate("/studentNav"); // aquí puedes condicionar según el rol
+        Cookies.set("token", data.token, { expires: 7 });
+        
+        applyUserThemeFromCookies();
+
+        // 🔥 CORRECCIÓN: Redirigir según el rol como en el signup normal
+        if (rol === "profesor") {
+          navigate("/checksKnowledge", {
+            state: { userName },
+          });
+        } else {
+          navigate("/studentNav");
+        }
       } else {
         setError(data.error || "Error al crear la cuenta.");
       }
@@ -68,16 +80,16 @@ const GoogleChooseUsername = () => {
   }
 
   return (
-    <div className="auth-page">
-      <div className="auth-container">
-        <div style={{ width: "50%", margin: "0 auto" }}>
+    <div className={styles.authPage}>
+      <div className={styles.authContainer}>
+        <div className={styles.logoContainer}>
           <Logo />
         </div>
         <h1 className={styles.title}>Completa tu Registro</h1>
 
         {error && <div className={styles.errorMessage}>{error}</div>}
 
-        <form onSubmit={handleSubmit} className="auth-form">
+        <form onSubmit={handleSubmit} className={styles.authForm}>
           <input
             type="text"
             name="userName"
