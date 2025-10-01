@@ -107,7 +107,6 @@ const CalendarStudent = () => {
 
   return (
     <div className="instructor-calendar">
-      <h2>Calendario de Clases</h2>
       {error && <p className="error">{error}</p>}
 
       <div className="timezone-info">
@@ -137,9 +136,6 @@ const CalendarStudent = () => {
                   {dateObj.setLocale("es").toLocaleString(DateTime.DATE_FULL)}
                 </h4>
                 <p>Tipo: {data.type}</p>
-                <p>
-                  Hora: {data.start} - {data.end} (hora local)
-                </p>
                 <p>Título: {data.title || "Clase"}</p>
                 {data.join_link && (
                   <p>

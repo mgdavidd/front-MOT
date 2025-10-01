@@ -229,7 +229,6 @@ const InstructorCal = () => {
 
   return (
     <div className="instructor-calendar">
-      <h2>Calendario de Clases</h2>
       {error && <p className="error">{error}</p>}
       <div className="timezone-info">
         Zona horaria actual: {DateTime.local().zoneName}
@@ -341,9 +340,6 @@ const InstructorCal = () => {
                   </>
                 ) : (
                   <>
-                    <p>
-                      Hora: {data.start} - {data.end} (tu hora local)
-                    </p>
                     <p>Título: {data.title || "Clase"}</p>
                     {data.join_link && (
                       <p>
