@@ -22,11 +22,13 @@ const InstructorCal = () => {
   const [selectedCourseId, setSelectedCourseId] = useState(null);
   const [selectedDates, setSelectedDates] = useState([]);
   const [dateData, setDateData] = useState({});
+  const originalDataRef = useRef({}); // guarda estado original para diff
   const [isEditing, setIsEditing] = useState(false);
   const [error, setError] = useState(null);
   const [eventType, setEventType] = useState("Clase en vivo");
   const [modal, setModal] = useState({ isOpen: false, title: "", message: "" });
   const sessionsContainerRef = useRef(null);
+  const [saving, setSaving] = useState(false); // evita envíos dobles
 
   const authFetch = useCallback(async (url, options = {}) => {
     const headers = {
@@ -79,6 +81,18 @@ const InstructorCal = () => {
 
         const localDateKey = inicioLocal.toISODate();
 
+        // intentar parsear room_id desde join_link si existe:
+        let parsedRoomId = null;
+        try {
+          if (s.join_link) {
+            // formato: /courses/:id/join/:room_id
+            const parts = s.join_link.split("/");
+            parsedRoomId = parts[parts.length - 1];
+          }
+        } catch (_) {
+          parsedRoomId = null;
+        }
+
         newDateData[localDateKey] = {
           start: inicioLocal.toFormat("HH:mm"),
           end: finalLocal.toFormat("HH:mm"),
@@ -86,8 +100,9 @@ const InstructorCal = () => {
           utcEnd: finalUTC.toFormat("HH:mm"),
           title: s.titulo,
           type: s.tipo,
-          join_link: s.join_link, // Ahora es el enlace del proxy
+          join_link: s.join_link,
           recording_url: s.recording_url,
+          room_id: parsedRoomId,
         };
 
         newSelectedDates.push(inicioLocal.toJSDate());
@@ -95,6 +110,7 @@ const InstructorCal = () => {
 
       setSelectedDates(newSelectedDates);
       setDateData(newDateData);
+      originalDataRef.current = JSON.parse(JSON.stringify(newDateData)); // snapshot para diff
     } catch (err) {
       setError(err.message);
     }
@@ -112,11 +128,14 @@ const InstructorCal = () => {
     const newData = { ...dateData };
     const newDates = dates || [];
 
+    // borrar fechas que el usuario desmarcó
     Object.keys(newData).forEach((d) => {
       if (!newDates.some((x) => DateTime.fromJSDate(x).toISODate() === d)) {
         delete newData[d];
       }
     });
+
+    // agregar nuevas fechas
     newDates.forEach((x) => {
       const iso = DateTime.fromJSDate(x).toISODate();
       if (!newData[iso]) {
@@ -127,6 +146,7 @@ const InstructorCal = () => {
           utcEnd: "",
           title: "",
           type: eventType,
+          room_id: null,
         };
       }
     });
@@ -148,6 +168,7 @@ const InstructorCal = () => {
           utcEnd: "",
           title: "",
           type: eventType,
+          room_id: null,
         };
       }
 
@@ -173,30 +194,53 @@ const InstructorCal = () => {
     });
   };
 
-  const handleSave = async () => {
-    try {
-      const invalid = Object.entries(dateData).filter(
-        ([, d]) => !d.start || !d.end
-      );
-      if (invalid.length) throw new Error("Faltan horas de inicio/fin");
+  // Helper: compara dateData con snapshot original y devuelve solo sesiones modificadas/nuevas
+  const buildChangedSessions = () => {
+    const changed = [];
+    const original = originalDataRef.current || {};
+    for (const [date, d] of Object.entries(dateData)) {
+      const orig = original[date];
+      // si no existe en original -> nueva
+      const isNew = !orig;
+      // si cambiaron start/end/title
+      const changedTime =
+        !isNew &&
+        (d.start !== orig.start || d.end !== orig.end || (d.title || "") !== (orig.title || ""));
+      if (isNew || changedTime) {
+        // validación local
+        if (!d.start || !d.end) continue;
+        const localStart = DateTime.fromISO(`${date}T${d.start}`, { zone: "local" });
+        const localEnd = DateTime.fromISO(`${date}T${d.end}`, { zone: "local" });
+        if (!localStart.isValid || !localEnd.isValid || localEnd <= localStart) continue;
 
-      const sessions = Object.entries(dateData).map(([date, d]) => {
-        const localStart = DateTime.fromISO(`${date}T${d.start}`, {
-          zone: "local",
-        });
-        const localEnd = DateTime.fromISO(`${date}T${d.end}`, {
-          zone: "local",
-        });
-
-        return {
+        changed.push({
           inicio: localStart.toUTC().toISO(),
           final: localEnd.toUTC().toISO(),
           titulo: d.title || "Clase",
-          type: d.type,
+          type: d.type || "Clase en vivo",
           timezone: DateTime.local().zoneName,
-        };
-      });
+          // si ya tenemos room_id, la enviamos para que el server la reutilice
+          room_id: d.room_id || null,
+          // incluir localDate para el server si lo necesita
+          localDate: date,
+        });
+      }
+    }
+    return changed;
+  };
 
+  const handleSave = async () => {
+    if (saving) return;
+    try {
+      setSaving(true);
+
+      const sessions = buildChangedSessions();
+      if (sessions.length === 0) {
+        setModal({ isOpen: true, title: "Info", message: "No hay cambios para guardar." });
+        return;
+      }
+
+      // Enviamos UN solo POST con todas las sesiones modificadas/nuevas
       await authFetch(
         `https://server-mot.onrender.com/courses/${selectedCourseId}/dates`,
         {
@@ -204,8 +248,10 @@ const InstructorCal = () => {
           body: JSON.stringify({ sessions }),
         }
       );
+
+      // Recargar horarios (snapshot actualizado)
+      await loadDates();
       setIsEditing(false);
-      loadDates();
       setModal({
         isOpen: true,
         title: "Éxito",
@@ -213,6 +259,8 @@ const InstructorCal = () => {
       });
     } catch (err) {
       setModal({ isOpen: true, title: "Error", message: err.message });
+    } finally {
+      setSaving(false);
     }
   };
 
@@ -273,8 +321,8 @@ const InstructorCal = () => {
             />
           </div>
 
-          <button onClick={handleSave} className="save-btn">
-            Guardar Cambios
+          <button onClick={handleSave} className="save-btn" disabled={saving}>
+            {saving ? "Guardando..." : "Guardar Cambios"}
           </button>
         </>
       )}
