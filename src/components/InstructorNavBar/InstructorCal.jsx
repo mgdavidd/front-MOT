@@ -9,8 +9,7 @@ const InstructorCal = () => {
   const getCurrentUser = () => {
     try {
       const cookie = Cookies.get("user");
-      if (!cookie) return null;
-      return JSON.parse(cookie);
+      return cookie ? JSON.parse(cookie) : null;
     } catch {
       return null;
     }
@@ -22,20 +21,19 @@ const InstructorCal = () => {
   const [selectedCourseId, setSelectedCourseId] = useState(null);
   const [selectedDates, setSelectedDates] = useState([]);
   const [dateData, setDateData] = useState({});
-  const originalDataRef = useRef({}); // guarda estado original para diff
   const [isEditing, setIsEditing] = useState(false);
   const [error, setError] = useState(null);
   const [eventType, setEventType] = useState("Clase en vivo");
   const [modal, setModal] = useState({ isOpen: false, title: "", message: "" });
   const sessionsContainerRef = useRef(null);
-  const [saving, setSaving] = useState(false); // evita envíos dobles
 
+  // 🔹 Wrapper de fetch con token
   const authFetch = useCallback(async (url, options = {}) => {
     const headers = {
       "Content-Type": "application/json",
       Authorization: `Bearer ${Cookies.get("token")}`,
     };
-    const res = await fetch(url, { ...options, headers: headers });
+    const res = await fetch(url, { ...options, headers });
     if (!res.ok) {
       const err = await res.json().catch(() => ({}));
       throw new Error(err.message || "Error en la solicitud");
@@ -43,17 +41,16 @@ const InstructorCal = () => {
     return res.json();
   }, []);
 
+  // 🔹 Cargar cursos
   const loadCourses = useCallback(async () => {
     if (!userId) return;
     try {
       const data = await authFetch(
         `https://server-mot.onrender.com/teachers/${userId}/courses`
       );
-      const filteredCourses = data.filter(
-        (course) => course.tipoCurso !== "pregrabado"
-      );
-      setCourses(filteredCourses);
-      setSelectedCourseId(filteredCourses[0]?.id || null);
+      const filtered = data.filter((c) => c.tipoCurso !== "pregrabado");
+      setCourses(filtered);
+      setSelectedCourseId(filtered[0]?.id || null);
     } catch (err) {
       setError(err.message);
     }
@@ -63,6 +60,7 @@ const InstructorCal = () => {
     loadCourses();
   }, [loadCourses]);
 
+  // 🔹 Cargar fechas del curso
   const loadDates = useCallback(async () => {
     if (!selectedCourseId) return;
     try {
@@ -75,23 +73,9 @@ const InstructorCal = () => {
       data.forEach((s) => {
         const inicioUTC = DateTime.fromISO(s.inicio, { zone: "utc" });
         const finalUTC = DateTime.fromISO(s.final, { zone: "utc" });
-
         const inicioLocal = inicioUTC.setZone("local");
         const finalLocal = finalUTC.setZone("local");
-
         const localDateKey = inicioLocal.toISODate();
-
-        // intentar parsear room_id desde join_link si existe:
-        let parsedRoomId = null;
-        try {
-          if (s.join_link) {
-            // formato: /courses/:id/join/:room_id
-            const parts = s.join_link.split("/");
-            parsedRoomId = parts[parts.length - 1];
-          }
-        } catch (_) {
-          parsedRoomId = null;
-        }
 
         newDateData[localDateKey] = {
           start: inicioLocal.toFormat("HH:mm"),
@@ -100,9 +84,8 @@ const InstructorCal = () => {
           utcEnd: finalUTC.toFormat("HH:mm"),
           title: s.titulo,
           type: s.tipo,
-          join_link: s.join_link,
+          join_link: s.join_link, // 🔹 proxy seguro
           recording_url: s.recording_url,
-          room_id: parsedRoomId,
         };
 
         newSelectedDates.push(inicioLocal.toJSDate());
@@ -110,7 +93,6 @@ const InstructorCal = () => {
 
       setSelectedDates(newSelectedDates);
       setDateData(newDateData);
-      originalDataRef.current = JSON.parse(JSON.stringify(newDateData)); // snapshot para diff
     } catch (err) {
       setError(err.message);
     }
@@ -120,6 +102,7 @@ const InstructorCal = () => {
     loadDates();
   }, [loadDates]);
 
+  // 🔹 Funciones de edición
   const selectedCourse = courses.find((c) => c.id === selectedCourseId);
   const isOwner = !!selectedCourse?.isOwner;
 
@@ -128,14 +111,12 @@ const InstructorCal = () => {
     const newData = { ...dateData };
     const newDates = dates || [];
 
-    // borrar fechas que el usuario desmarcó
     Object.keys(newData).forEach((d) => {
       if (!newDates.some((x) => DateTime.fromJSDate(x).toISODate() === d)) {
         delete newData[d];
       }
     });
 
-    // agregar nuevas fechas
     newDates.forEach((x) => {
       const iso = DateTime.fromJSDate(x).toISODate();
       if (!newData[iso]) {
@@ -146,7 +127,6 @@ const InstructorCal = () => {
           utcEnd: "",
           title: "",
           type: eventType,
-          room_id: null,
         };
       }
     });
@@ -159,7 +139,6 @@ const InstructorCal = () => {
     setDateData((prev) => {
       const newData = { ...prev };
       const isoDate = DateTime.fromJSDate(date).toISODate();
-
       if (!newData[isoDate]) {
         newData[isoDate] = {
           start: "",
@@ -168,109 +147,57 @@ const InstructorCal = () => {
           utcEnd: "",
           title: "",
           type: eventType,
-          room_id: null,
         };
       }
-
       newData[isoDate][field] = value;
 
       if (newData[isoDate].start && newData[isoDate].end) {
-        const dateStr = isoDate;
-
-        const startLocal = DateTime.fromISO(
-          `${dateStr}T${newData[isoDate].start}`,
-          { zone: "local" }
-        );
-        const endLocal = DateTime.fromISO(
-          `${dateStr}T${newData[isoDate].end}`,
-          { zone: "local" }
-        );
-
+        const startLocal = DateTime.fromISO(`${isoDate}T${newData[isoDate].start}`, { zone: "local" });
+        const endLocal = DateTime.fromISO(`${isoDate}T${newData[isoDate].end}`, { zone: "local" });
         newData[isoDate].utcStart = startLocal.toUTC().toFormat("HH:mm");
         newData[isoDate].utcEnd = endLocal.toUTC().toFormat("HH:mm");
       }
-
       return newData;
     });
   };
 
-  // Helper: compara dateData con snapshot original y devuelve solo sesiones modificadas/nuevas
-  const buildChangedSessions = () => {
-    const changed = [];
-    const original = originalDataRef.current || {};
-    for (const [date, d] of Object.entries(dateData)) {
-      const orig = original[date];
-      // si no existe en original -> nueva
-      const isNew = !orig;
-      // si cambiaron start/end/title
-      const changedTime =
-        !isNew &&
-        (d.start !== orig.start || d.end !== orig.end || (d.title || "") !== (orig.title || ""));
-      if (isNew || changedTime) {
-        // validación local
-        if (!d.start || !d.end) continue;
+  const handleSave = async () => {
+    try {
+      const invalid = Object.entries(dateData).filter(
+        ([, d]) => !d.start || !d.end
+      );
+      if (invalid.length) throw new Error("Faltan horas de inicio/fin");
+
+      const sessions = Object.entries(dateData).map(([date, d]) => {
         const localStart = DateTime.fromISO(`${date}T${d.start}`, { zone: "local" });
         const localEnd = DateTime.fromISO(`${date}T${d.end}`, { zone: "local" });
-        if (!localStart.isValid || !localEnd.isValid || localEnd <= localStart) continue;
-
-        changed.push({
+        return {
           inicio: localStart.toUTC().toISO(),
           final: localEnd.toUTC().toISO(),
           titulo: d.title || "Clase",
-          type: d.type || "Clase en vivo",
+          type: d.type,
           timezone: DateTime.local().zoneName,
-          // si ya tenemos room_id, la enviamos para que el server la reutilice
-          room_id: d.room_id || null,
-          // incluir localDate para el server si lo necesita
-          localDate: date,
-        });
-      }
-    }
-    return changed;
-  };
+        };
+      });
 
-  const handleSave = async () => {
-    if (saving) return;
-    try {
-      setSaving(true);
-
-      const sessions = buildChangedSessions();
-      if (sessions.length === 0) {
-        setModal({ isOpen: true, title: "Info", message: "No hay cambios para guardar." });
-        return;
-      }
-
-      // Enviamos UN solo POST con todas las sesiones modificadas/nuevas
       await authFetch(
         `https://server-mot.onrender.com/courses/${selectedCourseId}/dates`,
-        {
-          method: "POST",
-          body: JSON.stringify({ sessions }),
-        }
+        { method: "POST", body: JSON.stringify({ sessions }) }
       );
 
-      // Recargar horarios (snapshot actualizado)
-      await loadDates();
       setIsEditing(false);
-      setModal({
-        isOpen: true,
-        title: "Éxito",
-        message: "Calendario actualizado",
-      });
+      loadDates();
+      setModal({ isOpen: true, title: "Éxito", message: "Calendario actualizado" });
     } catch (err) {
       setModal({ isOpen: true, title: "Error", message: err.message });
-    } finally {
-      setSaving(false);
     }
   };
 
-  // Función para manejar el acceso seguro a las videollamadas
+  // 🔹 Proxy: abrir sala validada en MOT
   const handleJoinClass = (joinLink, e) => {
     e.preventDefault();
     const token = Cookies.get("token");
     if (!token) return;
-
-    // Navegación directa → el proxy se encarga de validar y redirigir
     const url = `https://server-mot.onrender.com${joinLink}?auth=${token}`;
     window.open(url, "_blank");
   };
@@ -288,9 +215,7 @@ const InstructorCal = () => {
         disabled={!courses.length}
       >
         {courses.map((c) => (
-          <option key={c.id} value={c.id}>
-            {c.nombre}
-          </option>
+          <option key={c.id} value={c.id}>{c.nombre}</option>
         ))}
       </select>
 
@@ -304,26 +229,17 @@ const InstructorCal = () => {
         <>
           <div>
             <label>Tipo:</label>
-            <select
-              value={eventType}
-              onChange={(e) => setEventType(e.target.value)}
-            >
+            <select value={eventType} onChange={(e) => setEventType(e.target.value)}>
               <option value="Clase en vivo">Clase en vivo</option>
               <option value="AAA">AAA</option>
             </select>
           </div>
 
           <div className="calendar-wrapper">
-            <DayPicker
-              mode="multiple"
-              selected={selectedDates}
-              onSelect={handleDateSelect}
-            />
+            <DayPicker mode="multiple" selected={selectedDates} onSelect={handleDateSelect} />
           </div>
 
-          <button onClick={handleSave} className="save-btn" disabled={saving}>
-            {saving ? "Guardando..." : "Guardar Cambios"}
-          </button>
+          <button onClick={handleSave} className="save-btn">Guardar Cambios</button>
         </>
       )}
 
@@ -332,14 +248,11 @@ const InstructorCal = () => {
           .sort(([a], [b]) => new Date(a) - new Date(b))
           .map(([date, data]) => {
             const dateObj = DateTime.fromISO(date);
-            const isPast =
-              dateObj.startOf("day") < DateTime.local().startOf("day");
+            const isPast = dateObj.startOf("day") < DateTime.local().startOf("day");
 
             return (
               <div key={date} className="session-card" data-type={data.type}>
-                <h4>
-                  {dateObj.setLocale("es").toLocaleString(DateTime.DATE_FULL)}
-                </h4>
+                <h4>{dateObj.setLocale("es").toLocaleString(DateTime.DATE_FULL)}</h4>
                 <p data-type-badge={data.type}>Tipo: {data.type}</p>
 
                 {isEditing ? (
@@ -347,43 +260,26 @@ const InstructorCal = () => {
                     <input
                       type="time"
                       value={data.start}
-                      onChange={(e) =>
-                        handleTimeChange(
-                          dateObj.toJSDate(),
-                          "start",
-                          e.target.value
-                        )
-                      }
+                      onChange={(e) => handleTimeChange(dateObj.toJSDate(), "start", e.target.value)}
                       disabled={isPast || data.recording_url}
                     />
                     <input
                       type="time"
                       value={data.end}
-                      onChange={(e) =>
-                        handleTimeChange(
-                          dateObj.toJSDate(),
-                          "end",
-                          e.target.value
-                        )
-                      }
+                      onChange={(e) => handleTimeChange(dateObj.toJSDate(), "end", e.target.value)}
                       disabled={isPast || data.recording_url}
                     />
                     <input
                       type="text"
                       value={data.title}
                       onChange={(e) =>
-                        setDateData((prev) => ({
-                          ...prev,
-                          [date]: { ...prev[date], title: e.target.value },
-                        }))
+                        setDateData((prev) => ({ ...prev, [date]: { ...prev[date], title: e.target.value } }))
                       }
                       placeholder="Título"
                       disabled={isPast || data.recording_url}
                     />
                     {data.utcStart && data.utcEnd && (
-                      <p className="utc-info">
-                        Horario UTC: {data.utcStart} - {data.utcEnd}
-                      </p>
+                      <p className="utc-info">Horario UTC: {data.utcStart} - {data.utcEnd}</p>
                     )}
                   </>
                 ) : (
@@ -391,26 +287,17 @@ const InstructorCal = () => {
                     <p>Título: {data.title || "Clase"}</p>
                     {data.join_link && (
                       <p>
-                        Enlace:{" "}
                         <a
                           href="#"
                           onClick={(e) => handleJoinClass(data.join_link, e)}
-                          style={{
-                            color: "#007bff",
-                            textDecoration: "underline",
-                            cursor: "pointer",
-                          }}
+                          style={{ color: "#007bff", textDecoration: "underline" }}
                         >
                           Unirse a la clase
                         </a>
                       </p>
                     )}
                     {data.recording_url && (
-                      <a
-                        href={data.recording_url}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                      >
+                      <a href={data.recording_url} target="_blank" rel="noopener noreferrer">
                         <button>Ver Grabación</button>
                       </a>
                     )}
@@ -426,13 +313,7 @@ const InstructorCal = () => {
           <div className="modal">
             <h3>{modal.title}</h3>
             <p>{modal.message}</p>
-            <button
-              onClick={() =>
-                setModal({ isOpen: false, title: "", message: "" })
-              }
-            >
-              Cerrar
-            </button>
+            <button onClick={() => setModal({ isOpen: false, title: "", message: "" })}>Cerrar</button>
           </div>
         </div>
       )}
