@@ -1,165 +1,455 @@
-import React, { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
-import CourseContent from "../../components/InstructorNavBar/CourseContent";
-import InstructorCal from "../../components/InstructorNavBar/InstructorCal";
-import ListStudents from "../../components/InstructorNavBar/ListStudents";
+import React, { useState, useEffect, useCallback, useRef } from "react";
+import { DateTime } from "luxon";
 import Cookies from "js-cookie";
+import { DayPicker } from "react-day-picker";
+import "react-day-picker/dist/style.css";
+import "./InstructorCal.css";
 
-function InstructorNavBar() {
-  const navigate = useNavigate();
-  const [activeTab, setActiveTab] = useState("courses");
-  const [userPrimaryColor, setUserPrimaryColor] = useState("#42A5F5"); // Color por defecto que coincida con el perfil
-
-  const handleProfile = (e) => {
-    e.preventDefault();
-    navigate("/editar-perfil");
-  };
-
-  const handleChats = (e) => {
-    e.preventDefault();
-    navigate("/mychats");
-  };
-
-  useEffect(() => {
-    const userCookie = Cookies.get("user");
-    if (!userCookie) {
-      navigate("/");
-      return;
-    }
-
+const InstructorCal = () => {
+  const getCurrentUser = () => {
     try {
-      const user = JSON.parse(userCookie);
-      const userRole = user.rol?.toLowerCase();
-
-      // 🔥 AQUÍ ESTÁ LA CORRECCIÓN: Obtenemos el color del usuario correctamente
-      let userColor = "#42A5F5"; // Color por defecto
-      
-      // Si es el formato normalizado (objeto directo)
-      if (user.color_perfil) {
-        userColor = user.color_perfil;
-      }
-      // Si es el formato con rows (array)
-      else if (user.rows && user.rows[0] && user.rows[0][10]) {
-        userColor = user.rows[0][10];
-      }
-
-      setUserPrimaryColor(userColor);
-
-      // 🔥 APLICAR EL COLOR INMEDIATAMENTE AL DOM
-      document.documentElement.style.setProperty('--color-primary', userColor);
-
-      // Validación de roles
-      if (userRole === "estudiante") {
-        navigate("/studentNav");
-      } else if (userRole !== "profesor") {
-        navigate("/");
-      }
-    } catch (error) {
-      console.error("Error parseando cookie de usuario:", error);
-      navigate("/");
+      const cookie = Cookies.get("user");
+      if (!cookie) return null;
+      return JSON.parse(cookie);
+    } catch {
+      return null;
     }
-  }, [navigate]);
+  };
+  const user = getCurrentUser();
+  const userId = user?.id;
 
-  // 🔥 EFECTO ADICIONAL para asegurar que el color se aplique
+  const [courses, setCourses] = useState([]);
+  const [selectedCourseId, setSelectedCourseId] = useState(null);
+  const [selectedDates, setSelectedDates] = useState([]);
+  const [dateData, setDateData] = useState({});
+  const originalDataRef = useRef({}); // guarda estado original para diff
+  const [isEditing, setIsEditing] = useState(false);
+  const [error, setError] = useState(null);
+  const [eventType, setEventType] = useState("Clase en vivo");
+  const [modal, setModal] = useState({ isOpen: false, title: "", message: "" });
+  const sessionsContainerRef = useRef(null);
+  const [saving, setSaving] = useState(false); // evita envíos dobles
+
+  const authFetch = useCallback(async (url, options = {}) => {
+    const headers = {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${Cookies.get("token")}`,
+    };
+    const res = await fetch(url, { ...options, headers: headers });
+    if (!res.ok) {
+      const err = await res.json().catch(() => ({}));
+      throw new Error(err.message || "Error en la solicitud");
+    }
+    return res.json();
+  }, []);
+
+  const loadCourses = useCallback(async () => {
+    if (!userId) return;
+    try {
+      const data = await authFetch(
+        `https://server-mot.onrender.com/teachers/${userId}/courses`
+      );
+      const filteredCourses = data.filter(
+        (course) => course.tipoCurso !== "pregrabado"
+      );
+      setCourses(filteredCourses);
+      setSelectedCourseId(filteredCourses[0]?.id || null);
+    } catch (err) {
+      setError(err.message);
+    }
+  }, [userId, authFetch]);
+
   useEffect(() => {
-    document.documentElement.style.setProperty('--color-primary', userPrimaryColor);
-  }, [userPrimaryColor]);
+    loadCourses();
+  }, [loadCourses]);
 
-  const tabs = [
-    { id: "courses", label: "Mis cursos" },
-    { id: "students", label: "Estudiantes" },
-    { id: "calendar", label: "Calendario" },
-  ];
+  const loadDates = useCallback(async () => {
+    if (!selectedCourseId) return;
+    try {
+      const data = await authFetch(
+        `https://server-mot.onrender.com/courses/${selectedCourseId}/dates`
+      );
+      const newDateData = {};
+      const newSelectedDates = [];
 
-  const handleTabChange = (tabId) => {
-    setActiveTab(tabId);
-    // Animación suave al cambiar tabs
-    const tabContent = document.querySelector('.tab-content');
-    if (tabContent) {
-      tabContent.style.animation = 'none';
-      tabContent.offsetHeight; // Trigger reflow
-      tabContent.style.animation = 'slideIn 0.3s ease-out';
+      data.forEach((s) => {
+        const inicioUTC = DateTime.fromISO(s.inicio, { zone: "utc" });
+        const finalUTC = DateTime.fromISO(s.final, { zone: "utc" });
+
+        const inicioLocal = inicioUTC.setZone("local");
+        const finalLocal = finalUTC.setZone("local");
+
+        const localDateKey = inicioLocal.toISODate();
+
+        // intentar parsear room_id desde join_link si existe:
+        let parsedRoomId = null;
+        try {
+          if (s.join_link) {
+            // formato: /courses/:id/join/:room_id
+            const parts = s.join_link.split("/");
+            parsedRoomId = parts[parts.length - 1];
+          }
+        } catch (err) {
+          parsedRoomId = null;
+          console.error("Error al parsear room_id:", err);
+        }
+
+        newDateData[localDateKey] = {
+          start: inicioLocal.toFormat("HH:mm"),
+          end: finalLocal.toFormat("HH:mm"),
+          utcStart: inicioUTC.toFormat("HH:mm"),
+          utcEnd: finalUTC.toFormat("HH:mm"),
+          title: s.titulo,
+          type: s.tipo,
+          join_link: s.join_link,
+          recording_url: s.recording_url,
+          room_id: parsedRoomId,
+        };
+
+        newSelectedDates.push(inicioLocal.toJSDate());
+      });
+
+      setSelectedDates(newSelectedDates);
+      setDateData(newDateData);
+      originalDataRef.current = JSON.parse(JSON.stringify(newDateData)); // snapshot para diff
+    } catch (err) {
+      setError(err.message);
     }
+  }, [selectedCourseId, authFetch]);
+
+  useEffect(() => {
+    loadDates();
+  }, [loadDates]);
+
+  const selectedCourse = courses.find((c) => c.id === selectedCourseId);
+  const isOwner = !!selectedCourse?.isOwner;
+
+  const handleDateSelect = (dates) => {
+    if (!isEditing || !isOwner) return;
+    const newData = { ...dateData };
+    const newDates = dates || [];
+
+    // borrar fechas que el usuario desmarcó
+    Object.keys(newData).forEach((d) => {
+      if (!newDates.some((x) => DateTime.fromJSDate(x).toISODate() === d)) {
+        delete newData[d];
+      }
+    });
+
+    // agregar nuevas fechas
+    newDates.forEach((x) => {
+      const iso = DateTime.fromJSDate(x).toISODate();
+      if (!newData[iso]) {
+        newData[iso] = {
+          start: "",
+          end: "",
+          utcStart: "",
+          utcEnd: "",
+          title: "",
+          type: eventType,
+          room_id: null,
+        };
+      }
+    });
+
+    setSelectedDates(newDates);
+    setDateData(newData);
+  };
+
+  const handleTimeChange = (date, field, value) => {
+    setDateData((prev) => {
+      const newData = { ...prev };
+      const isoDate = DateTime.fromJSDate(date).toISODate();
+
+      if (!newData[isoDate]) {
+        newData[isoDate] = {
+          start: "",
+          end: "",
+          utcStart: "",
+          utcEnd: "",
+          title: "",
+          type: eventType,
+          room_id: null,
+        };
+      }
+
+      newData[isoDate][field] = value;
+
+      if (newData[isoDate].start && newData[isoDate].end) {
+        const dateStr = isoDate;
+
+        const startLocal = DateTime.fromISO(
+          `${dateStr}T${newData[isoDate].start}`,
+          { zone: "local" }
+        );
+        const endLocal = DateTime.fromISO(
+          `${dateStr}T${newData[isoDate].end}`,
+          { zone: "local" }
+        );
+
+        newData[isoDate].utcStart = startLocal.toUTC().toFormat("HH:mm");
+        newData[isoDate].utcEnd = endLocal.toUTC().toFormat("HH:mm");
+      }
+
+      return newData;
+    });
+  };
+
+  // Helper: compara dateData con snapshot original y devuelve solo sesiones modificadas/nuevas
+  const buildChangedSessions = () => {
+    const changed = [];
+    const original = originalDataRef.current || {};
+    for (const [date, d] of Object.entries(dateData)) {
+      const orig = original[date];
+      // si no existe en original -> nueva
+      const isNew = !orig;
+      // si cambiaron start/end/title
+      const changedTime =
+        !isNew &&
+        (d.start !== orig.start ||
+          d.end !== orig.end ||
+          (d.title || "") !== (orig.title || ""));
+      if (isNew || changedTime) {
+        // validación local
+        if (!d.start || !d.end) continue;
+        const localStart = DateTime.fromISO(`${date}T${d.start}`, {
+          zone: "local",
+        });
+        const localEnd = DateTime.fromISO(`${date}T${d.end}`, {
+          zone: "local",
+        });
+        if (!localStart.isValid || !localEnd.isValid || localEnd <= localStart)
+          continue;
+
+        changed.push({
+          inicio: localStart.toUTC().toISO(),
+          final: localEnd.toUTC().toISO(),
+          titulo: d.title || "Clase",
+          type: d.type || "Clase en vivo",
+          timezone: DateTime.local().zoneName,
+          // si ya tenemos room_id, la enviamos para que el server la reutilice
+          room_id: d.room_id || null,
+          // incluir localDate para el server si lo necesita
+          localDate: date,
+        });
+      }
+    }
+    return changed;
+  };
+
+  const handleSave = async () => {
+    if (saving) return;
+    try {
+      setSaving(true);
+
+      const sessions = buildChangedSessions();
+      if (sessions.length === 0) {
+        setModal({
+          isOpen: true,
+          title: "Info",
+          message: "No hay cambios para guardar.",
+        });
+        return;
+      }
+
+      // Enviamos UN solo POST con todas las sesiones modificadas/nuevas
+      await authFetch(
+        `https://server-mot.onrender.com/courses/${selectedCourseId}/dates`,
+        {
+          method: "POST",
+          body: JSON.stringify({ sessions }),
+        }
+      );
+
+      // Recargar horarios (snapshot actualizado)
+      await loadDates();
+      setIsEditing(false);
+      setModal({
+        isOpen: true,
+        title: "Éxito",
+        message: "Calendario actualizado",
+      });
+    } catch (err) {
+      setModal({ isOpen: true, title: "Error", message: err.message });
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  // Función para manejar el acceso seguro a las videollamadas
+  const handleJoinClass = (joinLink, e) => {
+    e.preventDefault();
+    const token = Cookies.get("token");
+    if (!token) return;
+
+    // Navegación directa → el proxy se encarga de validar y redirigir
+    const url = `https://server-mot.onrender.com${joinLink}?auth=${token}`;
+    window.open(url, "_blank");
   };
 
   return (
-    <div className="instructor-dashboard">
-      <header className="dashboard-header">
-        <div>
-          <h1>My Online Tutor</h1>
-          <p>Panel de Instructor</p>
-        </div>
-        <div className="header-buttons">
-          <button 
-            onClick={handleChats} 
-            className="chatsButton"
-            title="Mis Chats"
-          >
-            <img 
-              src="../../../img/mensajero.png" 
-              alt="Chats" 
-              className="chatsImg" 
-            />
-          </button>
-          <button 
-            onClick={handleProfile} 
-            className="profileButton"
-            title="Mi Perfil"
-          >
-            <img 
-              src="../../img/usuario.png" 
-              alt="Perfil" 
-              className="profileImg" 
-            />
-          </button>
-        </div>
-      </header>
-
-      <div className="content-container">
-        <nav className="nav-tabs">
-          {tabs.map((tab) => (
-            <button
-              key={tab.id}
-              className={`tab-button ${activeTab === tab.id ? "active" : ""}`}
-              onClick={() => handleTabChange(tab.id)}
-            >
-              <span className="tab-icon">{tab.icon}</span>
-              <span className="tab-label">{tab.label}</span>
-            </button>
-          ))}
-        </nav>
-
-        <div className="tab-content">
-          {activeTab === "courses" && (
-            <div className="content-section">
-              <h2>Mis Cursos</h2>
-              <div className="content-placeholder">
-                <CourseContent />
-              </div>
-            </div>
-          )}
-
-          {activeTab === "students" && (
-            <div className="content-section">
-              <h2>Estudiantes</h2>
-              <div className="content-placeholder">
-                <ListStudents />
-              </div>
-            </div>
-          )}
-
-          {activeTab === "calendar" && (
-            <div className="content-section">
-              <h2>Calendario</h2>
-              <div className="content-placeholder">
-                <InstructorCal />
-              </div>
-            </div>
-          )}
-        </div>
+    <div className="instructor-calendar">
+      {error && <p className="error">{error}</p>}
+      <div className="timezone-info">
+        Zona horaria actual: {DateTime.local().zoneName}
       </div>
+
+      <select
+        value={selectedCourseId || ""}
+        onChange={(e) => setSelectedCourseId(Number(e.target.value))}
+        disabled={!courses.length}
+      >
+        {courses.map((c) => (
+          <option key={c.id} value={c.id}>
+            {c.nombre}
+          </option>
+        ))}
+      </select>
+
+      {isOwner && (
+        <button onClick={() => setIsEditing(!isEditing)}>
+          {isEditing ? "Cancelar" : "Editar"}
+        </button>
+      )}
+
+      {isEditing && (
+        <>
+          <div>
+            <label>Tipo:</label>
+            <select
+              value={eventType}
+              onChange={(e) => setEventType(e.target.value)}
+            >
+              <option value="Clase en vivo">Clase en vivo</option>
+              <option value="AAA">AAA</option>
+            </select>
+          </div>
+
+          <div className="calendar-wrapper">
+            <DayPicker
+              mode="multiple"
+              selected={selectedDates}
+              onSelect={handleDateSelect}
+            />
+          </div>
+
+          <button onClick={handleSave} className="save-btn" disabled={saving}>
+            {saving ? "Guardando..." : "Guardar Cambios"}
+          </button>
+        </>
+      )}
+
+      <div ref={sessionsContainerRef}>
+        {Object.entries(dateData)
+          .sort(([a], [b]) => new Date(a) - new Date(b))
+          .map(([date, data]) => {
+            const dateObj = DateTime.fromISO(date);
+            const isPast =
+              dateObj.startOf("day") < DateTime.local().startOf("day");
+
+            return (
+              <div key={date} className="session-card" data-type={data.type}>
+                <h4>
+                  {dateObj.setLocale("es").toLocaleString(DateTime.DATE_FULL)}
+                </h4>
+                <p data-type-badge={data.type}>Tipo: {data.type}</p>
+
+                {isEditing ? (
+                  <>
+                    <input
+                      type="time"
+                      value={data.start}
+                      onChange={(e) =>
+                        handleTimeChange(
+                          dateObj.toJSDate(),
+                          "start",
+                          e.target.value
+                        )
+                      }
+                      disabled={isPast || data.recording_url}
+                    />
+                    <input
+                      type="time"
+                      value={data.end}
+                      onChange={(e) =>
+                        handleTimeChange(
+                          dateObj.toJSDate(),
+                          "end",
+                          e.target.value
+                        )
+                      }
+                      disabled={isPast || data.recording_url}
+                    />
+                    <input
+                      type="text"
+                      value={data.title}
+                      onChange={(e) =>
+                        setDateData((prev) => ({
+                          ...prev,
+                          [date]: { ...prev[date], title: e.target.value },
+                        }))
+                      }
+                      placeholder="Título"
+                      disabled={isPast || data.recording_url}
+                    />
+                    {data.utcStart && data.utcEnd && (
+                      <p className="utc-info">
+                        Horario UTC: {data.utcStart} - {data.utcEnd}
+                      </p>
+                    )}
+                  </>
+                ) : (
+                  <>
+                    <p>Título: {data.title || "Clase"}</p>
+                    {data.join_link && (
+                      <p>
+                        Enlace:{" "}
+                        <a
+                          href="#"
+                          onClick={(e) => handleJoinClass(data.join_link, e)}
+                          style={{
+                            color: "#007bff",
+                            textDecoration: "underline",
+                            cursor: "pointer",
+                          }}
+                        >
+                          Unirse a la clase
+                        </a>
+                      </p>
+                    )}
+                    {data.recording_url && (
+                      <a
+                        href={data.recording_url}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                      >
+                        <button>Ver Grabación</button>
+                      </a>
+                    )}
+                  </>
+                )}
+              </div>
+            );
+          })}
+      </div>
+
+      {modal.isOpen && (
+        <div className="modal-overlay">
+          <div className="modal">
+            <h3>{modal.title}</h3>
+            <p>{modal.message}</p>
+            <button
+              onClick={() =>
+                setModal({ isOpen: false, title: "", message: "" })
+              }
+            >
+              Cerrar
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
-}
+};
 
-export default InstructorNavBar;
+export default InstructorCal;
