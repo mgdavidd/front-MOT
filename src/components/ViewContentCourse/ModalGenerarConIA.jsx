@@ -1,13 +1,10 @@
 import React, { useState } from "react";
-import * as pdfjsLib from "pdfjs-dist";
 import mammoth from "mammoth";
 import * as XLSX from "xlsx";
 import Papa from "papaparse";
 import styles from "./ModalGenerarConIA.module.css";
 
-pdfjsLib.GlobalWorkerOptions.workerSrc = `https://cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjsLib.version}/pdf.worker.min.js`;
-
-const ModalGenerarConIA = ({ onClose, onGenerate }) => {
+const ModalGenerarConIA = ({ onClose, onGenerate, authHeaders }) => {
   const [mode, setMode] = useState("prompt");
   const [promptText, setPromptText] = useState("");
   const [processedFiles, setProcessedFiles] = useState([]);
@@ -17,27 +14,27 @@ const ModalGenerarConIA = ({ onClose, onGenerate }) => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
-  const MAX_FILE_SIZE = 8 * 1024 * 1024;
+  const MAX_FILE_SIZE = 8 * 1024 * 1024; // 8MB
   const MAX_TEXT_LENGTH = 50000;
 
-  const extractTextFromPDF = async (arrayBuffer) => {
-    try {
-      const loadingTask = pdfjsLib.getDocument({ data: arrayBuffer });
-      const pdf = await loadingTask.promise;
-      let fullText = "";
-      
-      for (let i = 1; i <= pdf.numPages; i++) {
-        const page = await pdf.getPage(i);
-        const textContent = await page.getTextContent();
-        const pageText = textContent.items.map((item) => item.str).join(" ");
-        fullText += pageText + "\n\n";
-      }
-      
-      return fullText.trim();
-    } catch (err) {
-      console.error("Error en extractTextFromPDF:", err);
-      throw new Error(`Error procesando PDF: ${err.message}`);
+  // procesar PDF en el backend
+  const extractTextFromPDFBackend = async (file) => {
+    const formData = new FormData();
+    formData.append("file", file);
+
+    const response = await fetch("https://server-mot.onrender.com/extract-pdf-text", {
+      method: "POST",
+      headers: authHeaders,
+      body: formData
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json();
+      throw new Error(errorData.error || "Error extrayendo texto del PDF");
     }
+
+    const data = await response.json();
+    return data.text || "";
   };
 
   const extractTextFromDOCX = async (arrayBuffer) => {
@@ -82,7 +79,7 @@ const ModalGenerarConIA = ({ onClose, onGenerate }) => {
     const fileName = file.name;
     const ext = fileName.split(".").pop()?.toLowerCase();
 
-    // validar tamaño
+    // Validar tamaño
     if (file.size > MAX_FILE_SIZE) {
       return {
         id,
@@ -93,7 +90,7 @@ const ModalGenerarConIA = ({ onClose, onGenerate }) => {
       };
     }
 
-    // validar extensiones
+    // Validar extensión
     const validExtensions = ["pdf", "txt", "docx", "doc", "xlsx", "xls", "csv", "md"];
     if (!validExtensions.includes(ext)) {
       return {
@@ -106,30 +103,41 @@ const ModalGenerarConIA = ({ onClose, onGenerate }) => {
     }
 
     try {
-      const arrayBuffer = await file.arrayBuffer();
       let extractedText = "";
 
-      // Procesar según extension
-      if (ext === "txt" || ext === "md") {
+      // PDF se procesa en el backend
+      if (ext === "pdf") {
+        extractedText = await extractTextFromPDFBackend(file);
+      } 
+      // Texto plano
+      else if (ext === "txt" || ext === "md") {
+        const arrayBuffer = await file.arrayBuffer();
         extractedText = new TextDecoder().decode(arrayBuffer);
-      } else if (ext === "pdf") {
-        extractedText = await extractTextFromPDF(arrayBuffer);
-      } else if (ext === "docx" || ext === "doc") {
+      } 
+      // DOCX
+      else if (ext === "docx" || ext === "doc") {
+        const arrayBuffer = await file.arrayBuffer();
         extractedText = await extractTextFromDOCX(arrayBuffer);
-      } else if (ext === "xlsx" || ext === "xls") {
+      } 
+      // Excel
+      else if (ext === "xlsx" || ext === "xls") {
+        const arrayBuffer = await file.arrayBuffer();
         extractedText = extractTextFromExcel(arrayBuffer);
-      } else if (ext === "csv") {
+      } 
+      // CSV
+      else if (ext === "csv") {
+        const arrayBuffer = await file.arrayBuffer();
         const csvText = new TextDecoder().decode(arrayBuffer);
         extractedText = await extractTextFromCSV(csvText);
       }
 
-      // Limpiar texto con regex
+      // Limpiar
       extractedText = extractedText
         .replace(/\s+/g, " ")
         .replace(/\n{3,}/g, "\n\n")
         .trim();
-      
-      if (!extractedText || extractedText.length < 30) {
+
+      if (!extractedText || extractedText.length < 50) {
         return {
           id,
           titulo: fileName,
@@ -166,9 +174,7 @@ const ModalGenerarConIA = ({ onClose, onGenerate }) => {
 
     setError("");
     
-    //procesar cada archivo
     for (const file of files) {
-
       const tempId = `temp-${Date.now()}-${Math.random()}`;
       setProcessedFiles(prev => [...prev, {
         id: tempId,
@@ -178,16 +184,13 @@ const ModalGenerarConIA = ({ onClose, onGenerate }) => {
         error: null
       }]);
 
-      // Procesar archivo
       const result = await processFile(file);
       
-      // actualizar con el resultado
       setProcessedFiles(prev => 
         prev.map(f => f.id === tempId ? result : f)
       );
     }
 
-    // Limpiar el input para poder subir el mismo archivo otra vez si es necesario
     evt.target.value = "";
   };
 
@@ -200,7 +203,6 @@ const ModalGenerarConIA = ({ onClose, onGenerate }) => {
       return promptText.trim();
     }
 
-    // Combinar texto de todos los archivos exitosos
     const successfulFiles = processedFiles.filter(f => f.status === "success");
     
     if (successfulFiles.length === 0) {
@@ -211,7 +213,6 @@ const ModalGenerarConIA = ({ onClose, onGenerate }) => {
       .map(f => `\n\n=== ${f.titulo} ===\n${f.text}`)
       .join("");
 
-    // Truncar si excede el límite
     if (combined.length > MAX_TEXT_LENGTH) {
       combined = combined.substring(0, MAX_TEXT_LENGTH) + "\n\n[...texto truncado por límite...]";
     }
@@ -273,7 +274,6 @@ const ModalGenerarConIA = ({ onClose, onGenerate }) => {
         </div>
 
         <div className={styles.content}>
-          {/* Selector de modo */}
           <div className={styles.section}>
             <h3>Modo de entrada</h3>
             <div style={{ display: "flex", gap: "1rem" }}>
@@ -298,7 +298,6 @@ const ModalGenerarConIA = ({ onClose, onGenerate }) => {
             </div>
           </div>
 
-          {/* Modo: Prompt */}
           {mode === "prompt" && (
             <div className={styles.section}>
               <h3>Escribe el contenido o tema</h3>
@@ -315,7 +314,6 @@ const ModalGenerarConIA = ({ onClose, onGenerate }) => {
             </div>
           )}
 
-          {/* Modo: Archivos */}
           {mode === "files" && (
             <div className={styles.section}>
               <h3>Subir archivos</h3>
@@ -337,6 +335,8 @@ const ModalGenerarConIA = ({ onClose, onGenerate }) => {
               {processedFiles.length === 0 ? (
                 <p className={styles.noFiles}>
                   No hay archivos subidos. Formatos: PDF, DOCX, TXT, XLSX, CSV, MD
+                  <br />
+                  <small style={{ color: "#6b7280" }}>Los PDFs se procesan en el servidor</small>
                 </p>
               ) : (
                 <div className={styles.fileList}>
@@ -346,14 +346,14 @@ const ModalGenerarConIA = ({ onClose, onGenerate }) => {
                         <span className={styles.fileName}>{f.titulo}</span>
                         {f.status === "success" && (
                           <span className={styles.fileSize}>
-                            {f.size.toLocaleString()} caracteres
+                            ✓ {f.size.toLocaleString()} caracteres
                           </span>
                         )}
                         {f.status === "error" && (
-                          <span className={styles.fileError}>{f.error}</span>
+                          <span className={styles.fileError}>✗ {f.error}</span>
                         )}
                         {f.status === "processing" && (
-                          <span className={styles.fileProcessing}>Procesando...</span>
+                          <span className={styles.fileProcessing}>⏳ Procesando...</span>
                         )}
                       </div>
                       
@@ -378,7 +378,6 @@ const ModalGenerarConIA = ({ onClose, onGenerate }) => {
             </div>
           )}
 
-          {/* Configuración */}
           <div className={styles.section}>
             <h3>Configuración del examen</h3>
             <div className={styles.formRow}>
@@ -432,7 +431,7 @@ const ModalGenerarConIA = ({ onClose, onGenerate }) => {
             className={styles.generateBtn} 
             disabled={loading || !getCombinedText()}
           >
-            {loading ? "Generando..." : "Generar Examen"}
+            {loading ? "Generando..." : "🪄 Generar Examen"}
           </button>
         </div>
       </div>
