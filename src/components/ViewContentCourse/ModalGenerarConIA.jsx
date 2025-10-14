@@ -5,160 +5,237 @@ import * as XLSX from "xlsx";
 import Papa from "papaparse";
 import styles from "./ModalGenerarConIA.module.css";
 
-pdfjsLib.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js`;
+pdfjsLib.GlobalWorkerOptions.workerSrc = `https://cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjsLib.version}/pdf.worker.min.js`;
 
 const ModalGenerarConIA = ({ onClose, onGenerate }) => {
   const [mode, setMode] = useState("prompt");
   const [promptText, setPromptText] = useState("");
-  const [localFiles, setLocalFiles] = useState([]);
-  const [selectedFiles, setSelectedFiles] = useState([]);
-  const [extractedText, setExtractedText] = useState("");
+  const [processedFiles, setProcessedFiles] = useState([]);
   const [numPreguntas, setNumPreguntas] = useState(5);
   const [dificultad, setDificultad] = useState("intermedio");
   const [notaMinima, setNotaMinima] = useState(7);
   const [loading, setLoading] = useState(false);
-  const [extracting, setExtracting] = useState(false);
-  const [progress, setProgress] = useState("");
   const [error, setError] = useState("");
 
-  const MAX_FILE_SIZE = 8 * 1024 * 1024; // 8MB local limit
+  const MAX_FILE_SIZE = 8 * 1024 * 1024;
   const MAX_TEXT_LENGTH = 50000;
 
-  const handleLocalUpload = (evt) => {
-    const files = Array.from(evt.target.files || []);
-    const mapped = files.map((f, i) => {
-      const ext = (f.name || "").split(".").pop().toLowerCase();
-      return { id: `local-${Date.now()}-${i}`, file: f, titulo: f.name, ext };
-    });
-    setLocalFiles((prev) => [...prev, ...mapped]);
-    // auto-select newly added
-    setSelectedFiles((prev) => [...prev, ...mapped.map((m) => m.id)]);
-  };
-
-  const toggleFile = (id) => {
-    setSelectedFiles((prev) => (prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id]));
-  };
-
   const extractTextFromPDF = async (arrayBuffer) => {
-    const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
-    let fullText = "";
-    for (let i = 1; i <= pdf.numPages; i++) {
-      const page = await pdf.getPage(i);
-      const textContent = await page.getTextContent();
-      const pageText = textContent.items.map((item) => item.str).join(" ");
-      fullText += pageText + "\n\n";
+    try {
+      const loadingTask = pdfjsLib.getDocument({ data: arrayBuffer });
+      const pdf = await loadingTask.promise;
+      let fullText = "";
+      
+      for (let i = 1; i <= pdf.numPages; i++) {
+        const page = await pdf.getPage(i);
+        const textContent = await page.getTextContent();
+        const pageText = textContent.items.map((item) => item.str).join(" ");
+        fullText += pageText + "\n\n";
+      }
+      
+      return fullText.trim();
+    } catch (err) {
+      console.error("Error en extractTextFromPDF:", err);
+      throw new Error(`Error procesando PDF: ${err.message}`);
     }
-    return fullText;
   };
 
   const extractTextFromDOCX = async (arrayBuffer) => {
-    const result = await mammoth.extractRawText({ arrayBuffer });
-    return result.value;
+    try {
+      const result = await mammoth.extractRawText({ arrayBuffer });
+      return result.value.trim();
+    } catch (err) {
+      throw new Error(`Error procesando DOCX: ${err.message}`);
+    }
   };
 
   const extractTextFromExcel = (arrayBuffer) => {
-    const workbook = XLSX.read(arrayBuffer, { type: "array" });
-    let fullText = "";
-    workbook.SheetNames.forEach((sheetName) => {
-      const sheet = workbook.Sheets[sheetName];
-      const csv = XLSX.utils.sheet_to_csv(sheet);
-      fullText += `\n--- Hoja: ${sheetName} ---\n${csv}\n`;
-    });
-    return fullText;
+    try {
+      const workbook = XLSX.read(arrayBuffer, { type: "array" });
+      let fullText = "";
+      
+      workbook.SheetNames.forEach((sheetName) => {
+        const sheet = workbook.Sheets[sheetName];
+        const csv = XLSX.utils.sheet_to_csv(sheet);
+        fullText += `\n--- Hoja: ${sheetName} ---\n${csv}\n`;
+      });
+      
+      return fullText.trim();
+    } catch (err) {
+      throw new Error(`Error procesando Excel: ${err.message}`);
+    }
   };
 
   const extractTextFromCSV = (text) =>
-    new Promise((resolve) => {
+    new Promise((resolve, reject) => {
       Papa.parse(text, {
         complete: (results) => {
           const csv = results.data.map((row) => row.join(", ")).join("\n");
-          resolve(csv);
+          resolve(csv.trim());
         },
+        error: (err) => reject(new Error(`Error procesando CSV: ${err.message}`))
       });
     });
 
-  const extractTextFromLocalFile = async (local) => {
+  const processFile = async (file) => {
+    const id = `file-${Date.now()}-${Math.random()}`;
+    const fileName = file.name;
+    const ext = fileName.split(".").pop()?.toLowerCase();
+
+    // validar tamaño
+    if (file.size > MAX_FILE_SIZE) {
+      return {
+        id,
+        titulo: fileName,
+        text: "",
+        status: "error",
+        error: `Archivo muy grande: ${(file.size / 1024 / 1024).toFixed(2)} MB (máx: 8 MB)`
+      };
+    }
+
+    // validar extensiones
+    const validExtensions = ["pdf", "txt", "docx", "doc", "xlsx", "xls", "csv", "md"];
+    if (!validExtensions.includes(ext)) {
+      return {
+        id,
+        titulo: fileName,
+        text: "",
+        status: "error",
+        error: `Formato no soportado: .${ext}`
+      };
+    }
+
     try {
-      if (local.file.size > MAX_FILE_SIZE) {
-        return `[Archivo ${local.titulo} demasiado grande]`;
-      }
-      const arrayBuffer = await local.file.arrayBuffer();
-      const ext = local.ext;
+      const arrayBuffer = await file.arrayBuffer();
+      let extractedText = "";
+
+      // Procesar según extension
       if (ext === "txt" || ext === "md") {
-        return new TextDecoder().decode(arrayBuffer);
+        extractedText = new TextDecoder().decode(arrayBuffer);
+      } else if (ext === "pdf") {
+        extractedText = await extractTextFromPDF(arrayBuffer);
+      } else if (ext === "docx" || ext === "doc") {
+        extractedText = await extractTextFromDOCX(arrayBuffer);
+      } else if (ext === "xlsx" || ext === "xls") {
+        extractedText = extractTextFromExcel(arrayBuffer);
+      } else if (ext === "csv") {
+        const csvText = new TextDecoder().decode(arrayBuffer);
+        extractedText = await extractTextFromCSV(csvText);
       }
-      switch (ext) {
-        case "pdf":
-          return await extractTextFromPDF(arrayBuffer);
-        case "docx":
-        case "doc":
-          return await extractTextFromDOCX(arrayBuffer);
-        case "xlsx":
-        case "xls":
-          return extractTextFromExcel(arrayBuffer);
-        case "csv": {
-          const csvText = new TextDecoder().decode(arrayBuffer);
-          return await extractTextFromCSV(csvText);
-        }
-        default:
-          return `[Formato local no soportado: .${ext}]`;
+
+      // Limpiar texto con regex
+      extractedText = extractedText
+        .replace(/\s+/g, " ")
+        .replace(/\n{3,}/g, "\n\n")
+        .trim();
+      
+      if (!extractedText || extractedText.length < 30) {
+        return {
+          id,
+          titulo: fileName,
+          text: "",
+          status: "error",
+          error: "El archivo no contiene texto extraíble"
+        };
       }
+
+      return {
+        id,
+        titulo: fileName,
+        text: extractedText,
+        status: "success",
+        error: null,
+        size: extractedText.length
+      };
+
     } catch (err) {
-      console.error("Error extrayendo local:", err);
-      return `[Error extrayendo ${local.titulo}: ${err.message}]`;
+      console.error(`Error procesando ${fileName}:`, err);
+      return {
+        id,
+        titulo: fileName,
+        text: "",
+        status: "error",
+        error: err.message || "Error desconocido al procesar"
+      };
     }
   };
 
-  const handleExtractSelected = async () => {
-    if (selectedFiles.length === 0) {
-      setError("Selecciona al menos un archivo para extraer.");
-      return;
-    }
-    setExtracting(true);
+  const handleFilesUpload = async (evt) => {
+    const files = Array.from(evt.target.files || []);
+    if (files.length === 0) return;
+
     setError("");
-    setProgress("Procesando archivos...");
-    try {
-      const chosen = localFiles.filter((f) => selectedFiles.includes(f.id));
-      let combined = "";
-      for (let i = 0; i < chosen.length; i++) {
-        const f = chosen[i];
-        setProgress(`Procesando ${i + 1}/${chosen.length}: ${f.titulo}`);
-        const text = await extractTextFromLocalFile(f);
-        combined += `\n\n=== ${f.titulo} ===\n${text}`;
-      }
-      combined = combined.replace(/\s+/g, " ").replace(/\n{3,}/g, "\n\n").trim();
-      if (combined.length > MAX_TEXT_LENGTH) {
-        combined = combined.substring(0, MAX_TEXT_LENGTH) + "\n\n[...texto truncado...]";
-      }
-      setExtractedText(combined);
-      setProgress(`✓ ${chosen.length} archivo(s) procesado(s)`);
-    } catch (err) {
-      setError("Error extrayendo archivos: " + (err.message || err));
-    } finally {
-      setExtracting(false);
+    
+    //procesar cada archivo
+    for (const file of files) {
+
+      const tempId = `temp-${Date.now()}-${Math.random()}`;
+      setProcessedFiles(prev => [...prev, {
+        id: tempId,
+        titulo: file.name,
+        text: "",
+        status: "processing",
+        error: null
+      }]);
+
+      // Procesar archivo
+      const result = await processFile(file);
+      
+      // actualizar con el resultado
+      setProcessedFiles(prev => 
+        prev.map(f => f.id === tempId ? result : f)
+      );
     }
+
+    // Limpiar el input para poder subir el mismo archivo otra vez si es necesario
+    evt.target.value = "";
+  };
+
+  const removeFile = (fileId) => {
+    setProcessedFiles(prev => prev.filter(f => f.id !== fileId));
+  };
+
+  const getCombinedText = () => {
+    if (mode === "prompt") {
+      return promptText.trim();
+    }
+
+    // Combinar texto de todos los archivos exitosos
+    const successfulFiles = processedFiles.filter(f => f.status === "success");
+    
+    if (successfulFiles.length === 0) {
+      return "";
+    }
+
+    let combined = successfulFiles
+      .map(f => `\n\n=== ${f.titulo} ===\n${f.text}`)
+      .join("");
+
+    // Truncar si excede el límite
+    if (combined.length > MAX_TEXT_LENGTH) {
+      combined = combined.substring(0, MAX_TEXT_LENGTH) + "\n\n[...texto truncado por límite...]";
+    }
+
+    return combined.trim();
   };
 
   const handleGenerate = async () => {
     setError("");
+
     if (numPreguntas < 3 || numPreguntas > 25) {
       setError("Número de preguntas debe estar entre 3 y 25.");
       return;
     }
 
-    let contexto = "";
-    if (mode === "prompt") {
-      if (!promptText.trim()) {
+    const contexto = getCombinedText();
+
+    if (!contexto) {
+      if (mode === "prompt") {
         setError("Escribe el prompt para generar las preguntas.");
-        return;
+      } else {
+        setError("Sube al menos un archivo con texto extraíble.");
       }
-      contexto = promptText.trim();
-    } else {
-      if (!extractedText.trim()) {
-        setError("Extrae texto de los archivos antes de generar.");
-        return;
-      }
-      contexto = extractedText;
+      return;
     }
 
     setLoading(true);
@@ -177,6 +254,14 @@ const ModalGenerarConIA = ({ onClose, onGenerate }) => {
     }
   };
 
+  const getTotalChars = () => {
+    return getCombinedText().length;
+  };
+
+  const getSuccessfulFilesCount = () => {
+    return processedFiles.filter(f => f.status === "success").length;
+  };
+
   return (
     <div className={styles.overlay} onClick={onClose}>
       <div className={styles.modal} onClick={(e) => e.stopPropagation()}>
@@ -188,82 +273,114 @@ const ModalGenerarConIA = ({ onClose, onGenerate }) => {
         </div>
 
         <div className={styles.content}>
+          {/* Selector de modo */}
           <div className={styles.section}>
-            <h3>Modo</h3>
-            <div style={{ display: "flex", gap: 10 }}>
-              <label>
-                <input type="radio" checked={mode === "prompt"} onChange={() => setMode("prompt")} />
-                Escribe lo que quieres
+            <h3>Modo de entrada</h3>
+            <div style={{ display: "flex", gap: "1rem" }}>
+              <label style={{ cursor: "pointer", display: "flex", alignItems: "center", gap: "0.5rem" }}>
+                <input 
+                  type="radio" 
+                  checked={mode === "prompt"} 
+                  onChange={() => setMode("prompt")}
+                  style={{ cursor: "pointer" }}
+                />
+                <span>Escribir prompt</span>
               </label>
-              <label>
-                <input type="radio" checked={mode === "files"} onChange={() => setMode("files")} />
-                subir Archivos
+              <label style={{ cursor: "pointer", display: "flex", alignItems: "center", gap: "0.5rem" }}>
+                <input 
+                  type="radio" 
+                  checked={mode === "files"} 
+                  onChange={() => setMode("files")}
+                  style={{ cursor: "pointer" }}
+                />
+                <span>Subir archivos</span>
               </label>
             </div>
           </div>
 
+          {/* Modo: Prompt */}
           {mode === "prompt" && (
             <div className={styles.section}>
-              <h3>Escribe el prompt</h3>
+              <h3>Escribe el contenido o tema</h3>
               <textarea
                 className={styles.textPreview}
                 value={promptText}
                 onChange={(e) => setPromptText(e.target.value)}
-                placeholder="Describe el contenido o instrucciones para la IA..."
-                rows={8}
+                placeholder="Ejemplo: Crea preguntas sobre las leyes de Newton y sus aplicaciones en la física..."
+                rows={10}
               />
+              <p className={styles.charCount}>
+                {promptText.length.toLocaleString()} caracteres
+              </p>
             </div>
           )}
 
+          {/* Modo: Archivos */}
           {mode === "files" && (
             <div className={styles.section}>
-              <h3>Subir archivos locales</h3>
-              <input type="file" multiple onChange={handleLocalUpload} disabled={extracting} />
-              {localFiles.length === 0 ? (
-                <p className={styles.noFiles}>No hay archivos subidos.</p>
+              <h3>Subir archivos</h3>
+              <input 
+                type="file" 
+                multiple 
+                onChange={handleFilesUpload}
+                accept=".pdf,.docx,.doc,.txt,.md,.xlsx,.xls,.csv"
+                style={{
+                  padding: "0.75rem",
+                  border: "2px dashed #d1d5db",
+                  borderRadius: "8px",
+                  width: "100%",
+                  cursor: "pointer",
+                  marginBottom: "1rem"
+                }}
+              />
+              
+              {processedFiles.length === 0 ? (
+                <p className={styles.noFiles}>
+                  No hay archivos subidos. Formatos: PDF, DOCX, TXT, XLSX, CSV, MD
+                </p>
               ) : (
                 <div className={styles.fileList}>
-                  {localFiles.map((f) => (
-                    <label key={f.id} className={styles.fileItem}>
-                      <input
-                        type="checkbox"
-                        checked={selectedFiles.includes(f.id)}
-                        onChange={() => toggleFile(f.id)}
-                        disabled={extracting}
-                      />
-                      <span className={styles.fileName}>{f.titulo}</span>
-                      <span className={styles.fileExt}>{f.ext ? `.${f.ext.toUpperCase()}` : ""}</span>
-                    </label>
+                  {processedFiles.map((f) => (
+                    <div key={f.id} className={`${styles.fileItem} ${styles[f.status]}`}>
+                      <div className={styles.fileInfo}>
+                        <span className={styles.fileName}>{f.titulo}</span>
+                        {f.status === "success" && (
+                          <span className={styles.fileSize}>
+                            {f.size.toLocaleString()} caracteres
+                          </span>
+                        )}
+                        {f.status === "error" && (
+                          <span className={styles.fileError}>{f.error}</span>
+                        )}
+                        {f.status === "processing" && (
+                          <span className={styles.fileProcessing}>Procesando...</span>
+                        )}
+                      </div>
+                      
+                      <button
+                        onClick={() => removeFile(f.id)}
+                        className={styles.removeBtn}
+                        disabled={f.status === "processing"}
+                        title="Eliminar archivo"
+                      >
+                        ×
+                      </button>
+                    </div>
                   ))}
                 </div>
               )}
-              <div style={{ marginTop: 10 }}>
-                <button
-                  onClick={handleExtractSelected}
-                  disabled={extracting || selectedFiles.length === 0}
-                  className={styles.extractBtn}
-                >
-                  {extracting ? "Extrayendo..." : "Extraer texto de archivos"}
-                </button>
-                {progress && <div style={{ marginTop: 8 }}>{progress}</div>}
-                {extractedText && (
-                  <div
-                    style={{
-                      marginTop: 8,
-                      fontSize: 12,
-                      color: "#444",
-                    }}
-                  >
-                    {extractedText.slice(0, 300)}
-                    {extractedText.length > 300 ? "..." : ""}
-                  </div>
-                )}
-              </div>
+
+              {getSuccessfulFilesCount() > 0 && (
+                <div className={styles.filesSummary}>
+                  ✓ {getSuccessfulFilesCount()} archivo(s) procesado(s) • {getTotalChars().toLocaleString()} caracteres
+                </div>
+              )}
             </div>
           )}
 
+          {/* Configuración */}
           <div className={styles.section}>
-            <h3>Configuración</h3>
+            <h3>Configuración del examen</h3>
             <div className={styles.formRow}>
               <div className={styles.formGroup}>
                 <label>Número de preguntas:</label>
@@ -273,11 +390,16 @@ const ModalGenerarConIA = ({ onClose, onGenerate }) => {
                   max={25}
                   value={numPreguntas}
                   onChange={(e) => setNumPreguntas(Number(e.target.value))}
+                  disabled={loading}
                 />
               </div>
               <div className={styles.formGroup}>
                 <label>Dificultad:</label>
-                <select value={dificultad} onChange={(e) => setDificultad(e.target.value)}>
+                <select 
+                  value={dificultad} 
+                  onChange={(e) => setDificultad(e.target.value)}
+                  disabled={loading}
+                >
                   <option value="basico">Básico</option>
                   <option value="intermedio">Intermedio</option>
                   <option value="avanzado">Avanzado</option>
@@ -292,6 +414,7 @@ const ModalGenerarConIA = ({ onClose, onGenerate }) => {
                   step={0.5}
                   value={notaMinima}
                   onChange={(e) => setNotaMinima(Number(e.target.value))}
+                  disabled={loading}
                 />
               </div>
             </div>
@@ -304,8 +427,12 @@ const ModalGenerarConIA = ({ onClose, onGenerate }) => {
           <button onClick={onClose} className={styles.cancelBtn} disabled={loading}>
             Cancelar
           </button>
-          <button onClick={handleGenerate} className={styles.generateBtn} disabled={loading}>
-            {loading ? "Generando..." : "🪄 Generar Examen"}
+          <button 
+            onClick={handleGenerate} 
+            className={styles.generateBtn} 
+            disabled={loading || !getCombinedText()}
+          >
+            {loading ? "Generando..." : "Generar Examen"}
           </button>
         </div>
       </div>
