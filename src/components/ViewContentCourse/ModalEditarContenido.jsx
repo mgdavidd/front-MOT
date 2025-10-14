@@ -2,10 +2,12 @@ import React, { useState } from "react";
 import styles from "./ModalEditarContenido.module.css";
 import Cookies from "js-cookie"
 export default function ModalEditarContenido({ item, type, onClose, onSuccess }) {
-  const [titulo, setTitulo] = useState(item.titulo);
+  const [titulo, setTitulo] = useState(item?.titulo ?? item?.title ?? "");
   const [loading, setLoading] = useState(false);
 
-  // ✅ Editar contenido / grabación
+  const token = Cookies.get("token");
+  const authHeader = token ? { Authorization: `Bearer ${token}` } : {};
+
   const handleSubmit = async () => {
     setLoading(true);
     try {
@@ -16,20 +18,24 @@ export default function ModalEditarContenido({ item, type, onClose, onSuccess })
 
       const method = type === "grabacion" ? "POST" : "PUT";
 
+      const body =
+        type === "grabacion"
+          ? { title: titulo, recordingId: item.id }
+          : { titulo: titulo };
+
+      console.log("ModalEditarContenido: submit", { endpoint, method, body });
+
       const res = await fetch(endpoint, {
         method,
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(
-          type === "grabacion"
-            ? { title: titulo, recordingId: item.id }
-            : { title: titulo }
-        ),
+        headers: { "Content-Type": "application/json", ...authHeader },
+        body: JSON.stringify(body),
       });
 
       const data = await res.json();
+      console.log("ModalEditarContenido: response", res.status, data);
 
       if (res.ok && (data.success || data.message)) {
-        onSuccess({ ...item, titulo }); // actualiza en el padre
+        onSuccess({ ...item, titulo });
         onClose();
       } else {
         alert(data.error || "Error al guardar");
@@ -42,7 +48,6 @@ export default function ModalEditarContenido({ item, type, onClose, onSuccess })
     }
   };
 
-  // 🗑️ Eliminar contenido / grabación
   const handleDelete = async () => {
     if (!window.confirm("¿Seguro que quieres eliminar este elemento?")) return;
     setLoading(true);
@@ -52,15 +57,19 @@ export default function ModalEditarContenido({ item, type, onClose, onSuccess })
           ? `https://server-mot.onrender.com/recordings/${item.id}`
           : `https://server-mot.onrender.com/content/${item.id}`;
 
+      console.log("ModalEditarContenido: delete", { endpoint, item });
+
       const res = await fetch(endpoint, {
         method: "DELETE",
-        headers: { "Content-Type": "application/json", authorization: `Bearer ${Cookies.get("token")}` },
-        body: JSON.stringify({ link: item.link }), // necesario para borrar en Drive
+        headers: { "Content-Type": "application/json", ...authHeader },
+        body: JSON.stringify({ link: item.link }),
       });
 
       const data = await res.json();
+      console.log("ModalEditarContenido: delete response", res.status, data);
+
       if (res.ok && (data.success || data.message)) {
-        onSuccess({ ...item, deleted: true }); // notificamos que se eliminó
+        onSuccess({ ...item, deleted: true });
         onClose();
       } else {
         alert(data.error || "Error al eliminar");

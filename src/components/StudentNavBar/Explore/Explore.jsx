@@ -199,24 +199,6 @@ export default function CoursesList() {
 
                 <div className={styles.courseDetails}>
                   <div className={styles.detailRow}>
-                    <span className={styles.detailLabel}>Duración:</span>
-                    <span className={styles.detailValue}>
-                      {selectedCourse.duracion || "Por definir"}
-                    </span>
-                  </div>
-                  <div className={styles.detailRow}>
-                    <span className={styles.detailLabel}>Nivel:</span>
-                    <span className={styles.detailValue}>
-                      {selectedCourse.nivel || "Todos los niveles"}
-                    </span>
-                  </div>
-                  <div className={styles.detailRow}>
-                    <span className={styles.detailLabel}>Área:</span>
-                    <span className={styles.detailValue}>
-                      {selectedCourse.area || "General"}
-                    </span>
-                  </div>
-                  <div className={styles.detailRow}>
                     <span className={styles.detailLabel}>Precio:</span>
                     <span
                       className={`${styles.detailValue} ${styles.modalPrice}`}

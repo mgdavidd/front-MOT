@@ -9,7 +9,7 @@ import ModalEditarContenido from "../../components/ViewContentCourse/ModalEditar
 import ContentList from "../../components/ViewContentCourse/ContentPreview";
 import Cookies from "js-cookie";
 
-// 🎨 Iconos
+//iconos
 import { FaPlus, FaArrowLeft, FaPen, FaCheck, FaComments, FaFileAlt } from "react-icons/fa";
 
 export default function ViewContentCourse() {
@@ -61,6 +61,7 @@ export default function ViewContentCourse() {
         setContenido(await res.json());
       } catch (err) {
         console.error("Error al obtener el contenido del módulo:", err);
+        setContenido([]);
       }
     };
 
@@ -73,6 +74,7 @@ export default function ViewContentCourse() {
         setGrabaciones(await res.json());
       } catch (err) {
         console.error("Error al obtener las grabaciones del módulo:", err);
+        setGrabaciones([]);
       }
     };
 
@@ -96,6 +98,7 @@ export default function ViewContentCourse() {
         );
       } catch (err) {
         console.error("Error al obtener la prueba final:", err);
+        setPruebaFinal(null);
       }
     };
 
@@ -217,14 +220,18 @@ export default function ViewContentCourse() {
 
   const handleCrearPrueba = async (pruebaData) => {
     try {
-      const res = await fetch(
-        `https://server-mot.onrender.com/modules/${modulo.id}/quizzes`,
-        {
-          method: "POST",
-          headers: { "Content-Type": "application/json", ...authHeaders },
-          body: JSON.stringify(pruebaData),
-        }
-      );
+      const payload = {
+        ...pruebaData,
+        preguntas:
+          typeof pruebaData.preguntas === "string"
+            ? pruebaData.preguntas
+            : JSON.stringify(pruebaData.preguntas),
+      };
+      const res = await fetch(`https://server-mot.onrender.com/modules/${modulo.id}/quizzes`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json", ...authHeaders },
+        body: JSON.stringify(payload),
+      });
       const data = await res.json();
       if (data.success) {
         const pruebaRes = await fetch(
@@ -251,12 +258,19 @@ export default function ViewContentCourse() {
 
   const handleEditarPrueba = async (pruebaData) => {
     try {
+      const payload = {
+        ...pruebaData,
+        preguntas:
+          typeof pruebaData.preguntas === "string"
+            ? pruebaData.preguntas
+            : JSON.stringify(pruebaData.preguntas),
+      };
       const res = await fetch(
         `https://server-mot.onrender.com/modules/${modulo.id}/quizzes/${pruebaFinal.id}`,
         {
           method: "PUT",
           headers: { "Content-Type": "application/json", ...authHeaders },
-          body: JSON.stringify(pruebaData),
+          body: JSON.stringify(payload),
         }
       );
       const data = await res.json();
@@ -295,18 +309,29 @@ export default function ViewContentCourse() {
       );
       const data = await res.json();
       if (data.success && data.aprobado) {
-        await fetch(
-          `https://server-mot.onrender.com/courses/${modulo.id_curso}/progress`,
-          {
-            method: "POST",
-            headers: { "Content-Type": "application/json", ...authHeaders },
-            body: JSON.stringify({
-              id_usuario: currentUser.id,
-              id_modulo_actual: modulo.id,
-              nota_maxima: data.nota,
-            }),
-          }
-        );
+        const modulosOrdenados = Array.isArray(modulosCurso) ? [...modulosCurso] : [];
+        if (modulosOrdenados.every(m => typeof m.orden === "number")) {
+          modulosOrdenados.sort((a,b)=>a.orden - b.orden);
+        }
+        const idxActual = modulosOrdenados.findIndex((m) => m.id === modulo.id);
+        const siguienteModulo = idxActual !== -1 ? modulosOrdenados[idxActual + 1] : undefined;
+
+        if (siguienteModulo) {
+          await fetch(
+            `https://server-mot.onrender.com/courses/${modulo.id_curso}/progress`,
+            {
+              method: "POST",
+              headers: { "Content-Type": "application/json", ...authHeaders },
+              body: JSON.stringify({
+                id_usuario: currentUser.id,
+                id_modulo_actual: siguienteModulo.id,
+                nota_maxima: data.nota,
+              }),
+            }
+          );
+        } else {
+          alert("¡Felicidades! Has completado el curso.");
+        }
       }
     } catch (err) {
       console.error("Error al responder prueba final:", err);
@@ -323,15 +348,13 @@ export default function ViewContentCourse() {
         return;
       }
 
-      const moduloActual = modulosCurso.find((m) => m.id === modulo.id);
-      if (!moduloActual) {
-        alert("No se pudo encontrar el módulo actual.");
-        return;
+      const modulosOrdenados = Array.isArray(modulosCurso) ? [...modulosCurso] : [];
+      if (modulosOrdenados.every(m => typeof m.orden === "number")) {
+        modulosOrdenados.sort((a,b)=>a.orden - b.orden);
       }
 
-      const siguienteModulo = modulosCurso.find(
-        (m) => m.orden === moduloActual.orden + 1
-      );
+      const idxActual = modulosOrdenados.findIndex((m) => m.id === modulo.id);
+      const siguienteModulo = idxActual !== -1 ? modulosOrdenados[idxActual + 1] : undefined;
 
       if (siguienteModulo) {
         await fetch(
@@ -445,7 +468,12 @@ export default function ViewContentCourse() {
       )}
 
       {showCrearPrueba && (
-        <ModalCrearPruebaFinal onClose={() => setShowCrearPrueba(false)} onCreate={handleCrearPrueba} />
+        <ModalCrearPruebaFinal
+          onClose={() => setShowCrearPrueba(false)}
+          onCreate={handleCrearPrueba}
+          contenido={contenido}
+          authHeaders={authHeaders}
+        />
       )}
       {showEditarPrueba && (
         <ModalEditarPruebaFinal prueba={pruebaFinal} onClose={() => setShowEditarPrueba(false)} onEdit={handleEditarPrueba} />

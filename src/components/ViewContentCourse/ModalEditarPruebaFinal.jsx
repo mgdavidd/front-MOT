@@ -3,7 +3,25 @@ import styles from "./ModalPruebaFinal.module.css";
 
 export default function ModalEditarPruebaFinal({ prueba, onClose, onEdit }) {
   const [notaMinima, setNotaMinima] = useState(prueba.nota_minima);
-  const [preguntas, setPreguntas] = useState(prueba.preguntas);
+
+  const parsePreguntas = () => {
+    try {
+      if (!prueba) return [];
+      if (Array.isArray(prueba.preguntas)) return prueba.preguntas;
+      if (typeof prueba.preguntas === "string" && prueba.preguntas.trim()) {
+        return JSON.parse(prueba.preguntas);
+      }
+      return [];
+    } catch (err) {
+      console.error("Error parsing 'preguntas' in ModalEditarPruebaFinal:", err, prueba.preguntas);
+      return [];
+    }
+  };
+
+  const [preguntas, setPreguntas] = useState(() => {
+    const parsed = parsePreguntas();
+    return parsed.length ? parsed : [{ texto: "", opciones: ["", ""], respuestaCorrecta: 0 }];
+  });
 
   const updatePregunta = (idx, field, value) => {
     const updated = preguntas.map((p, i) =>
@@ -50,12 +68,13 @@ export default function ModalEditarPruebaFinal({ prueba, onClose, onEdit }) {
             type="number"
             min={0}
             max={10}
+            step={0.1}                // permitir decimales
             value={notaMinima}
-            onChange={e => setNotaMinima(Number(e.target.value))}
+            onChange={e => setNotaMinima(parseFloat(e.target.value))}
             required
           />
           <div className={styles.preguntasList}>
-            {preguntas.map((p, idx) => (
+            {(Array.isArray(preguntas) ? preguntas : []).map((p, idx) => (
               <div key={idx} className={styles.preguntaBlock}>
                 <label>Pregunta {idx + 1}:</label>
                 <input
