@@ -14,7 +14,9 @@ const ModalGenerarConIA = ({ onClose, onGenerate, authHeaders }) => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
-  const MAX_FILE_SIZE = 8 * 1024 * 1024; // 8MB
+  const MAX_FILE_SIZE = 6 * 1024 * 1024; // 6MB
+  const MAX_TOTAL_SIZE = 18 * 1024 * 1024;
+  const MAX_FILES = 5;
   const MAX_TEXT_LENGTH = 50000;
 
   // procesar PDF en el backend
@@ -86,7 +88,7 @@ const ModalGenerarConIA = ({ onClose, onGenerate, authHeaders }) => {
         titulo: fileName,
         text: "",
         status: "error",
-        error: `Archivo muy grande: ${(file.size / 1024 / 1024).toFixed(2)} MB (máx: 8 MB)`
+        error: `Archivo muy grande: ${(file.size / 1024 / 1024).toFixed(2)} MB (máx: ${(MAX_FILE_SIZE/1024/1024).toFixed(1)} MB)`
       };
     }
 
@@ -137,7 +139,7 @@ const ModalGenerarConIA = ({ onClose, onGenerate, authHeaders }) => {
         .replace(/\n{3,}/g, "\n\n")
         .trim();
 
-      if (!extractedText || extractedText.length < 50) {
+      if (!extractedText || extractedText.length < 10) {
         return {
           id,
           titulo: fileName,
@@ -173,7 +175,19 @@ const ModalGenerarConIA = ({ onClose, onGenerate, authHeaders }) => {
     if (files.length === 0) return;
 
     setError("");
-    
+    // validar número total de archivos
+    if (processedFiles.length + files.length > MAX_FILES) {
+      setError(`Máximo ${MAX_FILES} archivos permitidos. Elimina algunos antes de subir más.`);
+      return;
+    }
+    // validar tamaño combinado (raw file sizes)
+    const currentTotal = processedFiles.reduce((s, f) => s + (f.rawSize || 0), 0);
+    const incomingTotal = files.reduce((s, f) => s + (f.size || 0), 0);
+    if (currentTotal + incomingTotal > MAX_TOTAL_SIZE) {
+      setError(`Tamaño combinado excede ${(MAX_TOTAL_SIZE/1024/1024).toFixed(1)} MB. Reduce archivos.`);
+      return;
+    }
+
     for (const file of files) {
       const tempId = `temp-${Date.now()}-${Math.random()}`;
       setProcessedFiles(prev => [...prev, {
@@ -182,10 +196,10 @@ const ModalGenerarConIA = ({ onClose, onGenerate, authHeaders }) => {
         text: "",
         status: "processing",
         error: null
-      }]);
+      , rawSize: file.size }]);
 
       const result = await processFile(file);
-      
+      result.rawSize = result.rawSize ?? file.size;
       setProcessedFiles(prev => 
         prev.map(f => f.id === tempId ? result : f)
       );
@@ -200,9 +214,13 @@ const ModalGenerarConIA = ({ onClose, onGenerate, authHeaders }) => {
 
   const getCombinedText = () => {
     if (mode === "prompt") {
-      return promptText.trim();
+      let txt = promptText.trim();
+      if (txt.length > MAX_TEXT_LENGTH) {
+        txt = txt.substring(0, MAX_TEXT_LENGTH) + "\n\n[...texto truncado por límite...]";
+      }
+      return txt;
     }
-
+  
     const successfulFiles = processedFiles.filter(f => f.status === "success");
     
     if (successfulFiles.length === 0) {
@@ -410,9 +428,9 @@ const ModalGenerarConIA = ({ onClose, onGenerate, authHeaders }) => {
                   type="number"
                   min={0}
                   max={10}
-                  step={0.5}
+                  step={0.1}
                   value={notaMinima}
-                  onChange={(e) => setNotaMinima(Number(e.target.value))}
+                  onChange={(e) => setNotaMinima(parseFloat(e.target.value))}
                   disabled={loading}
                 />
               </div>
