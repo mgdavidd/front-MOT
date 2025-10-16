@@ -1,20 +1,41 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import styles from "./ModalPruebaFinal.module.css";
 
 export default function ModalResponderPruebaFinal({ prueba, onClose, modulo, currentUser, modulosCurso }) {
-  const [respuestas, setRespuestas] = useState(Array(prueba.preguntas.length).fill(null));
+  const [respuestas, setRespuestas] = useState([]);
   const [enviando, setEnviando] = useState(false);
   const [error, setError] = useState("");
 
+  // Inicializar/ajustar respuestas cuando cambie "prueba"
+  useEffect(() => {
+    let preguntasArray = [];
+    if (prueba?.preguntas) {
+      if (typeof prueba.preguntas === 'string') {
+        try {
+          preguntasArray = JSON.parse(prueba.preguntas);
+        } catch (e) {
+          console.error('Error parsing preguntas:', e);
+        }
+      } else if (Array.isArray(prueba.preguntas)) {
+        preguntasArray = prueba.preguntas;
+      }
+    }
+    
+    if (Array.isArray(preguntasArray)) {
+      setRespuestas(Array(preguntasArray.length).fill(null));
+    } else {
+      setRespuestas([]);
+    }
+  }, [prueba]);
+
   const handleChange = (pregIdx, opIdx) => {
-    setRespuestas(respuestas.map((r, i) => (i === pregIdx ? opIdx : r)));
+    setRespuestas(prev => prev.map((r, i) => (i === pregIdx ? opIdx : r)));
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError("");
-    // Validar que todas las preguntas tengan respuesta
-    if (respuestas.some(r => r === null)) {
+    if (respuestas.length === 0 || respuestas.some(r => r === null)) {
       setError("Por favor responde todas las preguntas antes de enviar.");
       return;
     }
@@ -63,6 +84,21 @@ export default function ModalResponderPruebaFinal({ prueba, onClose, modulo, cur
     }
   };
 
+  // Si no hay preguntas válidas, mostrar mensaje en lugar de intentar map()
+  if (!prueba || !Array.isArray(prueba.preguntas)) {
+    return (
+      <div className={styles.modalOverlay}>
+        <div className={styles.modal}>
+          <h2>Prueba no disponible</h2>
+          <p>La prueba no tiene preguntas válidas.</p>
+          <div className={styles.modalActions}>
+            <button type="button" className={styles.cancelBtn} onClick={onClose}>Cerrar</button>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className={styles.modalOverlay}>
       <div className={styles.modal}>
@@ -79,7 +115,6 @@ export default function ModalResponderPruebaFinal({ prueba, onClose, modulo, cur
                       name={`respuesta-${idx}`}
                       checked={respuestas[idx] === opIdx}
                       onChange={() => handleChange(idx, opIdx)}
-                      required
                     />
                     <span>{op}</span>
                   </div>
