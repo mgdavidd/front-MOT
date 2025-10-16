@@ -2,20 +2,19 @@ import React, { useState, useEffect } from "react";
 import styles from "./ModalPruebaFinal.module.css";
 
 export default function ModalResponderPruebaFinal({ prueba, onClose, modulo, currentUser, modulosCurso }) {
-  // estado para preguntas ya parseadas (si vienen como string JSON o array)
   const [preguntasArray, setPreguntasArray] = useState([]);
   const [respuestas, setRespuestas] = useState([]);
   const [enviando, setEnviando] = useState(false);
   const [error, setError] = useState("");
 
-  // parsear y normalizar preguntas cada vez que cambie la prop prueba
+  // Parsear y normalizar preguntas
   useEffect(() => {
     let arr = [];
     if (prueba && prueba.preguntas != null) {
       try {
         if (typeof prueba.preguntas === "string") {
           arr = JSON.parse(prueba.preguntas);
-          // manejar caso doble-escaped: JSON.parse devuelve otra string
+          // Manejar caso doble-escaped
           if (typeof arr === "string") {
             arr = JSON.parse(arr);
           }
@@ -39,13 +38,16 @@ export default function ModalResponderPruebaFinal({ prueba, onClose, modulo, cur
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError("");
+    
     if (respuestas.length === 0 || respuestas.some(r => r === null)) {
       setError("Por favor responde todas las preguntas antes de enviar.");
       return;
     }
+    
     setEnviando(true);
+    
     try {
-      // 1. Enviar respuestas
+      // 1. Enviar respuestas y obtener calificación
       const res = await fetch(
         `https://server-mot.onrender.com/modules/${modulo.id}/quizzes/${prueba.id}/attempts`,
         {
@@ -57,17 +59,40 @@ export default function ModalResponderPruebaFinal({ prueba, onClose, modulo, cur
           }),
         }
       );
+      
       const data = await res.json();
       
-      if (data.success) {
-        // Mostrar resultado del intento actual
-        alert(`Prueba enviada. Nota: ${data.nota}. ${data.aprobado ? "¡Aprobado!" : "No aprobado."}`);
+      if (!data.success) {
+        setError(data.error || "Error al enviar la prueba. Intenta nuevamente.");
+        return;
+      }
+
+      const { nota, notaPrevia, aprobado } = data;
+
+      // 2. Mostrar resultado inmediato
+      let mensaje = `Prueba enviada.\n\nNota obtenida: ${nota.toFixed(1)}\n`;
+      
+      if (notaPrevia !== null) {
+        mensaje += `Nota anterior: ${notaPrevia.toFixed(1)}\n`;
+      }
+      
+      mensaje += `\n${aprobado ? "✅ ¡Aprobado!" : "❌ No aprobado."}`;
+
+      // 3. Si aprobó, intentar actualizar el progreso
+      if (aprobado) {
+        // Ordenar módulos por orden
+        const modulosOrdenados = Array.isArray(modulosCurso) ? [...modulosCurso] : [];
+        modulosOrdenados.sort((a, b) => (a.orden || 0) - (b.orden || 0));
         
-        // Si aprobó y es una nota más alta que la anterior, actualizar progreso
-        if (data.aprobado && (!data.notaPrevia || data.nota > data.notaPrevia)) {
-          const idxActual = modulosCurso.findIndex(m => m.id === modulo.id);
-          const siguienteModulo = idxActual !== -1 ? modulosCurso[idxActual + 1] : undefined;
-          
+        const idxActual = modulosOrdenados.findIndex(m => m.id === modulo.id);
+        const siguienteModulo = idxActual !== -1 ? modulosOrdenados[idxActual + 1] : undefined;
+        
+        // Solo actualizar progreso si:
+        // - No había nota previa, o
+        // - La nota actual es mayor que la previa
+        const debeActualizarProgreso = notaPrevia === null || nota > notaPrevia;
+        
+        if (debeActualizarProgreso) {
           if (siguienteModulo) {
             try {
               const progressRes = await fetch(
@@ -78,7 +103,7 @@ export default function ModalResponderPruebaFinal({ prueba, onClose, modulo, cur
                   body: JSON.stringify({
                     id_usuario: currentUser.id,
                     id_modulo_actual: siguienteModulo.id,
-                    nota_maxima: data.nota,
+                    nota_maxima: nota,
                     modulo_anterior: modulo.id
                   })
                 }
@@ -86,22 +111,38 @@ export default function ModalResponderPruebaFinal({ prueba, onClose, modulo, cur
               
               const progressData = await progressRes.json();
               
-              if (!progressData.success) {
+              if (progressData.success) {
+                if (notaPrevia !== null && nota > notaPrevia) {
+                  mensaje += `\n\n🎉 ¡Has mejorado tu nota! Ahora puedes continuar al siguiente módulo.`;
+                } else {
+                  mensaje += `\n\n🎉 ¡Progreso actualizado! Puedes avanzar al siguiente módulo.`;
+                }
+              } else {
                 console.error("Error actualizando progreso:", progressData.error);
-              } else if (progressData.action === "updated") {
-                alert(`¡Felicitaciones! Has mejorado tu nota anterior (${data.notaPrevia}) con un ${data.nota}.`);
               }
             } catch (err) {
               console.error("Error en actualización de progreso:", err);
             }
           } else {
-            alert("¡Felicidades! Has completado el curso con una nota de " + data.nota);
+            // Es el último módulo
+            if (notaPrevia !== null && nota > notaPrevia) {
+              mensaje += `\n\n🎉 ¡Has mejorado tu nota final del curso!`;
+            } else {
+              mensaje += `\n\n🎉 ¡Felicidades! Has completado el curso.`;
+            }
           }
+        } else {
+          // Aprobó pero con nota igual o menor
+          mensaje += `\n\nTu nota anterior (${notaPrevia.toFixed(1)}) sigue siendo tu mejor calificación.`;
         }
-        onClose();
       } else {
-        setError(data.error || "Error al enviar la prueba. Intenta nuevamente.");
+        // No aprobó
+        mensaje += `\n\nPuedes intentar nuevamente para mejorar tu calificación.`;
       }
+
+      alert(mensaje);
+      onClose();
+      
     } catch (err) {
       setError("Error de conexión. Intenta nuevamente.");
       console.error("Error al enviar la prueba:", err);
@@ -114,8 +155,12 @@ export default function ModalResponderPruebaFinal({ prueba, onClose, modulo, cur
     <div className={styles.modalOverlay}>
       <div className={styles.modal}>
         <h2>Prueba Final del Módulo</h2>
+        
         <form onSubmit={handleSubmit}>
-          {preguntasArray.length === 0 && <p>No hay preguntas válidas para esta prueba.</p>}
+          {preguntasArray.length === 0 && (
+            <p>No hay preguntas válidas para esta prueba.</p>
+          )}
+          
           {preguntasArray.map((p, idx) => (
             <div key={idx} className={styles.preguntaBlock}>
               <label>{idx + 1}. {p.texto}</label>
@@ -135,12 +180,36 @@ export default function ModalResponderPruebaFinal({ prueba, onClose, modulo, cur
               </div>
             </div>
           ))}
-          {error && <div style={{ color: "red", marginBottom: "1rem" }}>{error}</div>}
+          
+          {error && (
+            <div style={{ 
+              color: "#dc3545", 
+              background: "#fef2f2",
+              padding: "12px",
+              borderRadius: "6px",
+              marginBottom: "1rem",
+              border: "1px solid #fecaca"
+            }}>
+              ⚠️ {error}
+            </div>
+          )}
+          
           <div className={styles.modalActions}>
-            <button type="submit" className={styles.saveBtn} disabled={enviando}>
+            <button 
+              type="submit" 
+              className={styles.saveBtn} 
+              disabled={enviando || respuestas.some(r => r === null)}
+            >
               {enviando ? "Enviando..." : "Enviar respuestas"}
             </button>
-            <button type="button" className={styles.cancelBtn} onClick={onClose}>Cancelar</button>
+            <button 
+              type="button" 
+              className={styles.cancelBtn} 
+              onClick={onClose}
+              disabled={enviando}
+            >
+              Cancelar
+            </button>
           </div>
         </form>
       </div>

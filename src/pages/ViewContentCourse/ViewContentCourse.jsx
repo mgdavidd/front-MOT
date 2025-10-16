@@ -26,7 +26,10 @@ export default function ViewContentCourse() {
   const [showCrearPrueba, setShowCrearPrueba] = useState(false);
   const [showEditarPrueba, setShowEditarPrueba] = useState(false);
   const [showResponderPrueba, setShowResponderPrueba] = useState(false);
-  const [notaMaxima, setNotaMaxima] = useState(null);
+  
+  // 🆕 Nota máxima específica del módulo actual
+  const [notaMaximaModulo, setNotaMaximaModulo] = useState(null);
+  
   const [contenidoVisto, setContenidoVisto] = useState(false);
   const [actualizandoProgreso, setActualizandoProgreso] = useState(false);
   const [modulosCurso, setModulosCurso] = useState([]);
@@ -129,25 +132,33 @@ export default function ViewContentCourse() {
     }
   };
 
+  // 🆕 Obtener nota máxima específica del módulo actual
   useEffect(() => {
-    async function fetchNotaMaxima() {
-      if (!currentUser || !modulo?.id_curso) return;
+    async function fetchNotaMaximaModulo() {
+      if (!currentUser || !modulo?.id || !pruebaFinal?.id) {
+        setNotaMaximaModulo(null);
+        return;
+      }
+      
       try {
         const res = await fetch(
-          `https://server-mot.onrender.com/courses/${modulo.id_curso}/progress/${currentUser.id}`,
+          `https://server-mot.onrender.com/modules/${modulo.id}/quizzes/${pruebaFinal.id}/attempts/${currentUser.id}`,
           { headers: { ...authHeaders } }
         );
         const data = await res.json();
-        setNotaMaxima(
+        
+        // data.nota_maxima es la mejor nota del usuario en este módulo
+        setNotaMaximaModulo(
           typeof data.nota_maxima === "number" ? data.nota_maxima : null
         );
       } catch (err) {
-        console.error(err);
-        setNotaMaxima(null);
+        console.error("Error obteniendo nota máxima del módulo:", err);
+        setNotaMaximaModulo(null);
       }
     }
-    fetchNotaMaxima();
-  }, [modulo, currentUser]);
+    
+    fetchNotaMaximaModulo();
+  }, [modulo, currentUser, pruebaFinal]);
 
   useEffect(() => {
     async function fetchModulosCurso() {
@@ -157,7 +168,13 @@ export default function ViewContentCourse() {
           `https://server-mot.onrender.com/modules/course/${modulo.id_curso}`,
           { headers: { ...authHeaders } }
         );
-        setModulosCurso(await res.json());
+        const data = await res.json();
+        
+        // Ordenar por orden
+        const ordenados = Array.isArray(data) ? [...data] : [];
+        ordenados.sort((a, b) => (a.orden || 0) - (b.orden || 0));
+        
+        setModulosCurso(ordenados);
       } catch (err) {
         console.error("Error al obtener los modulos del curso", err);
         setModulosCurso([]);
@@ -297,49 +314,16 @@ export default function ViewContentCourse() {
     }
   };
 
-  const handleResponderPrueba = async (respuestas) => {
-    try {
-      const res = await fetch(
-        `https://server-mot.onrender.com/modules/${modulo.id}/quizzes/${pruebaFinal.id}/attempts`,
-        {
-          method: "POST",
-          headers: { "Content-Type": "application/json", ...authHeaders },
-          body: JSON.stringify({ userId: currentUser.id, respuestas }),
-        }
-      );
-      const data = await res.json();
-      if (data.success && data.aprobado) {
-        const modulosOrdenados = Array.isArray(modulosCurso) ? [...modulosCurso] : [];
-        if (modulosOrdenados.every(m => typeof m.orden === "number")) {
-          modulosOrdenados.sort((a,b)=>a.orden - b.orden);
-        }
-        const idxActual = modulosOrdenados.findIndex((m) => m.id === modulo.id);
-        const siguienteModulo = idxActual !== -1 ? modulosOrdenados[idxActual + 1] : undefined;
-
-        if (siguienteModulo) {
-          await fetch(
-            `https://server-mot.onrender.com/courses/${modulo.id_curso}/progress`,
-            {
-              method: "POST",
-              headers: { "Content-Type": "application/json", ...authHeaders },
-              body: JSON.stringify({
-                id_usuario: currentUser.id,
-                id_modulo_actual: siguienteModulo.id,
-                nota_maxima: data.nota,
-              }),
-            }
-          );
-        } else {
-          alert("¡Felicidades! Has completado el curso.");
-        }
-      }
-    } catch (err) {
-      console.error("Error al responder prueba final:", err);
-    }
-  };
-
+  // 🆕 Marcar contenido como visto (solo si NO hay prueba final)
   const handleContenidoVisto = async () => {
     if (actualizandoProgreso) return;
+    
+    // Si hay prueba final, el estudiante debe aprobarla primero
+    if (pruebaFinal) {
+      alert("Debes aprobar la prueba final para avanzar al siguiente módulo.");
+      return;
+    }
+    
     setActualizandoProgreso(true);
 
     try {
@@ -348,16 +332,11 @@ export default function ViewContentCourse() {
         return;
       }
 
-      const modulosOrdenados = Array.isArray(modulosCurso) ? [...modulosCurso] : [];
-      if (modulosOrdenados.every(m => typeof m.orden === "number")) {
-        modulosOrdenados.sort((a,b)=>a.orden - b.orden);
-      }
-
-      const idxActual = modulosOrdenados.findIndex((m) => m.id === modulo.id);
-      const siguienteModulo = idxActual !== -1 ? modulosOrdenados[idxActual + 1] : undefined;
+      const idxActual = modulosCurso.findIndex((m) => m.id === modulo.id);
+      const siguienteModulo = idxActual !== -1 ? modulosCurso[idxActual + 1] : undefined;
 
       if (siguienteModulo) {
-        await fetch(
+        const progressRes = await fetch(
           `https://server-mot.onrender.com/courses/${modulo.id_curso}/progress`,
           {
             method: "POST",
@@ -365,15 +344,24 @@ export default function ViewContentCourse() {
             body: JSON.stringify({
               id_usuario: currentUser.id,
               id_modulo_actual: siguienteModulo.id,
-              nota_maxima: null,
+              nota_maxima: null, // Sin nota porque no hay prueba
+              modulo_anterior: modulo.id
             }),
           }
         );
-        alert("¡Progreso actualizado! Puedes avanzar al siguiente módulo.");
+        
+        const progressData = await progressRes.json();
+        
+        if (progressData.success) {
+          alert("¡Progreso actualizado! Puedes avanzar al siguiente módulo.");
+          setContenidoVisto(true);
+        } else {
+          alert(progressData.error || "Error actualizando el progreso.");
+        }
       } else {
         alert("¡Felicidades! Has completado el curso.");
+        setContenidoVisto(true);
       }
-      setContenidoVisto(true);
     } catch (err) {
       console.error(err);
       alert("Error actualizando el progreso.");
@@ -482,7 +470,6 @@ export default function ViewContentCourse() {
         <ModalResponderPruebaFinal
           prueba={pruebaFinal}
           onClose={() => setShowResponderPrueba(false)}
-          onSubmit={handleResponderPrueba}
           modulo={modulo}
           currentUser={currentUser}
           modulosCurso={modulosCurso}
@@ -506,12 +493,14 @@ export default function ViewContentCourse() {
         />
       )}
 
-      {currentUser?.rol === "estudiante" && notaMaxima !== null && (
+      {/* 🆕 Mostrar nota máxima del módulo actual (solo si hay prueba) */}
+      {currentUser?.rol === "estudiante" && pruebaFinal && notaMaximaModulo !== null && (
         <div className={styles.notaMaxima}>
-          <strong>Tu nota más alta en este módulo:</strong> {notaMaxima}
+          <strong>Tu mejor nota en este módulo:</strong> {notaMaximaModulo.toFixed(1)}
         </div>
       )}
 
+      {/* 🆕 Checkbox solo si NO hay prueba final */}
       {currentUser?.rol === "estudiante" && !pruebaFinal && (
         <div style={{ marginTop: "2rem" }}>
           <label>
