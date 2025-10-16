@@ -36,7 +36,7 @@ export default function StudentsList({ courseId }) {
       })
       .catch(() => setDocente({}));
 
-  }, [courseId, docente]);
+  }, [courseId]);
 
   const handleChat = (otherUserId) => {
     window.location.href = `/private-chat/${otherUserId}`;
