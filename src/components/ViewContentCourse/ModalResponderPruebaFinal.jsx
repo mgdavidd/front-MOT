@@ -39,13 +39,13 @@ export default function ModalResponderPruebaFinal({ prueba, onClose, modulo, cur
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError("");
-    // Validar que todas las preguntas tengan respuesta
     if (respuestas.length === 0 || respuestas.some(r => r === null)) {
       setError("Por favor responde todas las preguntas antes de enviar.");
       return;
     }
     setEnviando(true);
     try {
+      // 1. Enviar respuestas
       const res = await fetch(
         `https://server-mot.onrender.com/modules/${modulo.id}/quizzes/${prueba.id}/attempts`,
         {
@@ -58,28 +58,49 @@ export default function ModalResponderPruebaFinal({ prueba, onClose, modulo, cur
         }
       );
       const data = await res.json();
+      
       if (data.success) {
+        // Mostrar resultado del intento actual
         alert(`Prueba enviada. Nota: ${data.nota}. ${data.aprobado ? "¡Aprobado!" : "No aprobado."}`);
-        if (data.aprobado) {
+        
+        // Si aprobó y es una nota más alta que la anterior, actualizar progreso
+        if (data.aprobado && (!data.notaPrevia || data.nota > data.notaPrevia)) {
           const idxActual = modulosCurso.findIndex(m => m.id === modulo.id);
           const siguienteModulo = idxActual !== -1 ? modulosCurso[idxActual + 1] : undefined;
+          
           if (siguienteModulo) {
-            await fetch(`https://server-mot.onrender.com/courses/${modulo.id_curso}/progress`, {
-              method: "POST",
-              headers: { "Content-Type": "application/json" },
-              body: JSON.stringify({
-                id_usuario: currentUser.id,
-                id_modulo_actual: siguienteModulo.id,
-                nota_maxima: data.nota
-              })
-            });
+            try {
+              const progressRes = await fetch(
+                `https://server-mot.onrender.com/courses/${modulo.id_curso}/progress`,
+                {
+                  method: "POST",
+                  headers: { "Content-Type": "application/json" },
+                  body: JSON.stringify({
+                    id_usuario: currentUser.id,
+                    id_modulo_actual: siguienteModulo.id,
+                    nota_maxima: data.nota,
+                    modulo_anterior: modulo.id
+                  })
+                }
+              );
+              
+              const progressData = await progressRes.json();
+              
+              if (!progressData.success) {
+                console.error("Error actualizando progreso:", progressData.error);
+              } else if (progressData.action === "updated") {
+                alert(`¡Felicitaciones! Has mejorado tu nota anterior (${data.notaPrevia}) con un ${data.nota}.`);
+              }
+            } catch (err) {
+              console.error("Error en actualización de progreso:", err);
+            }
           } else {
-            alert("¡Felicidades! Has completado el curso.");
+            alert("¡Felicidades! Has completado el curso con una nota de " + data.nota);
           }
         }
         onClose();
       } else {
-        setError("Error al enviar la prueba. Intenta nuevamente.");
+        setError(data.error || "Error al enviar la prueba. Intenta nuevamente.");
       }
     } catch (err) {
       setError("Error de conexión. Intenta nuevamente.");
