@@ -1,20 +1,46 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import styles from "./ModalPruebaFinal.module.css";
 
 export default function ModalResponderPruebaFinal({ prueba, onClose, modulo, currentUser, modulosCurso }) {
-  const [respuestas, setRespuestas] = useState(Array(prueba.preguntas.length).fill(null));
+  // estado para preguntas ya parseadas (si vienen como string JSON o array)
+  const [preguntasArray, setPreguntasArray] = useState([]);
+  const [respuestas, setRespuestas] = useState([]);
   const [enviando, setEnviando] = useState(false);
   const [error, setError] = useState("");
 
+  // parsear y normalizar preguntas cada vez que cambie la prop prueba
+  useEffect(() => {
+    let arr = [];
+    if (prueba && prueba.preguntas != null) {
+      try {
+        if (typeof prueba.preguntas === "string") {
+          arr = JSON.parse(prueba.preguntas);
+          // manejar caso doble-escaped: JSON.parse devuelve otra string
+          if (typeof arr === "string") {
+            arr = JSON.parse(arr);
+          }
+        } else if (Array.isArray(prueba.preguntas)) {
+          arr = prueba.preguntas;
+        }
+      } catch (err) {
+        console.error("ModalResponderPruebaFinal: error parsing preguntas:", err);
+        arr = [];
+      }
+    }
+    arr = Array.isArray(arr) ? arr : [];
+    setPreguntasArray(arr);
+    setRespuestas(Array(arr.length).fill(null));
+  }, [prueba]);
+
   const handleChange = (pregIdx, opIdx) => {
-    setRespuestas(respuestas.map((r, i) => (i === pregIdx ? opIdx : r)));
+    setRespuestas(prev => prev.map((r, i) => (i === pregIdx ? opIdx : r)));
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError("");
     // Validar que todas las preguntas tengan respuesta
-    if (respuestas.some(r => r === null)) {
+    if (respuestas.length === 0 || respuestas.some(r => r === null)) {
       setError("Por favor responde todas las preguntas antes de enviar.");
       return;
     }
@@ -68,11 +94,12 @@ export default function ModalResponderPruebaFinal({ prueba, onClose, modulo, cur
       <div className={styles.modal}>
         <h2>Prueba Final del Módulo</h2>
         <form onSubmit={handleSubmit}>
-          {prueba.preguntas.map((p, idx) => (
+          {preguntasArray.length === 0 && <p>No hay preguntas válidas para esta prueba.</p>}
+          {preguntasArray.map((p, idx) => (
             <div key={idx} className={styles.preguntaBlock}>
               <label>{idx + 1}. {p.texto}</label>
               <div className={styles.opcionesList}>
-                {p.opciones.map((op, opIdx) => (
+                {(Array.isArray(p.opciones) ? p.opciones : []).map((op, opIdx) => (
                   <div key={opIdx} className={styles.opcionBlock}>
                     <input
                       type="radio"
