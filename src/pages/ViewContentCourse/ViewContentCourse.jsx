@@ -220,64 +220,80 @@ export default function ViewContentCourse() {
 
   const handleCrearPrueba = async (pruebaData) => {
     try {
-      // Asegurarse que preguntas sea un string JSON
-      const preguntasString = JSON.stringify(pruebaData.preguntas);
-      
+      const payload = {
+        ...pruebaData,
+        preguntas:
+          typeof pruebaData.preguntas === "string"
+            ? pruebaData.preguntas
+            : JSON.stringify(pruebaData.preguntas),
+      };
       const res = await fetch(`https://server-mot.onrender.com/modules/${modulo.id}/quizzes`, {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          ...authHeaders,
-        },
-        body: JSON.stringify({
-          ...pruebaData,
-          preguntas: preguntasString
-        }),
+        headers: { "Content-Type": "application/json", ...authHeaders },
+        body: JSON.stringify(payload),
       });
-
       const data = await res.json();
       if (data.success) {
-        setPruebaFinal({
-          ...data.prueba,
-          preguntas: JSON.parse(data.prueba.preguntas) // Convertir de vuelta a objeto
-        });
-        setShowCrearPrueba(false);
+        const pruebaRes = await fetch(
+          `https://server-mot.onrender.com/modules/${modulo.id}/quizzes`,
+          { headers: { ...authHeaders } }
+        );
+        const pruebaArr = await pruebaRes.json();
+        setPruebaFinal(
+          Array.isArray(pruebaArr) && pruebaArr.length > 0
+            ? {
+                ...pruebaArr[0],
+                preguntas:
+                  typeof pruebaArr[0].preguntas === "string"
+                    ? JSON.parse(pruebaArr[0].preguntas)
+                    : pruebaArr[0].preguntas,
+              }
+            : null
+        );
       }
-    } catch (error) {
-      console.error("Error al crear prueba:", error);
+    } catch (err) {
+      console.error("Error al crear prueba final:", err);
     }
   };
 
   const handleEditarPrueba = async (pruebaData) => {
     try {
-      // Asegurarse que preguntas sea un string JSON
-      const preguntasString = JSON.stringify(pruebaData.preguntas);
-
+      const payload = {
+        ...pruebaData,
+        preguntas:
+          typeof pruebaData.preguntas === "string"
+            ? pruebaData.preguntas
+            : JSON.stringify(pruebaData.preguntas),
+      };
       const res = await fetch(
         `https://server-mot.onrender.com/modules/${modulo.id}/quizzes/${pruebaFinal.id}`,
         {
           method: "PUT",
-          headers: {
-            "Content-Type": "application/json",
-            ...authHeaders,
-          },
-          body: JSON.stringify({
-            ...pruebaData,
-            preguntas: preguntasString
-          }),
+          headers: { "Content-Type": "application/json", ...authHeaders },
+          body: JSON.stringify(payload),
         }
       );
-
       const data = await res.json();
       if (data.success) {
-        setPruebaFinal({
-          ...data.prueba,
-          preguntas: JSON.parse(data.prueba.preguntas) // Convertir de vuelta a objeto
-        });
-        setShowEditarPrueba(false);
+        const pruebaRes = await fetch(
+          `https://server-mot.onrender.com/modules/${modulo.id}/quizzes`,
+          { headers: { ...authHeaders } }
+        );
+        const pruebaArr = await pruebaRes.json();
+        setPruebaFinal(
+          Array.isArray(pruebaArr) && pruebaArr.length > 0
+            ? {
+                ...pruebaArr[0],
+                preguntas:
+                  typeof pruebaArr[0].preguntas === "string"
+                    ? JSON.parse(pruebaArr[0].preguntas)
+                    : pruebaArr[0].preguntas,
+              }
+            : null
+        );
       }
-    } catch (error) {
-      console.error("Error al editar prueba:", error);
+    } catch (err) {
+      console.error("Error al editar prueba final:", err);
     }
   };
 
@@ -365,27 +381,6 @@ export default function ViewContentCourse() {
       setActualizandoProgreso(false);
     }
   };
-
-  const normalizePrueba = (prueba) => {
-    if (!prueba) return null;
-    
-    let preguntas = prueba.preguntas;
-    if (typeof preguntas === 'string') {
-      try {
-        preguntas = JSON.parse(preguntas);
-      } catch (e) {
-        console.error('Error parsing preguntas:', e);
-        return null;
-      }
-    }
-    
-    return {
-      ...prueba,
-      preguntas: Array.isArray(preguntas) ? preguntas : []
-    };
-  };
-
-  normalizePrueba(pruebaFinal);
 
   if (!modulo) {
     return (

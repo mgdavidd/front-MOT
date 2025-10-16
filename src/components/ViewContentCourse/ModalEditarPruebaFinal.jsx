@@ -5,16 +5,17 @@ export default function ModalEditarPruebaFinal({ prueba, onClose, onEdit }) {
   const [notaMinima, setNotaMinima] = useState(prueba.nota_minima);
 
   const parsePreguntas = () => {
-    if (!prueba.preguntas) return [];
-    if (typeof prueba.preguntas === 'string') {
-      try {
+    try {
+      if (!prueba) return [];
+      if (Array.isArray(prueba.preguntas)) return prueba.preguntas;
+      if (typeof prueba.preguntas === "string" && prueba.preguntas.trim()) {
         return JSON.parse(prueba.preguntas);
-      } catch (e) {
-        console.error('Error parsing preguntas:', e);
-        return [];
       }
+      return [];
+    } catch (err) {
+      console.error("Error parsing 'preguntas' in ModalEditarPruebaFinal:", err, prueba.preguntas);
+      return [];
     }
-    return Array.isArray(prueba.preguntas) ? prueba.preguntas : [];
   };
 
   const [preguntas, setPreguntas] = useState(() => {

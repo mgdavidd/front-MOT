@@ -87,6 +87,7 @@ function StudentNavBar() {
 
           {activeTab === "students" && (
             <div className="content-section">
+              <h2>Mis Cursos</h2>
               <div className="content-placeholder">
                 <MisCursos />
               </div>
