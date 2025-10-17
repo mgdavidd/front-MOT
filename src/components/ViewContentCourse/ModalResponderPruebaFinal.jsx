@@ -78,7 +78,7 @@ export default function ModalResponderPruebaFinal({ prueba, onClose, modulo, cur
       
       mensaje += `\n${aprobado ? "✅ ¡Aprobado!" : "❌ No aprobado."}`;
 
-      // 3. Si aprobó, intentar actualizar el progreso
+      // 3. Si aprobó, SIEMPRE verificar si puede avanzar
       if (aprobado) {
         // Ordenar módulos por orden
         const modulosOrdenados = Array.isArray(modulosCurso) ? [...modulosCurso] : [];
@@ -87,53 +87,46 @@ export default function ModalResponderPruebaFinal({ prueba, onClose, modulo, cur
         const idxActual = modulosOrdenados.findIndex(m => m.id === modulo.id);
         const siguienteModulo = idxActual !== -1 ? modulosOrdenados[idxActual + 1] : undefined;
         
-        // Solo actualizar progreso si:
-        // - No había nota previa, o
-        // - La nota actual es mayor que la previa
-        const debeActualizarProgreso = notaPrevia === null || nota > notaPrevia;
-        
-        if (debeActualizarProgreso) {
-          if (siguienteModulo) {
-            try {
-              const progressRes = await fetch(
-                `https://server-mot.onrender.com/courses/${modulo.id_curso}/progress`,
-                {
-                  method: "POST",
-                  headers: { "Content-Type": "application/json" },
-                  body: JSON.stringify({
-                    id_usuario: currentUser.id,
-                    id_modulo_actual: siguienteModulo.id,
-                    nota_maxima: nota,
-                    modulo_anterior: modulo.id
-                  })
-                }
-              );
-              
-              const progressData = await progressRes.json();
-              
-              if (progressData.success) {
-                if (notaPrevia !== null && nota > notaPrevia) {
-                  mensaje += `\n\n🎉 ¡Has mejorado tu nota! Ahora puedes continuar al siguiente módulo.`;
-                } else {
-                  mensaje += `\n\n🎉 ¡Progreso actualizado! Puedes avanzar al siguiente módulo.`;
-                }
-              } else {
-                console.error("Error actualizando progreso:", progressData.error);
+        // 🔥 CAMBIO CRÍTICO: Siempre intentar actualizar progreso si aprobó
+        if (siguienteModulo) {
+          try {
+            const progressRes = await fetch(
+              `https://server-mot.onrender.com/courses/${modulo.id_curso}/progress`,
+              {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                  id_usuario: currentUser.id,
+                  id_modulo_actual: siguienteModulo.id,
+                  nota_maxima: Math.max(nota, notaPrevia || 0), // Mantener la nota más alta
+                  modulo_anterior: modulo.id
+                })
               }
-            } catch (err) {
-              console.error("Error en actualización de progreso:", err);
-            }
-          } else {
-            // Es el último módulo
-            if (notaPrevia !== null && nota > notaPrevia) {
-              mensaje += `\n\n🎉 ¡Has mejorado tu nota final del curso!`;
+            );
+            
+            const progressData = await progressRes.json();
+            
+            if (progressData.success) {
+              if (notaPrevia !== null && nota > notaPrevia) {
+                mensaje += `\n\n🎉 ¡Has mejorado tu nota! Ahora puedes continuar al siguiente módulo.`;
+              } else if (notaPrevia !== null) {
+                mensaje += `\n\n✅ Tu progreso se ha verificado. Puedes continuar al siguiente módulo.`;
+              } else {
+                mensaje += `\n\n🎉 ¡Progreso actualizado! Puedes avanzar al siguiente módulo.`;
+              }
             } else {
-              mensaje += `\n\n🎉 ¡Felicidades! Has completado el curso.`;
+              console.error("Error actualizando progreso:", progressData.error);
             }
+          } catch (err) {
+            console.error("Error en actualización de progreso:", err);
           }
         } else {
-          // Aprobó pero con nota igual o menor
-          mensaje += `\n\nTu nota anterior (${notaPrevia.toFixed(1)}) sigue siendo tu mejor calificación.`;
+          // Es el último módulo
+          if (notaPrevia !== null && nota > notaPrevia) {
+            mensaje += `\n\n🎉 ¡Has mejorado tu nota final del curso!`;
+          } else {
+            mensaje += `\n\n🎉 ¡Felicidades! Has completado el curso.`;
+          }
         }
       } else {
         // No aprobó
