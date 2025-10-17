@@ -35,7 +35,6 @@ export default function MisCursos() {
 
   return (
     <div className="course-wrapper">
-      <h1 className="course-title">Mis Cursos</h1>
 
       {loading && <p className="course-status">Cargando cursos...</p>}
       {error && <p className="course-status error">{error}</p>}
