@@ -66,17 +66,18 @@ const CalendarStudent = () => {
 
       const newDateData = {};
       data.forEach((s) => {
-        const inicioLocal = DateTime.fromISO(s.inicio, { zone: "utc" }).setZone(
-          "local"
-        );
-        const finalLocal = DateTime.fromISO(s.final, { zone: "utc" }).setZone(
-          "local"
-        );
+        // convertir desde UTC a local y también conservar hora UTC
+        const inicioUTC = DateTime.fromISO(s.inicio, { zone: "utc" });
+        const finalUTC = DateTime.fromISO(s.final, { zone: "utc" });
+        const inicioLocal = inicioUTC.setZone("local");
+        const finalLocal = finalUTC.setZone("local");
         const dateKey = inicioLocal.toISODate();
 
         newDateData[dateKey] = {
           start: inicioLocal.toFormat("HH:mm"),
           end: finalLocal.toFormat("HH:mm"),
+          utcStart: inicioUTC.toFormat("HH:mm"),
+          utcEnd: finalUTC.toFormat("HH:mm"),
           title: s.titulo,
           type: s.tipo,
           join_link: s.join_link,
@@ -137,6 +138,16 @@ const CalendarStudent = () => {
                 </h4>
                 <p>Tipo: {data.type}</p>
                 <p>Título: {data.title || "Clase"}</p>
+
+                <p>
+                  Horario: {data.start} - {data.end}
+                </p>
+                {data.utcStart && data.utcEnd && (
+                  <p style={{ fontSize: "0.9em", color: "#666" }}>
+                    Horario UTC: {data.utcStart} - {data.utcEnd}
+                  </p>
+                )}
+
                 {data.join_link && (
                   <p>
                     Enlace:{" "}
