@@ -21,7 +21,7 @@ export default function ModalEditarContenido({ item, type, onClose, onSuccess })
       const body =
         type === "grabacion"
           ? { title: titulo, recordingId: item.id }
-          : { titulo: titulo };
+          : { title: titulo };
 
       console.log("ModalEditarContenido: submit", { endpoint, method, body });
 
