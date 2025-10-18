@@ -393,7 +393,7 @@ export default function ViewContentCourse() {
   const shouldShowEditButtons = (itemType) => {
     if (currentUser?.rol !== "profesor") return false;
     if (itemType === "contenido" && activeTab === "contenido") return true;
-    if (itemType === "grabacion" && activeTab === "grabaciones" && modulo.tipoCurso === "pregrabado") return true;
+    if (itemType === "grabacion" && activeTab === "grabaciones") return true;
     return false;
   };
 

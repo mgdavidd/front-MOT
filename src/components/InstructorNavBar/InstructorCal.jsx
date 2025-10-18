@@ -84,7 +84,7 @@ const InstructorCal = () => {
           utcEnd: finalUTC.toFormat("HH:mm"),
           title: s.titulo,
           type: s.tipo,
-          join_link: s.join_link, // 🔹 proxy seguro
+          join_link: s.join_link,
           recording_url: s.recording_url,
         };
 
@@ -285,6 +285,8 @@ const InstructorCal = () => {
                 ) : (
                   <>
                     <p>Título: {data.title || "Clase"}</p>
+                    {/* 🔥 CORRECCIÓN: Mostrar horario local */}
+                    <p>Horario: {data.start} - {data.end}</p>
                     {data.join_link && (
                       <p>
                         <a
