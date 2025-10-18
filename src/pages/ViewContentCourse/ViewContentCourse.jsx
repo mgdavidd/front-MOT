@@ -10,7 +10,14 @@ import ContentList from "../../components/ViewContentCourse/ContentPreview";
 import Cookies from "js-cookie";
 
 //iconos
-import { FaPlus, FaArrowLeft, FaPen, FaCheck, FaComments, FaFileAlt } from "react-icons/fa";
+import {
+  FaPlus,
+  FaArrowLeft,
+  FaPen,
+  FaCheck,
+  FaComments,
+  FaFileAlt,
+} from "react-icons/fa";
 
 export default function ViewContentCourse() {
   const navigate = useNavigate();
@@ -26,10 +33,10 @@ export default function ViewContentCourse() {
   const [showCrearPrueba, setShowCrearPrueba] = useState(false);
   const [showEditarPrueba, setShowEditarPrueba] = useState(false);
   const [showResponderPrueba, setShowResponderPrueba] = useState(false);
-  
+
   // 🆕 Nota máxima específica del módulo actual
   const [notaMaximaModulo, setNotaMaximaModulo] = useState(null);
-  
+
   const [contenidoVisto, setContenidoVisto] = useState(false);
   const [actualizandoProgreso, setActualizandoProgreso] = useState(false);
   const [modulosCurso, setModulosCurso] = useState([]);
@@ -105,9 +112,11 @@ export default function ViewContentCourse() {
       }
     };
 
-    Promise.all([fetchContenido(), fetchGrabaciones(), fetchPruebaFinal()]).finally(
-      () => setLoading(false)
-    );
+    Promise.all([
+      fetchContenido(),
+      fetchGrabaciones(),
+      fetchPruebaFinal(),
+    ]).finally(() => setLoading(false));
   }, [modulo]);
 
   const [modalData, setModalData] = useState(null);
@@ -139,14 +148,14 @@ export default function ViewContentCourse() {
         setNotaMaximaModulo(null);
         return;
       }
-      
+
       try {
         const res = await fetch(
           `https://server-mot.onrender.com/modules/${modulo.id}/quizzes/${pruebaFinal.id}/attempts/${currentUser.id}`,
           { headers: { ...authHeaders } }
         );
         const data = await res.json();
-        
+
         // data.nota_maxima es la mejor nota del usuario en este módulo
         setNotaMaximaModulo(
           typeof data.nota_maxima === "number" ? data.nota_maxima : null
@@ -156,7 +165,7 @@ export default function ViewContentCourse() {
         setNotaMaximaModulo(null);
       }
     }
-    
+
     fetchNotaMaximaModulo();
   }, [modulo, currentUser, pruebaFinal]);
 
@@ -169,11 +178,11 @@ export default function ViewContentCourse() {
           { headers: { ...authHeaders } }
         );
         const data = await res.json();
-        
+
         // Ordenar por orden
         const ordenados = Array.isArray(data) ? [...data] : [];
         ordenados.sort((a, b) => (a.orden || 0) - (b.orden || 0));
-        
+
         setModulosCurso(ordenados);
       } catch (err) {
         console.error("Error al obtener los modulos del curso", err);
@@ -219,16 +228,16 @@ export default function ViewContentCourse() {
         return;
       }
 
+      const newItem = {
+        id: data.id,  // Ya no necesitamos || data.insertId
+        titulo: formData.title,
+        link: data.fileLink,
+      };
+
       if (isRecordingUpload) {
-        setGrabaciones((prev) => [
-          ...prev,
-          { id: Date.now(), titulo: formData.title, link: data.fileLink, inicio: null },
-        ]);
+        setGrabaciones((prev) => [...prev, newItem]);
       } else {
-        setContenido((prev) => [
-          ...prev,
-          { id: Date.now(), titulo: formData.title, link: data.fileLink },
-        ]);
+        setContenido((prev) => [...prev, newItem]);
       }
     } catch (err) {
       console.error("Error al subir:", err);
@@ -244,11 +253,14 @@ export default function ViewContentCourse() {
             ? pruebaData.preguntas
             : JSON.stringify(pruebaData.preguntas),
       };
-      const res = await fetch(`https://server-mot.onrender.com/modules/${modulo.id}/quizzes`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json", ...authHeaders },
-        body: JSON.stringify(payload),
-      });
+      const res = await fetch(
+        `https://server-mot.onrender.com/modules/${modulo.id}/quizzes`,
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json", ...authHeaders },
+          body: JSON.stringify(payload),
+        }
+      );
       const data = await res.json();
       if (data.success) {
         const pruebaRes = await fetch(
@@ -317,13 +329,13 @@ export default function ViewContentCourse() {
   // 🆕 Marcar contenido como visto (solo si NO hay prueba final)
   const handleContenidoVisto = async () => {
     if (actualizandoProgreso) return;
-    
+
     // Si hay prueba final, el estudiante debe aprobarla primero
     if (pruebaFinal) {
       alert("Debes aprobar la prueba final para avanzar al siguiente módulo.");
       return;
     }
-    
+
     setActualizandoProgreso(true);
 
     try {
@@ -333,7 +345,8 @@ export default function ViewContentCourse() {
       }
 
       const idxActual = modulosCurso.findIndex((m) => m.id === modulo.id);
-      const siguienteModulo = idxActual !== -1 ? modulosCurso[idxActual + 1] : undefined;
+      const siguienteModulo =
+        idxActual !== -1 ? modulosCurso[idxActual + 1] : undefined;
 
       if (siguienteModulo) {
         const progressRes = await fetch(
@@ -345,13 +358,13 @@ export default function ViewContentCourse() {
               id_usuario: currentUser.id,
               id_modulo_actual: siguienteModulo.id,
               nota_maxima: null, // Sin nota porque no hay prueba
-              modulo_anterior: modulo.id
+              modulo_anterior: modulo.id,
             }),
           }
         );
-        
+
         const progressData = await progressRes.json();
-        
+
         if (progressData.success) {
           alert("¡Progreso actualizado! Puedes avanzar al siguiente módulo.");
           setContenidoVisto(true);
@@ -374,19 +387,26 @@ export default function ViewContentCourse() {
     return (
       <div className={styles.container}>
         <p className={styles.message}>No se encontró información del módulo.</p>
-        <button className={styles.backButton} onClick={() => navigate("/instructorNav")}>
+        <button
+          className={styles.backButton}
+          onClick={() => navigate("/instructorNav")}
+        >
           <FaArrowLeft />
         </button>
       </div>
     );
   }
 
-  if (loading) return <div className={styles.container}>Cargando contenido del módulo...</div>;
+  if (loading)
+    return (
+      <div className={styles.container}>Cargando contenido del módulo...</div>
+    );
 
   const shouldShowAddButton = () => {
     if (currentUser?.rol !== "profesor") return false;
     if (activeTab === "contenido") return true;
-    if (activeTab === "grabaciones" && modulo.tipoCurso === "pregrabado") return true;
+    if (activeTab === "grabaciones" && modulo.tipoCurso === "pregrabado")
+      return true;
     return false;
   };
 
@@ -400,17 +420,25 @@ export default function ViewContentCourse() {
   return (
     <div className={styles.container}>
       <h1 className={styles.title}>{modulo.nombre}</h1>
-      {modulo.descripcion && <p className={styles.text}><strong>Descripción:</strong> {modulo.descripcion}</p>}
+      {modulo.descripcion && (
+        <p className={styles.text}>
+          <strong>Descripción:</strong> {modulo.descripcion}
+        </p>
+      )}
 
       <div className={styles.tabContainer}>
         <button
-          className={`${styles.tabButton} ${activeTab === "contenido" ? styles.active : ""}`}
+          className={`${styles.tabButton} ${
+            activeTab === "contenido" ? styles.active : ""
+          }`}
           onClick={() => setActiveTab("contenido")}
         >
           Contenido
         </button>
         <button
-          className={`${styles.tabButton} ${activeTab === "grabaciones" ? styles.active : ""}`}
+          className={`${styles.tabButton} ${
+            activeTab === "grabaciones" ? styles.active : ""
+          }`}
           onClick={() => setActiveTab("grabaciones")}
         >
           Grabaciones
@@ -419,7 +447,9 @@ export default function ViewContentCourse() {
 
       <div className={styles.section}>
         <h2 className={styles.subtitle}>
-          {activeTab === "contenido" ? "Contenido del módulo" : "Grabaciones del módulo"}
+          {activeTab === "contenido"
+            ? "Contenido del módulo"
+            : "Grabaciones del módulo"}
         </h2>
         <ContentList
           contenido={contenido}
@@ -429,7 +459,10 @@ export default function ViewContentCourse() {
           onEdit={(item, type) => setModalData({ type, item })}
         />
         {shouldShowAddButton() && (
-          <button className={styles.iconButton} onClick={() => setShowUploadModal(true)}>
+          <button
+            className={styles.iconButton}
+            onClick={() => setShowUploadModal(true)}
+          >
             <FaPlus />
           </button>
         )}
@@ -440,17 +473,26 @@ export default function ViewContentCourse() {
       </button>
 
       {currentUser?.rol === "profesor" && !pruebaFinal && (
-        <button onClick={() => setShowCrearPrueba(true)} className={styles.iconButton}>
+        <button
+          onClick={() => setShowCrearPrueba(true)}
+          className={styles.iconButton}
+        >
           <FaFileAlt />
         </button>
       )}
       {currentUser?.rol === "profesor" && pruebaFinal && (
-        <button onClick={() => setShowEditarPrueba(true)} className={styles.iconButton}>
+        <button
+          onClick={() => setShowEditarPrueba(true)}
+          className={styles.iconButton}
+        >
           <FaPen />
         </button>
       )}
       {currentUser?.rol === "estudiante" && pruebaFinal && (
-        <button onClick={() => setShowResponderPrueba(true)} className={styles.iconButton}>
+        <button
+          onClick={() => setShowResponderPrueba(true)}
+          className={styles.iconButton}
+        >
           <FaCheck />
         </button>
       )}
@@ -464,7 +506,11 @@ export default function ViewContentCourse() {
         />
       )}
       {showEditarPrueba && (
-        <ModalEditarPruebaFinal prueba={pruebaFinal} onClose={() => setShowEditarPrueba(false)} onEdit={handleEditarPrueba} />
+        <ModalEditarPruebaFinal
+          prueba={pruebaFinal}
+          onClose={() => setShowEditarPrueba(false)}
+          onEdit={handleEditarPrueba}
+        />
       )}
       {showResponderPrueba && (
         <ModalResponderPruebaFinal
@@ -489,16 +535,21 @@ export default function ViewContentCourse() {
         <UploadContentCourse
           onClose={() => setShowUploadModal(false)}
           onSubmit={handleUpload}
-          isRecording={activeTab === "grabaciones" && modulo.tipoCurso === "pregrabado"}
+          isRecording={
+            activeTab === "grabaciones" && modulo.tipoCurso === "pregrabado"
+          }
         />
       )}
 
       {/* 🆕 Mostrar nota máxima del módulo actual (solo si hay prueba) */}
-      {currentUser?.rol === "estudiante" && pruebaFinal && notaMaximaModulo !== null && (
-        <div className={styles.notaMaxima}>
-          <strong>Tu mejor nota en este módulo:</strong> {notaMaximaModulo.toFixed(1)}
-        </div>
-      )}
+      {currentUser?.rol === "estudiante" &&
+        pruebaFinal &&
+        notaMaximaModulo !== null && (
+          <div className={styles.notaMaxima}>
+            <strong>Tu mejor nota en este módulo:</strong>{" "}
+            {notaMaximaModulo.toFixed(1)}
+          </div>
+        )}
 
       {/* 🆕 Checkbox solo si NO hay prueba final */}
       {currentUser?.rol === "estudiante" && !pruebaFinal && (
