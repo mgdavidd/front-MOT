@@ -41,12 +41,34 @@ export default function ModulesCourse() {
       );
       const data = await response.json();
 
-      // Usar el mismo formato para ambos roles
-      setModules(Array.isArray(data) ? data : []);
-      
-      // Si necesitas progreso solo para estudiantes
+      const rawModules = Array.isArray(data) ? data : [];
+
+      // Normalizar módulos: asegurar id number, campo 'desbloqueado' esperado por el frontend,
+      // title, y mantener isCurrent si viene del backend.
+      const normalized = rawModules.map((m) => ({
+        ...m,
+        id: Number(m.id),
+        id_curso: m.id_curso !== undefined ? Number(m.id_curso) : m.id_curso,
+        orden: m.orden !== undefined ? Number(m.orden) : m.orden,
+        desbloqueado: m.accessible ?? m.desbloqueado ?? false,
+        title: m.title ?? m.nombre,
+      }));
+
+      // Si no existe progreso (ningún módulo marcado como isCurrent) y ningún módulo está desbloqueado,
+      // desbloquear el primer módulo para mejorar UX.
+      const hasCurrent = normalized.some((m) => m.isCurrent);
+      const anyUnlocked = normalized.some((m) => m.desbloqueado);
+
+      if (!hasCurrent && !anyUnlocked && normalized.length > 0 && currentUser.rol === "estudiante") {
+        normalized[0].desbloqueado = true;
+      }
+
+      setModules(normalized);
+
+      // Calcular progresoActual para usar en la UI (progresoActual.id_modulo_actual)
       if (currentUser.rol === "estudiante") {
-        setProgresoActual(data.progresoActual || null);
+        const current = normalized.find((m) => m.isCurrent) || normalized.find((m) => m.desbloqueado);
+        setProgresoActual(current ? { id_modulo_actual: current.id } : null);
       }
     } catch (err) {
       console.error("Error fetching modules:", err);
