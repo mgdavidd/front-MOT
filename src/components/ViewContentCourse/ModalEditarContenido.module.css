@@ -42,18 +42,32 @@
 
 .actions {
   display: flex;
-  justify-content: space-between;
+  flex-direction: column; /* Cambiar a columna en dispositivos pequeños */
   gap: 0.5rem;
+  width: 100%; /* Asegurar que ocupe todo el ancho disponible */
 }
 
 .actions button {
-  flex: 1;
-  padding: 0.5rem;
+  width: 100%; /* Hacer que los botones ocupen todo el ancho */
+  padding: 0.8rem;
   font-size: 1rem;
   border-radius: 4px;
   border: none;
   cursor: pointer;
   transition: background 0.2s ease;
+  white-space: nowrap; /* Evitar que el texto se rompa */
+}
+
+/* Media query para pantallas más grandes */
+@media (min-width: 480px) {
+  .actions {
+    flex-direction: row; /* Volver a fila en pantallas más grandes */
+    justify-content: space-between;
+  }
+
+  .actions button {
+    flex: 1; /* Distribuir el espacio equitativamente */
+  }
 }
 
 /* Botón guardar (azul) */

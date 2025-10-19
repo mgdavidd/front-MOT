@@ -41,11 +41,12 @@ export default function ModulesCourse() {
       );
       const data = await response.json();
 
+      // Usar el mismo formato para ambos roles
+      setModules(Array.isArray(data) ? data : []);
+      
+      // Si necesitas progreso solo para estudiantes
       if (currentUser.rol === "estudiante") {
-        setModules(data.result || []);
         setProgresoActual(data.progresoActual || null);
-      } else {
-        setModules(data || []);
       }
     } catch (err) {
       console.error("Error fetching modules:", err);
