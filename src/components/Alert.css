@@ -9,7 +9,7 @@
   display: flex;
   justify-content: center;
   align-items: center;
-  z-index: 1000;
+  z-index: 10000;
 }
 
 /* Alert Modal */
@@ -67,6 +67,14 @@
   line-height: 1.5;
 }
 
+/* Alert Buttons Container */
+.alert-buttons {
+  display: flex;
+  gap: 1rem;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
 /* Alert Button */
 .alert-button {
   padding: 0.6rem 1.5rem;
@@ -115,6 +123,26 @@
   background-color: #2980b9;
 }
 
+/* Cancel Button */
+.alert-button-cancel {
+  background-color: #95a5a6;
+  color: white;
+}
+
+.alert-button-cancel:hover {
+  background-color: #7f8c8d;
+}
+
+/* Confirm Button */
+.alert-button-confirm {
+  background-color: #e74c3c;
+  color: white;
+}
+
+.alert-button-confirm:hover {
+  background-color: #c0392b;
+}
+
 /* Responsive */
 @media (max-width: 480px) {
   .alert-modal {
@@ -133,5 +161,10 @@
   .alert-button {
     font-size: 0.95rem;
     padding: 0.5rem 1rem;
+    min-width: 100px;
+  }
+
+  .alert-buttons {
+    gap: 0.5rem;
   }
 }

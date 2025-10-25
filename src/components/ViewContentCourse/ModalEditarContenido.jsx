@@ -6,7 +6,7 @@ import Alert from "../Alert";
 export default function ModalEditarContenido({ item, type, onClose, onSuccess }) {
   const [titulo, setTitulo] = useState(item?.titulo ?? item?.title ?? "");
   const [loading, setLoading] = useState(false);
-  const [alert, setAlert] = useState({ isOpen: false, title: "", message: "", type: "info" });
+  const [alert, setAlert] = useState({ isOpen: false, title: "", message: "", type: "info", showConfirm: false });
 
   const token = Cookies.get("token");
   const authHeader = token ? { Authorization: `Bearer ${token}` } : {};
@@ -42,7 +42,8 @@ export default function ModalEditarContenido({ item, type, onClose, onSuccess })
           isOpen: true,
           title: "Éxito",
           message: "Cambios guardados correctamente",
-          type: "success"
+          type: "success",
+          showConfirm: false
         });
         onSuccess({ ...item, titulo });
         setTimeout(() => onClose(), 1500);
@@ -51,7 +52,8 @@ export default function ModalEditarContenido({ item, type, onClose, onSuccess })
           isOpen: true,
           title: "Error",
           message: data.error || "Error al guardar",
-          type: "error"
+          type: "error",
+          showConfirm: false
         });
       }
     } catch (error) {
@@ -60,18 +62,19 @@ export default function ModalEditarContenido({ item, type, onClose, onSuccess })
         isOpen: true,
         title: "Error",
         message: "Hubo un error al actualizar.",
-        type: "error"
+        type: "error",
+        showConfirm: false
       });
     } finally {
       setLoading(false);
     }
   };
 
-  const handleDelete = async () => {
+  const handleDeleteClick = () => {
     setAlert({
       isOpen: true,
       title: "Confirmar eliminación",
-      message: "¿Seguro que quieres eliminar este elemento?",
+      message: "¿Seguro que quieres eliminar este elemento? Esta acción no se puede deshacer.",
       type: "warning",
       showConfirm: true
     });
@@ -101,7 +104,8 @@ export default function ModalEditarContenido({ item, type, onClose, onSuccess })
           isOpen: true,
           title: "Éxito",
           message: "Elemento eliminado correctamente",
-          type: "success"
+          type: "success",
+          showConfirm: false
         });
         onSuccess({ ...item, deleted: true });
         setTimeout(() => onClose(), 1500);
@@ -110,7 +114,8 @@ export default function ModalEditarContenido({ item, type, onClose, onSuccess })
           isOpen: true,
           title: "Error",
           message: data.error || "Error al eliminar",
-          type: "error"
+          type: "error",
+          showConfirm: false
         });
       }
     } catch (error) {
@@ -119,7 +124,8 @@ export default function ModalEditarContenido({ item, type, onClose, onSuccess })
         isOpen: true,
         title: "Error",
         message: "Hubo un error al eliminar.",
-        type: "error"
+        type: "error",
+        showConfirm: false
       });
     } finally {
       setLoading(false);
@@ -141,7 +147,7 @@ export default function ModalEditarContenido({ item, type, onClose, onSuccess })
             <button onClick={handleSubmit} disabled={loading}>
               {loading ? "Guardando..." : "Guardar"}
             </button>
-            <button onClick={handleDelete} className={styles.deleteButton} disabled={loading}>
+            <button onClick={handleDeleteClick} className={styles.deleteButton} disabled={loading}>
               {loading ? "Eliminando..." : "Eliminar"}
             </button>
             <button onClick={onClose} disabled={loading}>
@@ -156,15 +162,11 @@ export default function ModalEditarContenido({ item, type, onClose, onSuccess })
         title={alert.title}
         message={alert.message}
         type={alert.type}
-        onClose={() => {
-          if (alert.showConfirm) {
-            setAlert({ isOpen: false, title: "", message: "", type: "info" });
-          } else {
-            setAlert({ isOpen: false, title: "", message: "", type: "info" });
-          }
-        }}
+        onClose={() => setAlert({ isOpen: false, title: "", message: "", type: "info", showConfirm: false })}
         onConfirm={alert.showConfirm ? confirmDelete : undefined}
         autoCloseTime={alert.showConfirm ? 0 : 4000}
+        confirmText="Eliminar"
+        cancelText="Cancelar"
       />
     </>
   );

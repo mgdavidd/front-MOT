@@ -210,14 +210,16 @@ export default function ModalResponderPruebaFinal({ prueba, onClose, modulo, cur
         </div>
       </div>
 
-      <Alert
-        isOpen={alert.isOpen}
-        title={alert.title}
-        message={alert.message}
-        type={alert.type}
-        onClose={() => setAlert({ isOpen: false, title: "", message: "", type: "info" })}
-        autoCloseTime={4000}
-      />
+      {alert.isOpen && (
+        <Alert
+          isOpen={alert.isOpen}
+          title={alert.title}
+          message={alert.message}
+          type={alert.type}
+          onClose={() => setAlert({ isOpen: false, title: "", message: "", type: "info" })}
+          autoCloseTime={4000}
+        />
+      )}
     </>
   );
 }
