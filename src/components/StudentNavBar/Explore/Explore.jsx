@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import Cookies from "js-cookie";
-import Alert from "./Alert";
 import styles from "./CoursesList.module.css";
+import Alert from "../../Alert";
 
 export default function CoursesList() {
   const [courses, setCourses] = useState([]);
