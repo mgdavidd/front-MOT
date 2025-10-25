@@ -42,23 +42,22 @@
 
 .actions {
   display: flex;
-  flex-direction: column; /* Cambiar a columna en dispositivos pequeños */
+  flex-direction: column;
   gap: 0.5rem;
-  width: 100%; /* Asegurar que ocupe todo el ancho disponible */
+  width: 100%;
 }
 
 .actions button {
-  width: 100%; /* Hacer que los botones ocupen todo el ancho */
+  width: 100%;
   padding: 0.8rem;
   font-size: 1rem;
   border-radius: 4px;
   border: none;
   cursor: pointer;
   transition: background 0.2s ease;
-  white-space: nowrap; /* Evitar que el texto se rompa */
+  white-space: nowrap;
 }
 
-/* Media query para pantallas más grandes */
 @media (min-width: 480px) {
   .actions {
     flex-direction: row; /* Volver a fila en pantallas más grandes */

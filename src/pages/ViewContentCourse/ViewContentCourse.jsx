@@ -18,6 +18,7 @@ import {
   FaComments,
   FaFileAlt,
 } from "react-icons/fa";
+import Alert from "../../components/Alert";
 
 export default function ViewContentCourse() {
   const navigate = useNavigate();
@@ -34,12 +35,13 @@ export default function ViewContentCourse() {
   const [showEditarPrueba, setShowEditarPrueba] = useState(false);
   const [showResponderPrueba, setShowResponderPrueba] = useState(false);
 
-  // 🆕 Nota máxima específica del módulo actual
   const [notaMaximaModulo, setNotaMaximaModulo] = useState(null);
 
   const [contenidoVisto, setContenidoVisto] = useState(false);
   const [actualizandoProgreso, setActualizandoProgreso] = useState(false);
   const [modulosCurso, setModulosCurso] = useState([]);
+  
+  const [alert, setAlert] = useState({ isOpen: false, title: "", message: "", type: "info" });
 
   const getCurrentUser = () => {
     try {
@@ -141,7 +143,6 @@ export default function ViewContentCourse() {
     }
   };
 
-  // 🆕 Obtener nota máxima específica del módulo actual
   useEffect(() => {
     async function fetchNotaMaximaModulo() {
       if (!currentUser || !modulo?.id || !pruebaFinal?.id) {
@@ -156,7 +157,6 @@ export default function ViewContentCourse() {
         );
         const data = await res.json();
 
-        // data.nota_maxima es la mejor nota del usuario en este módulo
         setNotaMaximaModulo(
           typeof data.nota_maxima === "number" ? data.nota_maxima : null
         );
@@ -179,7 +179,6 @@ export default function ViewContentCourse() {
         );
         const data = await res.json();
 
-        // Ordenar por orden
         const ordenados = Array.isArray(data) ? [...data] : [];
         ordenados.sort((a, b) => (a.orden || 0) - (b.orden || 0));
 
@@ -229,7 +228,7 @@ export default function ViewContentCourse() {
       }
 
       const newItem = {
-        id: data.id,  // Ya no necesitamos || data.insertId
+        id: data.id,
         titulo: formData.title,
         link: data.fileLink,
       };
@@ -326,13 +325,16 @@ export default function ViewContentCourse() {
     }
   };
 
-  // 🆕 Marcar contenido como visto (solo si NO hay prueba final)
   const handleContenidoVisto = async () => {
     if (actualizandoProgreso) return;
 
-    // Si hay prueba final, el estudiante debe aprobarla primero
     if (pruebaFinal) {
-      alert("Debes aprobar la prueba final para avanzar al siguiente módulo.");
+      setAlert({
+        isOpen: true,
+        title: "Información",
+        message: "Debes aprobar la prueba final para avanzar al siguiente módulo.",
+        type: "info"
+      });
       return;
     }
 
@@ -340,7 +342,12 @@ export default function ViewContentCourse() {
 
     try {
       if (!modulosCurso || modulosCurso.length === 0) {
-        alert("No se encontraron módulos para este curso.");
+        setAlert({
+          isOpen: true,
+          title: "Error",
+          message: "No se encontraron módulos para este curso.",
+          type: "error"
+        });
         return;
       }
 
@@ -357,7 +364,7 @@ export default function ViewContentCourse() {
             body: JSON.stringify({
               id_usuario: currentUser.id,
               id_modulo_actual: siguienteModulo.id,
-              nota_maxima: null, // Sin nota porque no hay prueba
+              nota_maxima: null,
               modulo_anterior: modulo.id,
             }),
           }
@@ -366,18 +373,38 @@ export default function ViewContentCourse() {
         const progressData = await progressRes.json();
 
         if (progressData.success) {
-          alert("¡Progreso actualizado! Puedes avanzar al siguiente módulo.");
+          setAlert({
+            isOpen: true,
+            title: "Éxito",
+            message: "¡Progreso actualizado! Puedes avanzar al siguiente módulo.",
+            type: "success"
+          });
           setContenidoVisto(true);
         } else {
-          alert(progressData.error || "Error actualizando el progreso.");
+          setAlert({
+            isOpen: true,
+            title: "Error",
+            message: progressData.error || "Error actualizando el progreso.",
+            type: "error"
+          });
         }
       } else {
-        alert("¡Felicidades! Has completado el curso.");
+        setAlert({
+          isOpen: true,
+          title: "¡Éxito!",
+          message: "¡Felicidades! Has completado el curso.",
+          type: "success"
+        });
         setContenidoVisto(true);
       }
     } catch (err) {
       console.error(err);
-      alert("Error actualizando el progreso.");
+      setAlert({
+        isOpen: true,
+        title: "Error",
+        message: "Error actualizando el progreso.",
+        type: "error"
+      });
     } finally {
       setActualizandoProgreso(false);
     }
@@ -541,7 +568,6 @@ export default function ViewContentCourse() {
         />
       )}
 
-      {/* 🆕 Mostrar nota máxima del módulo actual (solo si hay prueba) */}
       {currentUser?.rol === "estudiante" &&
         pruebaFinal &&
         notaMaximaModulo !== null && (
@@ -551,7 +577,6 @@ export default function ViewContentCourse() {
           </div>
         )}
 
-      {/* 🆕 Checkbox solo si NO hay prueba final */}
       {currentUser?.rol === "estudiante" && !pruebaFinal && (
         <div style={{ marginTop: "2rem" }}>
           <label>
@@ -576,6 +601,15 @@ export default function ViewContentCourse() {
       >
         <FaComments />
       </button>
+
+      <Alert
+        isOpen={alert.isOpen}
+        title={alert.title}
+        message={alert.message}
+        type={alert.type}
+        onClose={() => setAlert({ isOpen: false, title: "", message: "", type: "info" })}
+        autoCloseTime={4000}
+      />
     </div>
   );
 }

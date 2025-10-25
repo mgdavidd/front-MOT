@@ -1,9 +1,12 @@
 import React, { useState } from "react";
 import styles from "./ModalEditarContenido.module.css";
-import Cookies from "js-cookie"
+import Cookies from "js-cookie";
+import Alert from "../Alert";
+
 export default function ModalEditarContenido({ item, type, onClose, onSuccess }) {
   const [titulo, setTitulo] = useState(item?.titulo ?? item?.title ?? "");
   const [loading, setLoading] = useState(false);
+  const [alert, setAlert] = useState({ isOpen: false, title: "", message: "", type: "info" });
 
   const token = Cookies.get("token");
   const authHeader = token ? { Authorization: `Bearer ${token}` } : {};
@@ -35,21 +38,46 @@ export default function ModalEditarContenido({ item, type, onClose, onSuccess })
       console.log("ModalEditarContenido: response", res.status, data);
 
       if (res.ok && (data.success || data.message)) {
+        setAlert({
+          isOpen: true,
+          title: "Éxito",
+          message: "Cambios guardados correctamente",
+          type: "success"
+        });
         onSuccess({ ...item, titulo });
-        onClose();
+        setTimeout(() => onClose(), 1500);
       } else {
-        alert(data.error || "Error al guardar");
+        setAlert({
+          isOpen: true,
+          title: "Error",
+          message: data.error || "Error al guardar",
+          type: "error"
+        });
       }
     } catch (error) {
       console.error("Error al actualizar:", error);
-      alert("Hubo un error al actualizar.");
+      setAlert({
+        isOpen: true,
+        title: "Error",
+        message: "Hubo un error al actualizar.",
+        type: "error"
+      });
     } finally {
       setLoading(false);
     }
   };
 
   const handleDelete = async () => {
-    if (!window.confirm("¿Seguro que quieres eliminar este elemento?")) return;
+    setAlert({
+      isOpen: true,
+      title: "Confirmar eliminación",
+      message: "¿Seguro que quieres eliminar este elemento?",
+      type: "warning",
+      showConfirm: true
+    });
+  };
+
+  const confirmDelete = async () => {
     setLoading(true);
     try {
       const endpoint =
@@ -69,41 +97,75 @@ export default function ModalEditarContenido({ item, type, onClose, onSuccess })
       console.log("ModalEditarContenido: delete response", res.status, data);
 
       if (res.ok && (data.success || data.message)) {
+        setAlert({
+          isOpen: true,
+          title: "Éxito",
+          message: "Elemento eliminado correctamente",
+          type: "success"
+        });
         onSuccess({ ...item, deleted: true });
-        onClose();
+        setTimeout(() => onClose(), 1500);
       } else {
-        alert(data.error || "Error al eliminar");
+        setAlert({
+          isOpen: true,
+          title: "Error",
+          message: data.error || "Error al eliminar",
+          type: "error"
+        });
       }
     } catch (error) {
       console.error("Error al eliminar:", error);
-      alert("Hubo un error al eliminar.");
+      setAlert({
+        isOpen: true,
+        title: "Error",
+        message: "Hubo un error al eliminar.",
+        type: "error"
+      });
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <div className={styles.overlay}>
-      <div className={styles.modal}>
-        <h2>{type === "grabacion" ? "Editar Grabación" : "Editar Contenido"}</h2>
-        <input
-          value={titulo}
-          onChange={(e) => setTitulo(e.target.value)}
-          placeholder="Nuevo título"
-          disabled={loading}
-        />
-        <div className={styles.actions}>
-          <button onClick={handleSubmit} disabled={loading}>
-            {loading ? "Guardando..." : "Guardar"}
-          </button>
-          <button onClick={handleDelete} className={styles.deleteButton} disabled={loading}>
-            {loading ? "Eliminando..." : "Eliminar"}
-          </button>
-          <button onClick={onClose} disabled={loading}>
-            Cancelar
-          </button>
+    <>
+      <div className={styles.overlay}>
+        <div className={styles.modal}>
+          <h2>{type === "grabacion" ? "Editar Grabación" : "Editar Contenido"}</h2>
+          <input
+            value={titulo}
+            onChange={(e) => setTitulo(e.target.value)}
+            placeholder="Nuevo título"
+            disabled={loading}
+          />
+          <div className={styles.actions}>
+            <button onClick={handleSubmit} disabled={loading}>
+              {loading ? "Guardando..." : "Guardar"}
+            </button>
+            <button onClick={handleDelete} className={styles.deleteButton} disabled={loading}>
+              {loading ? "Eliminando..." : "Eliminar"}
+            </button>
+            <button onClick={onClose} disabled={loading}>
+              Cancelar
+            </button>
+          </div>
         </div>
       </div>
-    </div>
+
+      <Alert
+        isOpen={alert.isOpen}
+        title={alert.title}
+        message={alert.message}
+        type={alert.type}
+        onClose={() => {
+          if (alert.showConfirm) {
+            setAlert({ isOpen: false, title: "", message: "", type: "info" });
+          } else {
+            setAlert({ isOpen: false, title: "", message: "", type: "info" });
+          }
+        }}
+        onConfirm={alert.showConfirm ? confirmDelete : undefined}
+        autoCloseTime={alert.showConfirm ? 0 : 4000}
+      />
+    </>
   );
 }

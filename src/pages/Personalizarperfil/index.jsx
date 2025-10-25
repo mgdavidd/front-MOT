@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import Cookies from "js-cookie";
 import styles from "./style.module.css";
 import Logo from "../../components/Logo";
+import Alert from "../../components/Alert";
 
 const coloresPastel = [
   "#42A5F5",
@@ -23,10 +24,11 @@ export default function EditarPerfil() {
     color_perfil: "#42A5F5",
     id: null,
     area: "",
-    fotoPerfil: "", // solo en memoria, no en cookie
+    fotoPerfil: "",
   });
   const [isLoading, setIsLoading] = useState(false);
   const [selectedImage, setSelectedImage] = useState(null);
+  const [alert, setAlert] = useState({ isOpen: false, title: "", message: "", type: "info" });
 
   useEffect(() => {
     const loadUserData = async () => {
@@ -88,12 +90,22 @@ export default function EditarPerfil() {
     const archivo = e.target.files[0];
     if (archivo) {
       if (archivo.size > 5 * 1024 * 1024) {
-        alert("La imagen es demasiado grande. Menor a 5MB.");
+        setAlert({
+          isOpen: true,
+          title: "Error",
+          message: "La imagen es demasiado grande. Menor a 5MB.",
+          type: "error"
+        });
         return;
       }
 
       if (!archivo.type.startsWith("image/")) {
-        alert("Por favor, selecciona un archivo de imagen válido.");
+        setAlert({
+          isOpen: true,
+          title: "Error",
+          message: "Por favor, selecciona un archivo de imagen válido.",
+          type: "error"
+        });
         return;
       }
 
@@ -116,7 +128,15 @@ export default function EditarPerfil() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!formData.id) return alert("Usuario no identificado");
+    if (!formData.id) {
+      setAlert({
+        isOpen: true,
+        title: "Error",
+        message: "Usuario no identificado",
+        type: "error"
+      });
+      return;
+    }
     setIsLoading(true);
 
     try {
@@ -153,11 +173,24 @@ export default function EditarPerfil() {
 
       Cookies.set("user", JSON.stringify(updatedUserForCookie), { expires: 7 });
 
-      alert("Perfil actualizado correctamente");
-      navigate("/instructorNav");
+      setAlert({
+        isOpen: true,
+        title: "Éxito",
+        message: "Perfil actualizado correctamente",
+        type: "success"
+      });
+
+      setTimeout(() => {
+        navigate("/instructorNav");
+      }, 1500);
     } catch (err) {
       console.error("Error completo:", err);
-      alert(err.message || "Error en la conexión");
+      setAlert({
+        isOpen: true,
+        title: "Error",
+        message: err.message || "Error en la conexión",
+        type: "error"
+      });
     } finally {
       setIsLoading(false);
     }
@@ -218,7 +251,6 @@ export default function EditarPerfil() {
       </header>
 
       <form className={styles.cardSmall} onSubmit={handleSubmit}>
-        {/* Foto de perfil */}
         <div className={styles.group}>
           <label className={styles.label}>Foto de perfil</label>
           <div className={styles.profilePhotoSection}>
@@ -296,7 +328,6 @@ export default function EditarPerfil() {
           />
         </div>
 
-        {/* Área con select fijo */}
         <div className={styles.group}>
           <label className={styles.label}>Área</label>
           <select
@@ -373,6 +404,15 @@ export default function EditarPerfil() {
           {isLoading ? "Guardando..." : "Guardar Cambios"}
         </button>
       </form>
+
+      <Alert
+        isOpen={alert.isOpen}
+        title={alert.title}
+        message={alert.message}
+        type={alert.type}
+        onClose={() => setAlert({ isOpen: false, title: "", message: "", type: "info" })}
+        autoCloseTime={4000}
+      />
     </div>
   );
 }

@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import Cookies from "js-cookie";
+import Alert from "./Alert";
 import styles from "./CoursesList.module.css";
 
 export default function CoursesList() {
@@ -8,6 +9,7 @@ export default function CoursesList() {
   const [selectedCourse, setSelectedCourse] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [alert, setAlert] = useState({ isOpen: false, title: "", message: "", type: "info" });
 
   const handleInscripcion = () => {
     if (!selectedCourse) return;
@@ -27,12 +29,13 @@ export default function CoursesList() {
       .then((response) => response.json())
       .then((data) => {
         if (data.success) {
-          alert("Bienvenido a tu nuevo curso");
-          setSelectedCourse(null); // cerrar modal
+          setAlert({ isOpen: true, title: "Éxito", message: "Bienvenido a tu nuevo curso", type: "success" });
+          setSelectedCourse(null);
         }
       })
       .catch((error) => {
         console.error("Error al inscribir al curso:", error);
+        setAlert({ isOpen: true, title: "Error", message: "Error al inscribir al curso", type: "error" });
       });
   };
 
@@ -156,7 +159,6 @@ export default function CoursesList() {
           onClick={() => setSelectedCourse(null)}
         >
           <div className={styles.modal} onClick={(e) => e.stopPropagation()}>
-            {/* Header del Modal */}
             <div className={styles.modalHeader}>
               <h2 className={styles.modalTitle}>{selectedCourse.nombre}</h2>
               <button
@@ -167,9 +169,7 @@ export default function CoursesList() {
               </button>
             </div>
 
-            {/* Contenido del Modal */}
             <div className={styles.modalContent}>
-              {/* Contenedor para el video */}
               <div
                 className={`${styles.videoContainer} ${
                   !selectedCourse.videoUrl ? styles.fullscreen : ""
@@ -191,7 +191,6 @@ export default function CoursesList() {
                 )}
               </div>
 
-              {/* Información del curso */}
               <div className={styles.courseInfo}>
                 <p className={styles.modalDescription}>
                   {selectedCourse.descripcion}
@@ -210,7 +209,6 @@ export default function CoursesList() {
               </div>
             </div>
 
-            {/* Footer del Modal */}
             <div className={styles.modalFooter}>
               <button
                 className={styles.cancelBtn}
@@ -228,6 +226,15 @@ export default function CoursesList() {
           </div>
         </div>
       )}
+
+      <Alert
+        isOpen={alert.isOpen}
+        title={alert.title}
+        message={alert.message}
+        type={alert.type}
+        onClose={() => setAlert({ isOpen: false, title: "", message: "", type: "info" })}
+        autoCloseTime={4000}
+      />
     </div>
   );
 }

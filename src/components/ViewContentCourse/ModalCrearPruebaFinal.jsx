@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import styles from "./ModalPruebaFinal.module.css";
 import ModalGenerarConIA from "./ModalGenerarConIA";
+import Alert from "../Alert";
 
 export default function ModalCrearPruebaFinal({ onClose, onCreate, contenido, authHeaders }) {
   const [notaMinima, setNotaMinima] = useState(7);
@@ -9,6 +10,7 @@ export default function ModalCrearPruebaFinal({ onClose, onCreate, contenido, au
   ]);
   const [showModalIA, setShowModalIA] = useState(false);
   const [generandoIA, setGenerandoIA] = useState(false);
+  const [alert, setAlert] = useState({ isOpen: false, title: "", message: "", type: "info" });
 
   const addPregunta = () => {
     if (preguntas.length < 25)
@@ -64,7 +66,6 @@ export default function ModalCrearPruebaFinal({ onClose, onCreate, contenido, au
         throw new Error(data.error || "Error al generar preguntas");
       }
 
-      // Parsear las preguntas generadas
       let preguntasIA;
       try {
         let cleanJson = data.preguntas.trim();
@@ -78,11 +79,11 @@ export default function ModalCrearPruebaFinal({ onClose, onCreate, contenido, au
         if (!Array.isArray(preguntasIA) || preguntasIA.length === 0) {
           throw new Error("La IA no devolvió un listado de preguntas válido.");
         }
-        if (preguntasIA.length > 25) preguntasIA = preguntasIA.slice(0,25);
+        if (preguntasIA.length > 25) preguntasIA = preguntasIA.slice(0, 25);
 
         preguntasIA = preguntasIA.map((q) => {
           const texto = (q.texto || "").toString().trim();
-          const opciones = Array.isArray(q.opciones) ? q.opciones.map(o => (o||"").toString().trim()) : [];
+          const opciones = Array.isArray(q.opciones) ? q.opciones.map(o => (o || "").toString().trim()) : [];
 
           while (opciones.length < 3) opciones.push("Opción");
           if (opciones.length > 5) opciones.splice(5);
@@ -109,10 +110,20 @@ export default function ModalCrearPruebaFinal({ onClose, onCreate, contenido, au
           : parseFloat(config.nota_minima) || 0
       );
       setShowModalIA(false);
-      alert("¡Examen generado exitosamente! Revisa las preguntas antes de guardar.");
+      setAlert({
+        isOpen: true,
+        title: "Éxito",
+        message: "¡Examen generado exitosamente! Revisa las preguntas antes de guardar.",
+        type: "success"
+      });
     } catch (error) {
       console.error("Error generando con IA:", error);
-      alert(`Error: ${error.message}`);
+      setAlert({
+        isOpen: true,
+        title: "Error",
+        message: error.message,
+        type: "error"
+      });
     } finally {
       setGenerandoIA(false);
     }
@@ -122,18 +133,33 @@ export default function ModalCrearPruebaFinal({ onClose, onCreate, contenido, au
     e.preventDefault();
     
     if (preguntas.length === 0) {
-      alert("Debes agregar al menos una pregunta");
+      setAlert({
+        isOpen: true,
+        title: "Error",
+        message: "Debes agregar al menos una pregunta",
+        type: "error"
+      });
       return;
     }
 
     if (isNaN(notaMinima) || notaMinima < 0.1 || notaMinima > 10.0) {
-      alert("La nota mínima debe ser un número entre 0.1 y 10.0.");
+      setAlert({
+        isOpen: true,
+        title: "Error",
+        message: "La nota mínima debe ser un número entre 0.1 y 10.0.",
+        type: "error"
+      });
       return;
     }
 
     const preguntasVacias = preguntas.some(p => !p.texto.trim());
     if (preguntasVacias) {
-      alert("Todas las preguntas deben tener texto");
+      setAlert({
+        isOpen: true,
+        title: "Error",
+        message: "Todas las preguntas deben tener texto",
+        type: "error"
+      });
       return;
     }
 
@@ -141,7 +167,12 @@ export default function ModalCrearPruebaFinal({ onClose, onCreate, contenido, au
       p.opciones.some(op => !op.trim())
     );
     if (opcionesVacias) {
-      alert("Todas las opciones deben tener texto");
+      setAlert({
+        isOpen: true,
+        title: "Error",
+        message: "Todas las opciones deben tener texto",
+        type: "error"
+      });
       return;
     }
 
@@ -155,7 +186,6 @@ export default function ModalCrearPruebaFinal({ onClose, onCreate, contenido, au
         <div className={styles.modal}>
           <h2>Crear Prueba Final del Módulo</h2>
           
-          {/* Botón para generar con IA */}
           <div style={{ marginBottom: "1rem", textAlign: "center" }}>
             <button
               type="button"
@@ -184,7 +214,7 @@ export default function ModalCrearPruebaFinal({ onClose, onCreate, contenido, au
               type="number"
               min={0}
               max={10}
-              step={0.1} /* permitir decimales */
+              step={0.1}
               value={notaMinima}
               onChange={e => setNotaMinima(parseFloat(e.target.value))}
               required
@@ -240,7 +270,6 @@ export default function ModalCrearPruebaFinal({ onClose, onCreate, contenido, au
         </div>
       </div>
 
-      {/* Modal de generación con IA */}
       {showModalIA && (
         <ModalGenerarConIA
           onClose={() => setShowModalIA(false)}
@@ -249,6 +278,15 @@ export default function ModalCrearPruebaFinal({ onClose, onCreate, contenido, au
           authHeaders={authHeaders}
         />
       )}
+
+      <Alert
+        isOpen={alert.isOpen}
+        title={alert.title}
+        message={alert.message}
+        type={alert.type}
+        onClose={() => setAlert({ isOpen: false, title: "", message: "", type: "info" })}
+        autoCloseTime={4000}
+      />
     </>
   );
 }
